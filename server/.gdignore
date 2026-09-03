@@ -1,0 +1,1 @@
+# The root client project must not import the nested SSS Godot project.

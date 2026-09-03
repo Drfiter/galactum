@@ -1,0 +1,14 @@
+; Galactum TEAM3-M0 — local authoritative Solar System Server.
+; Run with: godot --headless --path server/sss
+
+config_version=5
+
+[application]
+
+config/name="Galactum SSS - TEAM3-M0"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.6")
+
+[debug]
+
+settings/stdout/print_fps=false

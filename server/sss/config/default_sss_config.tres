@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SssConfig" format=3]
+
+[ext_resource type="Script" path="res://config/sss_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+protocol_version = "team3-m0.1"
+port = 9100
+tick_hz = 2.0
+map_size = Vector2i(600, 600)

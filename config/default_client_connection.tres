@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ClientConnectionConfig" format=3]
+
+[ext_resource type="Script" path="res://config/client_connection_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+host = "127.0.0.1"
+port = 9100
+mock_token = "team3-m0-local-player"
+auto_connect = true
+auto_reconnect = true
+reconnect_delay_seconds = 2.0
+ping_interval_seconds = 5.0

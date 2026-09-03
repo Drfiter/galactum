@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MockWorldSeed" format=3]
+
+[ext_resource type="Script" path="res://mock/mock_world_seed.gd" id="1_seed"]
+
+[resource]
+script = ExtResource("1_seed")
+accepted_token = "team3-m0-local-player"
+system_id = "018f0000-0000-7000-8000-000000000003"
+player_id = "018f0000-0000-7000-8000-000000000001"
+ship_id = "018f0000-0000-7000-8000-000000000002"
+entity_id = "018f0000-0000-7000-8000-000000000004"
+ship_name = "M0 Dummy"
+ship_position = Vector2i(300, 300)
