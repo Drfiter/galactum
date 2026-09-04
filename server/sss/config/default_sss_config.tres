@@ -4,7 +4,9 @@
 
 [resource]
 script = ExtResource("1_config")
-protocol_version = "team3-m0.1"
+protocol_version = "team3-m1.0"
 port = 9100
 tick_hz = 2.0
 map_size = Vector2i(600, 600)
+spatial_cell_size = 50
+aoi_radius = 50

@@ -5,23 +5,58 @@ var system_id: String
 var map_size: Vector2i
 var tick_count: int = 0
 var server_time: int = 0
-var _ship: ShipState
+
+var _config: SssConfig
+var entity_registry: EntityRegistry
+var spatial_hash: SpatialHash
+var aoi_engine: AoiEngine
+
+## ChangeSet del último tick; perdura hasta el siguiente tick. Cada sesión filtra
+## su propia vista por AOI sin destruirlo.
+var change_set: WorldChangeSet
 
 
 func _init(config: SssConfig, seed: MockWorldSeed) -> void:
+	_config = config
 	system_id = seed.system_id
 	map_size = config.map_size
-	_ship = ShipState.new(seed)
+	entity_registry = EntityRegistry.new()
+	spatial_hash = SpatialHash.new(config.spatial_cell_size)
+	aoi_engine = AoiEngine.new(spatial_hash, config.aoi_radius)
+	change_set = WorldChangeSet.new()
 	_update_server_time()
+	# Sembrar mundo: nave del jugador + entidades extra del MockWorldSeed.
+	_register_ship_from_seed(seed)
+	for entry: Dictionary in seed.extra_entities():
+		var entity_id: String = str(entry.get("entity_id", ""))
+		if entity_id == "":
+			continue
+		var kind: String = str(entry.get("kind", "asteroid"))
+		var pos_arr: Array = entry.get("position", [0, 0])
+		var pos := Vector2i(
+			int(pos_arr[0]) if pos_arr.size() > 0 else 0,
+			int(pos_arr[1]) if pos_arr.size() > 1 else 0,
+		)
+		var payload: Dictionary = entry.get("payload", {})
+		_register_mock_entity(entity_id, kind, pos, payload)
 
 
 func tick() -> void:
 	tick_count += 1
 	_update_server_time()
+	# En M1 no hay simulación de movimiento: el ChangeSet se deja tal cual
+	# (tests de deltas lo manipulan directamente) y se limpia al inicio del
+	# siguiente tick con acknowledge_changes().
+	# No hay movimiento: sólo reloj y ChangeSet del tick previo.
+
+
+func acknowledge_changes() -> void:
+	change_set.clear()
 
 
 func full_snapshot_for(player_id: String) -> Dictionary:
-	if player_id != _ship.player_id:
+	var player_pos: Vector2i = _player_position(player_id)
+	if player_pos == Vector2i(-1, -1):
 		return {
 			"system_id": system_id,
 			"map_size": [map_size.x, map_size.y],
@@ -30,14 +65,125 @@ func full_snapshot_for(player_id: String) -> Dictionary:
 			"updated": [],
 			"removed": [],
 		}
+	var aoi_ids: Array = aoi_engine.entities_for(player_pos)
+	var added: Array = []
+	for eid: Variant in aoi_ids:
+		var entity: EntityState = entity_registry.get_entity(str(eid))
+		if entity != null:
+			added.append(entity.to_add_snapshot())
 	return {
 		"system_id": system_id,
 		"map_size": [map_size.x, map_size.y],
 		"full": true,
-		"added": [_ship.to_snapshot()],
+		"added": added,
 		"updated": [],
 		"removed": [],
 	}
+
+
+## Delta incremental para una sesión, filtrado por AOI. No drena el changeset.
+func delta_for(player_id: String) -> Dictionary:
+	if not change_set.has_changes():
+		return {}
+	var player_pos: Vector2i = _player_position(player_id)
+	if player_pos == Vector2i(-1, -1):
+		return {}
+	var aoi_ids: Dictionary = {}
+	for eid: Variant in aoi_engine.entities_for(player_pos):
+		aoi_ids[str(eid)] = true
+	var added_out: Array = []
+	var updated_out: Array = []
+	var removed_out: Array = []
+	# added: solo dentro del AOI del jugador
+	for entity: EntityState in change_set.added():
+		if aoi_ids.has(entity.entity_id):
+			added_out.append(entity.to_add_snapshot())
+	# updated: solo dentro del AOI
+	for entity: EntityState in change_set.updated():
+		if aoi_ids.has(entity.entity_id):
+			var snap: Dictionary = {"entity_id": entity.entity_id, "position": [entity.position.x, entity.position.y]}
+			for field: String in entity.payload.keys():
+				snap[field] = entity.payload[field]
+			updated_out.append(snap)
+	# removed: id único, solo si la posición eliminada caía dentro del AOI
+	for entry: Dictionary in change_set.removed():
+		var eid: String = str(entry.get("entity_id", ""))
+		var pos: Vector2i = entry.get("position", Vector2i(-1, -1))
+		if pos == Vector2i(-1, -1):
+			continue
+		if _is_in_aoi(pos, player_pos, _config.aoi_radius):
+			removed_out.append(eid)
+	if added_out.is_empty() and updated_out.is_empty() and removed_out.is_empty():
+		return {}
+	return {
+		"system_id": system_id,
+		"full": false,
+		"added": added_out,
+		"updated": updated_out,
+		"removed": removed_out,
+	}
+
+
+func _is_in_aoi(pos: Vector2i, aoc: Vector2i, radius: int) -> bool:
+	return abs(pos.x - aoc.x) <= radius and abs(pos.y - aoc.y) <= radius
+
+
+func add_mock_entity(entity_id: String, kind: String, position: Vector2i, payload: Dictionary = {}) -> void:
+	_register_mock_entity(entity_id, kind, position, payload)
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if entity != null:
+		change_set.add_entity(entity)
+
+
+func set_entity_position(entity_id: String, position: Vector2i) -> void:
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if entity == null:
+		return
+	var old: Vector2i = entity.position
+	if old == position:
+		return
+	entity.position = position
+	spatial_hash.move(entity_id, old, position)
+	change_set.update_entity(entity)
+
+
+func remove_mock_entity(entity_id: String) -> void:
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if entity == null:
+		return
+	var pos: Vector2i = entity.position
+	spatial_hash.remove(entity_id, pos)
+	entity_registry.erase(entity_id)
+	change_set.remove_entity(entity_id, pos)
+
+
+func _register_ship_from_seed(seed: MockWorldSeed) -> void:
+	var entity := EntityState.new(seed.entity_id, "ship", seed.ship_position)
+	entity.payload = {
+		"ship_id": seed.ship_id,
+		"player_id": seed.player_id,
+		"system_id": seed.system_id,
+		"display_name": seed.ship_name,
+	}
+	_register_entity(entity)
+
+
+func _register_mock_entity(entity_id: String, kind: String, position: Vector2i, payload: Dictionary) -> void:
+	var entity := EntityState.new(entity_id, kind, position)
+	entity.payload = payload.duplicate(true) if payload != null else {}
+	_register_entity(entity)
+
+
+func _register_entity(entity: EntityState) -> void:
+	entity_registry.add(entity)
+	spatial_hash.insert(entity.entity_id, entity.position)
+
+
+func _player_position(player_id: String) -> Vector2i:
+	for entity: EntityState in entity_registry.all():
+		if str(entity.payload.get("player_id", "")) == player_id:
+			return entity.position
+	return Vector2i(-1, -1)
 
 
 func _update_server_time() -> void:

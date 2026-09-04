@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root{ --fg:var(--foreground); --muted:var(--muted-foreground); --accent:var(--accent);
+         --border:var(--border); --card:var(--card);
+         --good:#2ecc71; --warn:#f1c40f; --bad:#ef4444; --blue:#38bdf8; }
+  *{box-sizing:border-box}
+  body{font-family:var(--font); color:var(--fg); background:transparent; margin:0; padding:0;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{padding:2px 0; max-width:680px;}
+  header{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:4px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .logo{width:34px; height:34px; border-radius:9px; flex:0 0 auto;
+        background:linear-gradient(135deg,var(--blue),#6366f1);
+        display:flex; align-items:center; justify-content:center;
+        color:#fff; font-size:16px; box-shadow:0 4px 14px rgba(56,189,248,.35);}
+  h1{font-size:19px; margin:0; font-weight:750; letter-spacing:-.01em; line-height:1.15;}
+  .sub{font-size:12px; color:var(--muted);}
+  .live{display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted);
+        background:var(--card); border:1px solid var(--border); padding:5px 10px; border-radius:20px;}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--good); box-shadow:0 0 0 0 rgba(46,204,113,.5); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 6px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
+
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0;}
+  .kpi{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:13px 14px;
+       position:relative; overflow:hidden; transition:transform .15s ease, box-shadow .15s ease;}
+  .kpi:hover{transform:translateY(-2px); box-shadow:0 8px 22px rgba(0,0,0,.10);}
+  .kpi::before{content:""; position:absolute; top:0; left:0; right:0; height:3px;}
+  .kpi.blue::before{background:linear-gradient(90deg,var(--blue),transparent);}
+  .kpi.green::before{background:linear-gradient(90deg,var(--good),transparent);}
+  .kpi.purple::before{background:linear-gradient(90deg,#6366f1,transparent);}
+  .kpi.red::before{background:linear-gradient(90deg,var(--bad),transparent);}
+  .kpi .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600;}
+  .kpi .val{font-size:23px; font-weight:800; margin-top:6px; letter-spacing:-.02em;}
+  .kpi .delta{font-size:11px; margin-top:3px; font-weight:600; display:flex; align-items:center; gap:3px;}
+  .up{color:var(--good)} .down{color:var(--bad)}
+
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:12px;
+         padding:16px; margin-bottom:12px;}
+  .panel h3{font-size:11px; margin:0 0 2px; letter-spacing:.06em; text-transform:uppercase;}
+  .p-hed{display:flex; align-items:center; gap:8px;}
+  .p-hed .ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto;}
+  .p-ico-red{background:rgba(239,68,68,.14);} .p-ico-blue{background:rgba(56,189,248,.14);} .p-ico-green{background:rgba(46,204,113,.14);}
+  .p-hed .cap{font-size:11px; color:var(--muted); margin-left:auto;}
+
+  table{width:100%; border-collapse:collapse; font-size:12px; margin-top:10px;}
+  th,td{text-align:left; padding:8px 8px; border-bottom:1px solid var(--border);}
+  th{color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.05em; font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(127,127,127,.05);}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:var(--muted);}
+  .pill{display:inline-block; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700;}
+  .p-ok{background:rgba(46,204,113,.14); color:var(--good);}
+  .p-warn{background:rgba(241,196,15,.15); color:var(--warn);}
+  .p-danger{background:rgba(239,68,68,.15); color:var(--bad);}
+
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .metric{display:flex; justify-content:space-between; align-items:baseline; font-size:11px; margin-bottom:5px;}
+  .metric b{font-size:12px;}
+  .bar{height:8px; border-radius:5px; background:rgba(127,127,127,.15); overflow:hidden; margin-bottom:12px;}
+  .bar>span{display:block; height:100%; border-radius:5px;
+            background:linear-gradient(90deg,var(--blue),#6366f1);}
+  .bar.good>span{background:linear-gradient(90deg,var(--good),#22c55e);}
+  .bar.warn>span{background:linear-gradient(90deg,var(--warn),#f97316);}
+
+  ul.tight{margin:8px 0 0; padding-left:18px; font-size:12px; line-height:1.6;}
+  .file{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:var(--blue);}
+  .k{display:inline-block;min-width:120px; font-size:11px; color:var(--muted);}
+  .status{display:flex; gap:10px; font-size:11px; margin-top:10px; color:var(--muted);}
+  .status span{display:flex;align-items:center;gap:5px;}
+  .chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;margin-right:6px;margin-bottom:4px;}
+  .c-new{background:rgba(56,189,248,.14); color:var(--blue);}
+  .c-mod{background:rgba(46,204,113,.14); color:var(--good);}
+  .c-no{background:rgba(127,127,127,.15); color:var(--muted);}
+  .notice{font-size:11px; color:var(--muted); display:flex; gap:8px; align-items:center;}
+  mark{background:rgba(241,196,15,.25); color:inherit; padding:0 3px; border-radius:3px; font-weight:600;}
+  @media(max-width:560px){ .kpis{grid-template-columns:repeat(2,1fr);} .two{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo">◈</div>
+      <div>
+        <h1>GALACTUM · TEAM3-M1</h1>
+        <div class="sub">SSS + Mundo + Sincronización &nbsp;•&nbsp; Plan de implementación</div>
+      </div>
+    </div>
+    <div class="live"><span class="dot"></span>Plan · awaiting approval</div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi blue"><div class="lbl">Branch</div><div class="val" style="font-size:17px">M1-SSS</div><div class="delta up">feature/team3-m1-sss-world</div></div>
+    <div class="kpi green"><div class="lbl">Tick rate</div><div class="val">2 Hz</div><div class="delta up">autoritativo SSS</div></div>
+    <div class="kpi purple"><div class="lbl">Mapa</div><div class="val">600²</div><div class="delta up">celdas grid</div></div>
+    <div class="kpi red"><div class="lbl">AOI</div><div class="val">50</div><div class="delta down">radio celdas</div></div>
+  </div>
+
+  <!-- OBJETIVO -->
+  <div class="panel">
+    <div class="p-hed"><div class="ico p-ico-blue">🎯</div><h3>Objetivo</h3><span class="cap">M0 → M1</span></div>
+    <div style="font-size:12px;margin-top:8px;line-height:1.6;">
+      Transformar el SSS desde <b>mundo mock + 1 nave dummy</b> hacia
+      <b>mundo lógico 600×600 + múltiples entidades + consultas espaciales + AOI + sincronización incremental</b>.
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+      <b>Sin romper M0.</b> Aún <b>no</b> movimiento jugable (eso es TEAM3-M2).
+    </div>
+  </div>
+
+  <!-- ESTADO ACTUAL M0 -->
+  <div class="panel">
+    <div class="p-hed"><div class="ico p-ico-green">✓</div><h3>Estado actual · SSS M0</h3><span class="cap">funciona</span></div>
+    <table>
+      <tr><th>Componente</th><th>Rol</th><th>Detalle</th></tr>
+      <tr><td class="mono">SolarSystemWorld</td><td>Mundo RefCounted</td><td>1 <b>ShipState</b> + tick + server_time</td></tr>
+      <tr><td class="mono">SssConfig</td><td>Config Resource</td><td>protocol=<span class="mono">team3-m0.1</span> · port 9100 · 2Hz · 600²</td></tr>
+      <tr><td class="mono">WebSocketGateway</td><td>Conexión</td><td>seq creciente · protocol · server_time</td></tr>
+      <tr><td class="mono">MockWorldSeed</td><td>Seed</td><td>ID separados · nave en (300,300)</td></tr>
+    </table>
+  </div>
+
+  <!-- ARQUITECTURA -->
+  <div class="panel">
+    <div class="p-hed"><div class="ico p-ico-blue">🧩</div><h3>Arquitectura propuesta del mundo</h3><span class="cap">composición, sin Autoloads</span></div>
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;margin-top:10px;line-height:1.7;color:var(--muted);">
+      SolarSystemWorld (RefCounted) · orquestador<br>
+      &nbsp;&nbsp;├── <span style="color:var(--blue)">EntityRegistry</span> · entidades + cambios<br>
+      &nbsp;&nbsp;├── <span style="color:var(--blue)">SpatialHash</span> &nbsp;&nbsp;&nbsp;· índice por celda {x,y}<br>
+      &nbsp;&nbsp;├── <span style="color:var(--blue)">AoiEngine</span> &nbsp;&nbsp;&nbsp;&nbsp;· posición + radio → ids<br>
+      &nbsp;&nbsp;├── <span style="color:var(--blue)">SnapshotBuilder</span> · added/updated/removed<br>
+      &nbsp;&nbsp;└── tick() → 2/s · delta pendiente<br>
+      <span style="color:var(--blue)">WebSocketGateway</span> (Node) · seq + last_seq por sesión
+    </div>
+  </div>
+
+  <!-- DISEÑOS -->
+  <div class="two">
+    <div class="panel">
+      <div class="p-hed"><div class="ico p-ico-green">🗃</div><h3>Entity Registry</h3></div>
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;margin-top:10px;line-height:1.7;color:var(--muted);">
+        <span class="mono">EntityState</span> · RefCounted<br>
+        entity_id · entity_type<br>
+        position · payload
+      </div>
+      <ul class="tight">
+        <li>add / get / update / erase</li>
+        <li>all() / ids() / count() / has()</li>
+        <li>no ECS · no framework generico</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="p-hed"><div class="ico p-ico-green">🧭</div><h3>Spatial Hash</h3></div>
+      <ul class="tight">
+        <li>celda configurable en <span class="mono">SssConfig</span></li>
+        <li>insert / move / remove</li>
+        <li>query_rect(from, extent)</li>
+        <li>evita recorrer todo el mundo</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <div class="p-hed"><div class="ico p-ico-green">📡</div><h3>Area of Interest</h3></div>
+      <div style="font-size:11px;margin-top:8px;color:var(--muted);">
+        Jugador → posición → AOI (radio celdas) → entidades relevantes → snapshot/delta
+      </div>
+      <ul class="tight">
+        <li>radio <b>50 celdas</b> · configurable</li>
+        <li>devuelve ids, no payloads</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="p-hed"><div class="ico p-ico-green">🔁</div><h3>World Delta</h3></div>
+      <div style="font-size:11px;margin-top:8px;color:var(--muted);">
+        Opción <b>B</b> — un único <span class="mono">world_delta</span>:
+      </div>
+      <ul class="tight">
+        <li>added · updated · removed</li>
+        <li>filtrar por AOI por sesión</li>
+        <li>2 Hz · mínimo · reusa forma <span class="mono">map_delta</span> full:false</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Full snapshot -->
+  <div class="panel">
+    <div class="p-hed"><div class="ico p-ico-blue">📸</div><h3>Full Snapshot (ampliado)</h3><span class="cap">protocol → team3-m1.1</span></div>
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;margin-top:10px;line-height:1.7;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;">
+      { "type":"map_delta", "full": true, "system_id":"…", "map_size":[600,600],<br>
+      &nbsp;&nbsp;"<b>aoi_radius_cells</b>":50,<br>
+      &nbsp;&nbsp;"added":[ {entidad A}, {entidad B}, … ], "updated":[], "removed":[] }<br>
+      <span style="color:var(--muted)">+ protocol_version · seq · server_time (envelope)</span>
+    </div>
+  </div>
+
+  <!-- Mock -->
+  <div class="panel">
+    <div class="p-hed"><div class="ico p-ico-purple" style="background:rgba(99,102,241,.14)">🧪</div><h3>Datos Mock · MockWorldSeed</h3><span class="cap">dentro / fuera AOI</span></div>
+    <table>
+      <tr><th>Entidad</th><th>Tipo</th><th>Posición</th><th>AOI</th><th>Estado</th></tr>
+      <tr><td class="mono">Player ship</td><td>ship</td><td class="mono">(300,300)</td><td>centro</td><td><span class="pill p-ok">✓ visible</span></td></tr>
+      <tr><td class="mono">Other ship</td><td>ship</td><td class="mono">(340,300)</td><td>dentro</td><td><span class="pill p-ok">✓ visible</span></td></tr>
+      <tr><td class="mono">Asteroid A</td><td>asteroid</td><td class="mono">(200,150)</td><td>dentro</td><td><span class="pill p-ok">✓ visible</span></td></tr>
+      <tr><td class="mono">Asteroid B</td><td>asteroid</td><td class="mono">(550,500)</td><td>fuera</td><td><span class="pill p-danger">✗ oculto</span></td></tr>
+      <tr><td class="mono">Xenoform</td><td>xenoform</td><td class="mono">(310,315)</td><td>dentro</td><td><span class="pill p-ok">✓ visible</span></td></tr>
+    </table>
+  </div>
+
+  <!-- Archivos -->
+  <div class="panel">
+    <div class="p-hed"><div class="ico p-ico-blue">📂</div><h3>Archivos a crear / modificar</h3><span class="cap">solo server/sss</span></div>
+    <div style="margin-top:10px;">
+      <span class="chip c-new">✚ entity_state.gd</span>
+      <span class="chip c-new">✚ entity_registry.gd</span>
+      <span class="chip c-new">✚ spatial_hash.gd</span>
+      <span class="chip c-new">✚ aoi_engine.gd</span>
+      <span class="chip c-new">✚ world_delta.gd</span>
+      <span class="chip c-new">✚ tests ×6</span>
+    </div>
+    <div style="margin-top:6px;">
+      <span class="chip c-mod">✎ solar_system_world.gd</span>
+      <span class="chip c-mod">✎ ship_state.gd</span>
+      <span class="chip c-mod">✎ mock_world_seed.gd</span>
+      <span class="chip c-mod">✎ sss_config.gd</span>
+      <span class="chip c-mod">✎ websocket_gateway.gd</span>
+      <span class="chip c-mod">✎ world_snapshot_test.gd</span>
+    </div>
+    <div class="status">
+      <span>🔒 No tocar: <b>app/ · modules/team3/ · contracts/ · rama cliente</b></span>
+    </div>
+  </div>
+
+  <!-- Criterios + riesgos -->
+  <div class="two">
+    <div class="panel">
+      <div class="p-hed"><div class="ico p-ico-green">🏁</div><h3>Criterios de aceptación</h3></div>
+      <ul class="tight">
+        <li>M0 intacto: <span class="mono">SSS_WORLD_TEST_OK</span> + <span class="mono">M0_SMOKE_OK</span></li>
+        <li>Registry: 5 operaciones probadas</li>
+        <li>Spatial Hash: query sin recorrer todo</li>
+        <li>AOI: dentro ✓ / fuera ✗</li>
+        <li>Snapshot multi-entidad + envelope completo</li>
+        <li>Delta: added/updated/removed por AOI</li>
+        <li>seq creciente + detección de huecos</li>
+        <li>2 ticks/s · sin Autoloads ni deps</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="p-hed"><div class="ico p-ico-red">⚠</div><h3>Riesgos / decisiones abiertas</h3></div>
+      <ul class="tight">
+        <li><mark>Material histórico ausente</mark> — specs <span class="mono">_ai_context/</span> no están en este equipo</li>
+        <li><span class="mono">protocol_version</span> → <b>team3-m1.1</b> requiere OK del dev cliente</li>
+        <li>grid vs float — abierto (M1 usa Vector2i)</li>
+        <li>AOI=50 → default configurable, sin spec original</li>
+        <li><span class="mono">world_delta</span> vs reusar <span class="mono">map_delta</span> full:false</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="notice"><span>ℹ</span><span>Dashboard del plan TEAM3-M1 · branch <b>feature/team3-m1-sss-world</b> · estado: pendiente de aprobación. No es código implementado.</span></div>
+</div>
+</body>
+</html>

@@ -48,6 +48,25 @@ func _process(_delta: float) -> void:
 				_sessions.erase(session_id)
 
 
+## Called after each tick by main.gd. Emits map_delta(full:false) a cada sesión
+## si el changeset tiene cambios relevantes para su AOI.
+## No drena el changeset — el ChangeSet del mundo es compartido entre todas las sesiones.
+func flush_pending_deltas() -> void:
+	if not _world.change_set.has_changes():
+		return
+	for raw_session_id: Variant in _sessions.keys():
+		var session_id: int = int(raw_session_id)
+		var session: Dictionary = _sessions[session_id]
+		if not bool(session.get("authenticated", false)):
+			continue
+		var player_id: String = str(session.get("player_id", ""))
+		var delta: Dictionary = _world.delta_for(player_id)
+		if delta.is_empty():
+			continue
+		delta["type"] = "map_delta"
+		_send(session_id, delta)
+
+
 func _accept_connection() -> void:
 	var stream: StreamPeerTCP = _tcp_server.take_connection()
 	var peer := WebSocketPeer.new()
@@ -95,7 +114,7 @@ func _handle_packet(session_id: int, raw: String) -> void:
 				"client_time": int(message.get("client_time", 0)),
 			})
 		_:
-			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Unsupported TEAM3-M0 message")
+			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Unsupported TEAM3-M1 message")
 
 
 func _handle_auth(session_id: int, message: Dictionary) -> void:

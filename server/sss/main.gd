@@ -34,9 +34,19 @@ func _start_simulation_loop() -> void:
 	var tick_timer := Timer.new()
 	tick_timer.name = "SimulationTick"
 	tick_timer.wait_time = 1.0 / _config.tick_hz
-	tick_timer.timeout.connect(_world.tick)
+	tick_timer.timeout.connect(_on_tick)
 	add_child(tick_timer)
 	tick_timer.start()
+
+
+func _on_tick() -> void:
+	# Al inicio del nuevo tick: limpiamos el changeset del tick anterior
+	# (ya fue filtrado por todas las sesiones en el tick previo).
+	_world.acknowledge_changes()
+	# Avanzamos reloj del mundo.
+	_world.tick()
+	# Emitimos deltas incrementales a cada sesión según su AOI.
+	_gateway.flush_pending_deltas()
 
 
 func _apply_runtime_overrides() -> void:
