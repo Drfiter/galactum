@@ -46,7 +46,7 @@ theme_override_constants/separation = 10
 [node name="Title" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Galactum · TEAM3-M0"
+text = "Galactum · TEAM3-M1"
 
 [node name="Subtitle" type="Label" parent="Margin/Content"]
 layout_mode = 2
@@ -109,5 +109,5 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(320, 240)
 layout_mode = 2
 size_flags_vertical = 3
-mouse_filter = 2
+mouse_filter = 0
 script = ExtResource("3_world_view")
