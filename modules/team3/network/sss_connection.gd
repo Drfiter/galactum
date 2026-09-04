@@ -1,11 +1,18 @@
 class_name SssConnection
 extends Node
+## Cliente WebSocket hacia el SSS (Equipo 3).
+## TEAM3-M0: conexión, auth mock, full_snapshot, ping/pong, reconexión.
+## TEAM3-M1: valida continuidad de seq en TODOS los mensajes del SSS y, ante un
+## gap real, marca desincronización y solicita full_snapshot para reconstruir
+## WorldState. Reinicia el seguimiento de seq al abrir cada conexión nueva.
 
 signal connection_state_changed(state: String)
 signal authenticated(payload: Dictionary)
 signal full_snapshot_received(payload: Dictionary)
+signal map_delta_received(payload: Dictionary)
 signal latency_updated(milliseconds: int)
 signal protocol_error(message: String)
+signal desync_detected
 
 const PROTOCOL_VERSION: String = "team3-m0.1"
 
@@ -24,12 +31,18 @@ var _reconnect_remaining: float = 0.0
 var _ping_remaining: float = 0.0
 var _last_ping_ticks: int = 0
 
+# Seguimiento de secuencia monotónica por conexión (todos los mensajes del SSS).
+# -1 => aún sin base (esperamos el primer mensaje de la conexión).
+var _next_expected_seq: int = -1
+
 
 func connect_to_server(config: ClientConnectionConfig) -> void:
 	_config = config
 	_manual_disconnect = false
 	_reconnect_remaining = 0.0
 	_peer = WebSocketPeer.new()
+	# Nueva conexión => nuevo seguimiento de secuencia (el SSS la reinicia en 1).
+	_reset_sequence_tracking()
 	var error: Error = _peer.connect_to_url(config.websocket_url())
 	if error != OK:
 		_set_state(State.DISCONNECTED)
@@ -107,6 +120,21 @@ func _handle_packet(raw: String) -> void:
 		protocol_error.emit("Mensaje sin seq o server_time")
 		return
 
+	var is_full_snapshot: bool = (str(message.get("type", "")) == "map_delta"
+		and bool(message.get("full", false)))
+	if not _validate_sequence(message):
+		if is_full_snapshot:
+			# Un snapshot completo es autoritativo y resetea la continuidad:
+			# re-baselineamos la secuencia a partir de él (recupera una desync).
+			_next_expected_seq = int(message.get("seq", -1)) + 1
+		else:
+			# Gap real de secuencia: no inventamos estado, marcamos desync y
+			# reconstruimos desde un full_snapshot.
+			desync_detected.emit()
+			protocol_error.emit("Secuencia desincronizada (seq=%d)" % int(message.get("seq", -1)))
+			request_full_snapshot()
+			return
+
 	match str(message.get("type", "")):
 		"auth_ok":
 			_set_state(State.AUTHENTICATED)
@@ -114,6 +142,7 @@ func _handle_packet(raw: String) -> void:
 			authenticated.emit(message)
 			request_full_snapshot()
 		"map_delta":
+			map_delta_received.emit(message)
 			if bool(message.get("full", false)):
 				full_snapshot_received.emit(message)
 		"pong":
@@ -123,6 +152,26 @@ func _handle_packet(raw: String) -> void:
 			protocol_error.emit("%s: %s" % [message.get("error_code", "ERR_UNKNOWN"), message.get("message", "Error del SSS")])
 		_:
 			protocol_error.emit("Tipo de mensaje M0 desconocido: %s" % message.get("type", ""))
+
+
+## Valida que el seq entrante sea estrictamente el siguiente esperado.
+## El primer mensaje de una conexión establece la base (sin exigir continuidad).
+func _validate_sequence(message: Dictionary) -> bool:
+	var incoming_seq: int = int(message.get("seq", -1))
+	if incoming_seq < 1:
+		return false
+	if _next_expected_seq == -1:
+		# Primer mensaje de la conexión: aceptamos y fijamos la base.
+		_next_expected_seq = incoming_seq + 1
+		return true
+	if incoming_seq != _next_expected_seq:
+		return false
+	_next_expected_seq = incoming_seq + 1
+	return true
+
+
+func _reset_sequence_tracking() -> void:
+	_next_expected_seq = -1
 
 
 func _send(payload: Dictionary) -> void:
