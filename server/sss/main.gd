@@ -40,13 +40,9 @@ func _start_simulation_loop() -> void:
 
 
 func _on_tick() -> void:
-	# Al inicio del nuevo tick: limpiamos el changeset del tick anterior
-	# (ya fue filtrado por todas las sesiones en el tick previo).
-	_world.acknowledge_changes()
-	# Avanzamos reloj del mundo.
 	_world.tick()
-	# Emitimos deltas incrementales a cada sesión según su AOI.
 	_gateway.flush_pending_deltas()
+	_world.acknowledge_changes()
 
 
 func _apply_runtime_overrides() -> void:

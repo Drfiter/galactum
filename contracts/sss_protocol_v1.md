@@ -3,9 +3,8 @@
 Este archivo es compartido entre el desarrollador del cliente (Godot Android) y
 el desarrollador del SSS (Godot headless). No debe modificarse silenciosamente.
 
-- `team3-m0.1`: contrato diagnóstico de TEAM3-M0 (shipped, estable). El SSS y el
-  cliente actuales hablan esta versión en runtime.
-- `team3-m1.0`: acuerdo de integración TEAM3-M1 (documentado a continuación).
+- `team3-m0.1`: contrato diagnóstico histórico de TEAM3-M0 (shipped, estable).
+- `team3-m1.0`: contrato runtime actual de TEAM3-M1 (documentado a continuación).
 
 ---
 

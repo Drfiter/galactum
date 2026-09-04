@@ -14,7 +14,7 @@ signal latency_updated(milliseconds: int)
 signal protocol_error(message: String)
 signal desync_detected
 
-const PROTOCOL_VERSION: String = "team3-m0.1"
+const PROTOCOL_VERSION: String = "team3-m1.0"
 
 enum State {
 	DISCONNECTED,
@@ -151,7 +151,7 @@ func _handle_packet(raw: String) -> void:
 		"error":
 			protocol_error.emit("%s: %s" % [message.get("error_code", "ERR_UNKNOWN"), message.get("message", "Error del SSS")])
 		_:
-			protocol_error.emit("Tipo de mensaje M0 desconocido: %s" % message.get("type", ""))
+			protocol_error.emit("Tipo de mensaje M1 desconocido: %s" % message.get("type", ""))
 
 
 ## Valida que el seq entrante sea estrictamente el siguiente esperado.

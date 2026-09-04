@@ -5,6 +5,7 @@ extends SceneTree
 ## merge de updates y que WorldState no exija seq consecutivo entre deltas.
 
 var _failures: int = 0
+var _change_notifications: int = 0
 
 
 func _initialize() -> void:
@@ -122,15 +123,19 @@ func _test_removed() -> void:
 
 func _test_clear() -> void:
 	var ws := WorldState.new()
+	ws.changed.connect(_on_world_state_changed)
 	ws.apply_full_snapshot({
 		"type": "map_delta", "protocol_version": "team3-m1.0", "seq": 2,
 		"server_time": 1780000000000, "full": true, "system_id": "sys-1",
 		"map_size": [600, 600], "added": [{"entity_id": "e1", "kind": "ship"}],
 		"updated": [], "removed": [],
 	})
+	var notifications_before_clear: int = _change_notifications
 	ws.clear()
 	_check(ws.entities.is_empty(), "clear vacía entidades")
 	_check(ws.seq == -1, "clear resetea seq")
+	_check(_change_notifications == notifications_before_clear + 1,
+		"clear emite changed para retirar marcadores obsoletos")
 
 
 func _test_no_consecutive_seq_requirement() -> void:
@@ -152,3 +157,7 @@ func _test_no_consecutive_seq_requirement() -> void:
 	_check(ws.apply_map_delta(delta), "WorldState acepta deltas con seq no consecutivo")
 	_check(ws.seq == 40, "ultimo seq aplicado registrado")
 	_check(ws.entities.size() == 2, "fleet agregada")
+
+
+func _on_world_state_changed() -> void:
+	_change_notifications += 1

@@ -20,7 +20,8 @@ var map_size: Vector2i = Vector2i.ZERO
 var entities: Dictionary = {}
 
 
-## Limpia por completo el estado local (sin emitir changed).
+## Limpia por completo el estado local y notifica a la presentación para que
+## descarte marcadores obsoletos durante reconexión o resume.
 func clear() -> void:
 	protocol_version = ""
 	seq = -1
@@ -28,6 +29,7 @@ func clear() -> void:
 	system_id = ""
 	map_size = Vector2i.ZERO
 	entities.clear()
+	changed.emit()
 
 
 ## Aplica un snapshot completo (map_delta con full == true).

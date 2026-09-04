@@ -57,7 +57,7 @@ Para otro puerto:
 godot --headless --path .\server\sss -- --port=9200
 ```
 
-Verás la línea `SSS_READY protocol=team3-m0.1 port=9100 tick_hz=2.0 system_id=...`.
+Verás la línea `SSS_READY protocol=team3-m1.0 port=9100 tick_hz=2.0 system_id=...`.
 
 ## 4. Obtener la IP LAN del PC
 
@@ -107,9 +107,9 @@ Opción B — export directo al dispositivo:
 
 ## 8. Notas de integración (coordinadas con el SSS)
 
-- El contrato compartido define `team3-m1.0` como la versión objetivo de M1.
-- El **runtime actual** del cliente (`SssConnection`) sigue hablando
-  `team3-m0.1` y el SSS de M0 emite `team3-m0.1`, para no romper TEAM3-M0.
+- El contrato compartido y el runtime actual de cliente y SSS usan
+  `team3-m1.0`. TEAM3-M0 conserva `team3-m0.1` en su documentación y smoke
+  históricos.
 - La validación de continuidad de `seq` se hace en el cliente sobre todos los
   mensajes del SSS; ante un gap solicita `full_snapshot`.
 - No se implementa `subscribe_area` en M1: el SSS calcula el Área de Interés y
