@@ -44,10 +44,6 @@ func _init(config: SssConfig, seed: MockWorldSeed) -> void:
 func tick() -> void:
 	tick_count += 1
 	_update_server_time()
-	# En M1 no hay simulación de movimiento: el ChangeSet se deja tal cual
-	# (tests de deltas lo manipulan directamente) y se limpia al inicio del
-	# siguiente tick con acknowledge_changes().
-	# No hay movimiento: sólo reloj y ChangeSet del tick previo.
 
 
 func acknowledge_changes() -> void:
@@ -69,7 +65,7 @@ func full_snapshot_for(player_id: String) -> Dictionary:
 	var added: Array = []
 	for eid: Variant in aoi_ids:
 		var entity: EntityState = entity_registry.get_entity(str(eid))
-		if entity != null:
+		if entity != null and _is_in_aoi(entity.position, player_pos, _config.aoi_radius):
 			added.append(entity.to_add_snapshot())
 	return {
 		"system_id": system_id,
@@ -82,37 +78,64 @@ func full_snapshot_for(player_id: String) -> Dictionary:
 
 
 ## Delta incremental para una sesión, filtrado por AOI. No drena el changeset.
+## Resuelve las 4 transiciones de visibilidad por sesión:
+## 1. previous outside + current inside -> added
+## 2. previous inside  + current inside -> updated
+## 3. previous inside  + current outside -> removed
+## 4. previous outside + current outside -> nada
 func delta_for(player_id: String) -> Dictionary:
 	if not change_set.has_changes():
 		return {}
 	var player_pos: Vector2i = _player_position(player_id)
 	if player_pos == Vector2i(-1, -1):
 		return {}
-	var aoi_ids: Dictionary = {}
-	for eid: Variant in aoi_engine.entities_for(player_pos):
-		aoi_ids[str(eid)] = true
+	var radius: int = _config.aoi_radius
 	var added_out: Array = []
 	var updated_out: Array = []
 	var removed_out: Array = []
-	# added: solo dentro del AOI del jugador
+
+	# 1. Entidades agregadas en el mundo (creación de entidad)
 	for entity: EntityState in change_set.added():
-		if aoi_ids.has(entity.entity_id):
+		if _is_in_aoi(entity.position, player_pos, radius):
 			added_out.append(entity.to_add_snapshot())
-	# updated: solo dentro del AOI
-	for entity: EntityState in change_set.updated():
-		if aoi_ids.has(entity.entity_id):
-			var snap: Dictionary = {"entity_id": entity.entity_id, "position": [entity.position.x, entity.position.y]}
+
+	# 2. Entidades modificadas / movidas en el mundo
+	for item: Dictionary in change_set.updated():
+		var entity: EntityState = item.get("entity")
+		if entity == null:
+			continue
+		var prev_pos: Vector2i = item.get("previous_position", entity.position)
+		var curr_pos: Vector2i = entity.position
+		var prev_in: bool = _is_in_aoi(prev_pos, player_pos, radius)
+		var curr_in: bool = _is_in_aoi(curr_pos, player_pos, radius)
+
+		if not prev_in and curr_in:
+			# Caso 1: outside -> inside => added (entidad completa)
+			added_out.append(entity.to_add_snapshot())
+		elif prev_in and curr_in:
+			# Caso 2: inside -> inside => updated (entity_id + campos modificados)
+			var snap: Dictionary = {"entity_id": entity.entity_id, "position": [curr_pos.x, curr_pos.y]}
 			for field: String in entity.payload.keys():
 				snap[field] = entity.payload[field]
 			updated_out.append(snap)
-	# removed: id único, solo si la posición eliminada caía dentro del AOI
+		elif prev_in and not curr_in:
+			# Caso 3: inside -> outside => removed (solo entity_id)
+			if not removed_out.has(entity.entity_id):
+				removed_out.append(entity.entity_id)
+		else:
+			# Caso 4: outside -> outside => nada
+			pass
+
+	# 3. Entidades eliminadas del mundo (destrucción de entidad)
 	for entry: Dictionary in change_set.removed():
 		var eid: String = str(entry.get("entity_id", ""))
 		var pos: Vector2i = entry.get("position", Vector2i(-1, -1))
 		if pos == Vector2i(-1, -1):
 			continue
-		if _is_in_aoi(pos, player_pos, _config.aoi_radius):
-			removed_out.append(eid)
+		if _is_in_aoi(pos, player_pos, radius):
+			if not removed_out.has(eid):
+				removed_out.append(eid)
+
 	if added_out.is_empty() and updated_out.is_empty() and removed_out.is_empty():
 		return {}
 	return {
@@ -144,7 +167,7 @@ func set_entity_position(entity_id: String, position: Vector2i) -> void:
 		return
 	entity.position = position
 	spatial_hash.move(entity_id, old, position)
-	change_set.update_entity(entity)
+	change_set.update_entity(entity, old)
 
 
 func remove_mock_entity(entity_id: String) -> void:

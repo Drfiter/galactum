@@ -5,13 +5,12 @@ extends RefCounted
 ## cada sesión según su propio AOI; NINGUNA sesión lo drena ni lo borra, para que
 ## un cliente no consuma cambios que otro todavía necesita.
 ##
-## - added:   Array[EntityState] entidades nuevas (completas al emitir)
-## - updated: Array[EntityState] entidades modificadas (entity_id + campos cambiados al emitir)
-## - removed: Array[Dictionary] { "entity_id": String, "position": Vector2i } — la posición
-##   se conserva para que cada sesión pueda filtrar por AOI, pero se emite solo el id.
+## - added:   Array[EntityState] entidades nuevas en el mundo
+## - updated: Array[Dictionary] { "entity": EntityState, "previous_position": Vector2i }
+## - removed: Array[Dictionary] { "entity_id": String, "position": Vector2i }
 
 var _added: Array[EntityState] = []
-var _updated: Array[EntityState] = []
+var _updated: Array[Dictionary] = []
 var _removed: Array[Dictionary] = []
 
 
@@ -25,8 +24,14 @@ func add_entity(entity: EntityState) -> void:
 	_added.append(entity)
 
 
-func update_entity(entity: EntityState) -> void:
-	_updated.append(entity)
+func update_entity(entity: EntityState, previous_position: Vector2i = Vector2i(-1, -1)) -> void:
+	var prev: Vector2i = previous_position
+	if prev == Vector2i(-1, -1):
+		prev = entity.position
+	_updated.append({
+		"entity": entity,
+		"previous_position": prev,
+	})
 
 
 ## position = última posición conocida de la entidad antes de eliminarla.
@@ -42,10 +47,11 @@ func added() -> Array[EntityState]:
 	return _added
 
 
-func updated() -> Array[EntityState]:
+## Array[Dictionary] con { "entity": EntityState, "previous_position": Vector2i }
+func updated() -> Array[Dictionary]:
 	return _updated
 
 
-## Array[Dictionary] { entity_id, position }
+## Array[Dictionary] con { "entity_id": String, "position": Vector2i }
 func removed() -> Array[Dictionary]:
 	return _removed
