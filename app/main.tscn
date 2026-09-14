@@ -46,7 +46,7 @@ theme_override_constants/separation = 10
 [node name="Title" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Galactum · TEAM3-M1"
+text = "Galactum · TEAM3-M2-I"
 
 [node name="Subtitle" type="Label" parent="Margin/Content"]
 layout_mode = 2
@@ -103,6 +103,30 @@ unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 2
 text = "Nave dummy: esperando full_snapshot"
+
+[node name="TravelLabel" type="Label" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Selecciona tu nave para preparar un viaje"
+
+[node name="TravelActions" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ConfirmTravelButton" type="Button" parent="Margin/Content/TravelActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+disabled = true
+text = "Confirmar viaje"
+
+[node name="CancelTravelButton" type="Button" parent="Margin/Content/TravelActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+disabled = true
+text = "Cancelar"
 
 [node name="WorldDebugView" type="Control" parent="Margin/Content"]
 unique_name_in_owner = true

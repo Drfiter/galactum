@@ -5,16 +5,26 @@ extends Node
 ## TEAM3-M1: valida continuidad de seq en TODOS los mensajes del SSS y, ante un
 ## gap real, marca desincronización y solicita full_snapshot para reconstruir
 ## WorldState. Reinicia el seguimiento de seq al abrir cada conexión nueva.
+## TEAM3-M2-I: envía una única intención start_travel pendiente, publica el
+## reloj del SSS y separa rechazos del servidor de errores de protocolo.
 
 signal connection_state_changed(state: String)
 signal authenticated(payload: Dictionary)
 signal full_snapshot_received(payload: Dictionary)
 signal map_delta_received(payload: Dictionary)
 signal latency_updated(milliseconds: int)
+signal server_time_received(server_time_ms: int)
 signal protocol_error(message: String)
+signal server_error(payload: Dictionary)
 signal desync_detected
 
-const PROTOCOL_VERSION: String = "team3-m1.0"
+const PROTOCOL_VERSION: String = "team3-m2.0"
+const TRAVEL_ERROR_CODES: Array[String] = [
+	"INVALID_REQUEST",
+	"INVALID_DESTINATION",
+	"SHIP_NOT_FOUND",
+	"SHIP_NOT_ANCHORED",
+]
 
 enum State {
 	DISCONNECTED,
@@ -34,6 +44,7 @@ var _last_ping_ticks: int = 0
 # Seguimiento de secuencia monotónica por conexión (todos los mensajes del SSS).
 # -1 => aún sin base (esperamos el primer mensaje de la conexión).
 var _next_expected_seq: int = -1
+var _start_travel_pending: bool = false
 
 
 func connect_to_server(config: ClientConnectionConfig) -> void:
@@ -65,6 +76,33 @@ func request_full_snapshot() -> void:
 	if _state != State.AUTHENTICATED:
 		return
 	_send({"type": "full_snapshot"})
+
+
+## Envía una única intención de viaje para la nave del jugador autenticado.
+## El SSS identifica esa nave: el cliente no envía entity_id ni player_id.
+func request_start_travel(destination: Vector2i) -> bool:
+	if _state != State.AUTHENTICATED or _start_travel_pending:
+		return false
+	if not _send(_build_start_travel_payload(destination)):
+		return false
+	_start_travel_pending = true
+	return true
+
+
+func resolve_start_travel_request() -> void:
+	_start_travel_pending = false
+
+
+func is_start_travel_pending() -> bool:
+	return _start_travel_pending
+
+
+static func _build_start_travel_payload(destination: Vector2i) -> Dictionary:
+	return {
+		"type": "start_travel",
+		"protocol_version": PROTOCOL_VERSION,
+		"destination": [destination.x, destination.y],
+	}
 
 
 func _process(delta: float) -> void:
@@ -134,6 +172,7 @@ func _handle_packet(raw: String) -> void:
 			protocol_error.emit("Secuencia desincronizada (seq=%d)" % int(message.get("seq", -1)))
 			request_full_snapshot()
 			return
+	server_time_received.emit(int(message.get("server_time", 0)))
 
 	match str(message.get("type", "")):
 		"auth_ok":
@@ -149,9 +188,11 @@ func _handle_packet(raw: String) -> void:
 			var echoed_time: int = int(message.get("client_time", _last_ping_ticks))
 			latency_updated.emit(maxi(0, Time.get_ticks_msec() - echoed_time))
 		"error":
-			protocol_error.emit("%s: %s" % [message.get("error_code", "ERR_UNKNOWN"), message.get("message", "Error del SSS")])
+			if TRAVEL_ERROR_CODES.has(str(message.get("error_code", ""))):
+				_start_travel_pending = false
+			server_error.emit(message)
 		_:
-			protocol_error.emit("Tipo de mensaje M1 desconocido: %s" % message.get("type", ""))
+			protocol_error.emit("Tipo de mensaje M2 desconocido: %s" % message.get("type", ""))
 
 
 ## Valida que el seq entrante sea estrictamente el siguiente esperado.
@@ -172,14 +213,15 @@ func _validate_sequence(message: Dictionary) -> bool:
 
 func _reset_sequence_tracking() -> void:
 	_next_expected_seq = -1
+	_start_travel_pending = false
 
 
-func _send(payload: Dictionary) -> void:
+func _send(payload: Dictionary) -> bool:
 	if _peer.get_ready_state() != WebSocketPeer.STATE_OPEN:
-		return
+		return false
 	var message: Dictionary = payload.duplicate(true)
 	message["protocol_version"] = PROTOCOL_VERSION
-	_peer.send_text(JSON.stringify(message))
+	return _peer.send_text(JSON.stringify(message)) == OK
 
 
 func _schedule_reconnect() -> void:

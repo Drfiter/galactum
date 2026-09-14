@@ -196,3 +196,117 @@ No se necesitan ACKs, retransmisión propia ni reliable messaging adicional.
 
 Movimiento (`start_travel`, `move_fleet`), `depart_ts`, `arrive_ts`, ETA, rutas,
 interpolación real de flotas y movimiento autoritativo corresponden a TEAM3-M2.
+
+---
+
+# Acuerdo de integración TEAM3-M2-I (`team3-m2.0`)
+
+TEAM3-M2-I añade el viaje básico de la Astronave sobre las garantías de M1. El
+cliente selecciona, solicita y representa; el SSS conserva autoridad sobre
+aceptación, estado, posición y tiempos.
+
+## Versión y sobre
+
+- `protocol_version`: `team3-m2.0`.
+- Todo mensaje SSS → cliente conserva `protocol_version`, `seq` monotónico por
+  conexión y `server_time` Unix en milisegundos.
+- Snapshot completo e incrementos continúan usando exclusivamente `map_delta`.
+
+## Intención cliente → SSS: `start_travel`
+
+```json
+{
+  "type": "start_travel",
+  "protocol_version": "team3-m2.0",
+  "destination": [420, 180]
+}
+```
+
+- `destination` contiene dos coordenadas enteras del mapa.
+- No se envían `entity_id`, `player_id`, origen, posición, estado ni ETA.
+- El SSS identifica la nave mediante el `player_id` autenticado.
+- Solo puede existir una intención `start_travel` pendiente por cliente. Mientras
+  espera resolución, el cliente deshabilita Confirmar/Viajar.
+- No existe mensaje `travel_started`.
+
+## Confirmación autoritativa de inicio
+
+La aceptación se confirma únicamente mediante un `map_delta` que cambia la nave
+propia a `TRAVELING`:
+
+```json
+{
+  "type": "map_delta",
+  "protocol_version": "team3-m2.0",
+  "seq": 3,
+  "server_time": 1780000000000,
+  "full": false,
+  "system_id": "...",
+  "added": [],
+  "updated": [{
+    "entity_id": "...",
+    "kind": "ship",
+    "state": "TRAVELING",
+    "position": [300, 300],
+    "travel": {
+      "origin": [300, 300],
+      "destination": [420, 180],
+      "depart_ts": 1780000000000,
+      "arrive_ts": 1780000060000
+    }
+  }],
+  "removed": []
+}
+```
+
+`depart_ts` y `arrive_ts` son enteros Unix en milisegundos. Los updates de
+`position` del SSS a 2 Hz siguen siendo estado autoritativo para AOI y
+sincronización. La vista usa `travel` para movimiento suave sin escribir la
+posición interpolada en la réplica.
+
+Un `full_snapshot` recibido durante un viaje incluye la misma representación
+completa `state: TRAVELING` + `travel`, permitiendo reconstruir ruta y ETA tras
+reconexión.
+
+## Llegada
+
+El SSS determina la llegada y publica mediante `map_delta`:
+
+```json
+{
+  "entity_id": "...",
+  "state": "ANCHORED",
+  "position": [420, 180],
+  "travel": null
+}
+```
+
+`travel: null` reemplaza el objeto anidado completo y evita campos obsoletos con
+el merge superficial de `WorldState`.
+
+## Rechazos del SSS
+
+Un rechazo usa el mensaje `error` existente y no constituye un error de
+protocolo. Códigos acordados:
+
+- `INVALID_REQUEST`
+- `INVALID_DESTINATION`
+- `SHIP_NOT_FOUND`
+- `SHIP_NOT_ANCHORED`
+
+El cliente mantiene separadas las señales de error de protocolo y error del
+servidor.
+
+## Interpolación y ETA
+
+El cliente estima `server_now` usando el último `server_time` recibido más el
+tiempo monotónico local transcurrido. No usa el reloj Unix local como autoridad.
+
+La posición visual se deriva de `origin`, `destination`, `depart_ts` y
+`arrive_ts`, con progreso limitado a `[0, 1]`. Esa posición no modifica
+`WorldState.position`.
+
+## Fuera de TEAM3-M2-I
+
+Reserva de destino, persistencia, recovery del SSS por timestamps, Redis,
+costos/economía, cooldown, minería y combate corresponden a etapas posteriores.

@@ -1,6 +1,6 @@
 class_name WorldDebugView
 extends Control
-## Vista diagnóstica 2D del mundo (TEAM3-M1).
+## Vista diagnóstica 2D del mundo (TEAM3-M2-I).
 ## Herramienta de diagnóstico, no la presentación final de Galactum.
 ##
 ## - Proyecta la réplica local (WorldState) usando una WorldCamera2D (paneo/zoom).
@@ -8,9 +8,13 @@ extends Control
 ## - Soporta click de mouse y tap táctil para selección técnica de entidades.
 ## - Preparada para Area of Interest: solo dibuja lo que hay en WorldState
 ##   (no asume que el cliente recibe siempre todo el mapa).
-## Sin gameplay: no emite órdenes de movimiento (eso es TEAM3-M2).
+## La trayectoria es una proyección visual de timestamps del SSS y nunca
+## modifica WorldState.position.
 
 signal entity_selected(entity_id: String)
+signal destination_selected(destination: Vector2i)
+
+const TRAVEL_PROJECTION = preload("res://modules/team3/travel/travel_projection.gd")
 
 @onready var _world: WorldState
 var _camera := WorldCamera2D.new()
@@ -20,9 +24,14 @@ var _pressed: bool = false
 var _press_pos_screen: Vector2 = Vector2.ZERO
 var _dragged: bool = false
 const TAP_SLOP_PX: float = 8.0
+const ENTITY_PICK_RADIUS_PX: float = 22.0
 
 # Selección técnica actual
 var _selected_entity_id: String = ""
+var _tap_actions_enabled: bool = true
+var _destination_selection_enabled: bool = false
+var _has_provisional_destination: bool = false
+var _provisional_destination: Vector2i = Vector2i.ZERO
 
 const MARKER_COLORS := {
 	"ship": Color("63d7ff"),
@@ -33,11 +42,32 @@ const MARKER_COLORS := {
 
 
 func set_world_state(world_state: WorldState) -> void:
-	if _world != null and _world.changed.is_connected(queue_redraw):
-		_world.changed.disconnect(queue_redraw)
+	if _world != null and _world.changed.is_connected(_on_world_changed):
+		_world.changed.disconnect(_on_world_changed)
 	_world = world_state
 	if _world != null:
-		_world.changed.connect(queue_redraw)
+		_world.changed.connect(_on_world_changed)
+	_on_world_changed()
+
+
+func set_destination_selection_enabled(enabled: bool) -> void:
+	_destination_selection_enabled = enabled
+
+
+func set_tap_actions_enabled(enabled: bool) -> void:
+	_tap_actions_enabled = enabled
+
+
+func set_provisional_destination(destination: Vector2i, visible: bool) -> void:
+	_provisional_destination = destination
+	_has_provisional_destination = visible
+	queue_redraw()
+
+
+func clear_selection() -> void:
+	_selected_entity_id = ""
+	_destination_selection_enabled = false
+	_has_provisional_destination = false
 	queue_redraw()
 
 
@@ -47,6 +77,12 @@ func get_selected_entity_id() -> String:
 
 func get_camera() -> WorldCamera2D:
 	return _camera
+
+
+func _process(_delta: float) -> void:
+	# Solo se mantiene redraw continuo mientras una trayectoria necesita
+	# interpolación suave. El mundo en reposo sigue dibujándose por señales.
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -62,22 +98,50 @@ func _draw() -> void:
 	# Borde del mundo lógico (600×600)
 	draw_rect(map_rect, Color("28405f"), false, 2.0)
 
+	var server_now_ms: int = _world.estimated_server_time_ms()
+	for raw_entity: Variant in _world.entities.values():
+		if not raw_entity is Dictionary:
+			continue
+		var entity: Dictionary = raw_entity
+		if TRAVEL_PROJECTION.has_valid_travel(entity):
+			_draw_travel_route(entity)
+
+	_draw_provisional_destination(server_now_ms)
+
 	for raw_entity: Variant in _world.entities.values():
 		if not raw_entity is Dictionary:
 			continue
 		var entity: Dictionary = raw_entity
 		var entity_id: String = str(entity.get("entity_id", ""))
 		var kind: String = str(entity.get("kind", ""))
-		var raw_position: Array = entity.get("position", [0, 0])
-		if raw_position.size() != 2:
-			continue
-		var world_pos := Vector2(float(raw_position[0]), float(raw_position[1]))
+		var world_pos: Vector2 = TRAVEL_PROJECTION.display_position(entity, server_now_ms)
 		var screen_pos: Vector2 = _camera.world_to_screen(world_pos)
 		# Culling por visibilidad en la cámara (preparado para Area of Interest:
 		# solo dibujamos lo que realmente está en el viewport).
 		if not Rect2(Vector2.ZERO, size).has_point(screen_pos):
 			continue
 		_draw_entity(entity_id, kind, world_pos, screen_pos)
+
+
+func _draw_travel_route(entity: Dictionary) -> void:
+	var origin_screen: Vector2 = _camera.world_to_screen(TRAVEL_PROJECTION.origin(entity))
+	var destination_screen: Vector2 = _camera.world_to_screen(TRAVEL_PROJECTION.destination(entity))
+	draw_dashed_line(origin_screen, destination_screen, Color("63d7ff80"), 2.0, 8.0)
+	draw_circle(destination_screen, 8.0, Color("63d7ff"), false, 2.0)
+
+
+func _draw_provisional_destination(server_now_ms: int) -> void:
+	if not _has_provisional_destination or _world == null:
+		return
+	var destination_screen: Vector2 = _camera.world_to_screen(Vector2(_provisional_destination))
+	var selected: Dictionary = _world.get_entity(_selected_entity_id)
+	if not selected.is_empty():
+		var start: Vector2 = _camera.world_to_screen(
+			TRAVEL_PROJECTION.display_position(selected, server_now_ms))
+		draw_dashed_line(start, destination_screen, Color("ffd763b0"), 2.0, 8.0)
+	draw_circle(destination_screen, 10.0, Color("ffd763"), false, 3.0)
+	draw_line(destination_screen + Vector2(-6.0, 0.0), destination_screen + Vector2(6.0, 0.0), Color("ffd763"), 2.0)
+	draw_line(destination_screen + Vector2(0.0, -6.0), destination_screen + Vector2(0.0, 6.0), Color("ffd763"), 2.0)
 
 
 func _compute_map_rect() -> Rect2:
@@ -171,28 +235,46 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
-## Al tocar/cliquear: selecciona la entidad más cercana a la posición del mundo.
-## No emite órdenes de movimiento (TEAM3-M2).
+## Al tocar/cliquear selecciona una entidad o, durante planificación, una
+## coordenada entera dentro del mapa. Ninguna de las dos acciones envía red.
 func _handle_tap(screen_pos: Vector2) -> void:
-	if _world == null:
+	if _world == null or not _tap_actions_enabled:
 		return
 	var world_pos: Vector2 = _camera.screen_to_world(screen_pos)
+	if _destination_selection_enabled:
+		if (world_pos.x < 0.0 or world_pos.y < 0.0
+			or world_pos.x >= float(_world.map_size.x)
+			or world_pos.y >= float(_world.map_size.y)):
+			return
+		destination_selected.emit(Vector2i(floori(world_pos.x), floori(world_pos.y)))
+		return
+
 	var closest_id: String = ""
-	var closest_dist_sq: float = 64.0 * 64.0  # radio de selección técnico (px en mundo)
+	var closest_dist_sq: float = ENTITY_PICK_RADIUS_PX * ENTITY_PICK_RADIUS_PX
+	var server_now_ms: int = _world.estimated_server_time_ms()
 	for raw_entity: Variant in _world.entities.values():
 		if not raw_entity is Dictionary:
 			continue
 		var entity: Dictionary = raw_entity
-		var raw_position: Array = entity.get("position", [0, 0])
-		if raw_position.size() != 2:
-			continue
-		var entity_world := Vector2(float(raw_position[0]), float(raw_position[1]))
-		var d_sq: float = entity_world.distance_squared_to(world_pos)
+		var entity_screen: Vector2 = _camera.world_to_screen(
+			TRAVEL_PROJECTION.display_position(entity, server_now_ms))
+		var d_sq: float = entity_screen.distance_squared_to(screen_pos)
 		if d_sq < closest_dist_sq:
 			closest_dist_sq = d_sq
 			closest_id = str(entity.get("entity_id", ""))
 	_selected_entity_id = closest_id
 	entity_selected.emit(_selected_entity_id)
+	queue_redraw()
+
+
+func _on_world_changed() -> void:
+	var has_traveling_entity: bool = false
+	if _world != null:
+		for raw_entity: Variant in _world.entities.values():
+			if raw_entity is Dictionary and TRAVEL_PROJECTION.has_valid_travel(raw_entity):
+				has_traveling_entity = true
+				break
+	set_process(has_traveling_entity)
 	queue_redraw()
 
 

@@ -15,6 +15,7 @@ var seq: int = -1
 var server_time: int = 0
 var system_id: String = ""
 var map_size: Vector2i = Vector2i.ZERO
+var _server_time_sample_ticks_msec: int = 0
 
 # Réplica visible: entity_id -> Dictionary(entidad)
 var entities: Dictionary = {}
@@ -26,6 +27,7 @@ func clear() -> void:
 	protocol_version = ""
 	seq = -1
 	server_time = 0
+	_server_time_sample_ticks_msec = 0
 	system_id = ""
 	map_size = Vector2i.ZERO
 	entities.clear()
@@ -43,7 +45,7 @@ func apply_full_snapshot(message: Dictionary) -> bool:
 		return false
 	protocol_version = str(message.get("protocol_version", ""))
 	seq = incoming_seq
-	server_time = int(message.get("server_time", 0))
+	synchronize_server_time(int(message.get("server_time", 0)))
 	system_id = str(message.get("system_id", ""))
 	map_size = Vector2i(int(raw_map_size[0]), int(raw_map_size[1]))
 	entities.clear()
@@ -71,7 +73,7 @@ func apply_map_delta(message: Dictionary) -> bool:
 	if incoming_seq < 0:
 		return false
 	seq = incoming_seq
-	server_time = int(message.get("server_time", 0))
+	synchronize_server_time(int(message.get("server_time", 0)))
 	# system_id/map_size no se exigen en un delta (el SSS ya los publicó en full)
 
 	for raw_entity: Variant in message.get("added", []):
@@ -111,6 +113,36 @@ func get_entity(entity_id: String) -> Dictionary:
 	if entities.has(entity_id):
 		return entities[entity_id].duplicate(true)
 	return {}
+
+
+## Devuelve la nave perteneciente al player_id autenticado, sin asumir que sea
+## la primera nave de la réplica AOI.
+func ship_for_player(player_id: String) -> Dictionary:
+	if player_id == "":
+		return {}
+	for raw_entity: Variant in entities.values():
+		if not raw_entity is Dictionary:
+			continue
+		var entity: Dictionary = raw_entity
+		if (str(entity.get("kind", "")) == "ship"
+			and str(entity.get("player_id", "")) == player_id):
+			return entity.duplicate(true)
+	return {}
+
+
+func synchronize_server_time(value: int) -> void:
+	if value <= 0:
+		return
+	server_time = value
+	_server_time_sample_ticks_msec = Time.get_ticks_msec()
+
+
+## Reloj visual estimado: muestra del reloj Unix autoritativo del SSS más el
+## tiempo monotónico local transcurrido. No usa el reloj Unix del dispositivo.
+func estimated_server_time_ms() -> int:
+	if server_time <= 0 or _server_time_sample_ticks_msec <= 0:
+		return server_time
+	return server_time + maxi(0, Time.get_ticks_msec() - _server_time_sample_ticks_msec)
 
 
 ## Obtiene la primera nave (ship) de la réplica. Utilidad de diagnóstico M0/M1.
