@@ -1,6 +1,8 @@
 class_name SolarSystemWorld
 extends RefCounted
 
+const TravelMathScript = preload("res://world/travel_math.gd")
+
 var system_id: String
 var map_size: Vector2i
 var tick_count: int = 0
@@ -88,9 +90,9 @@ func start_travel(player_id: String, destination: Vector2i) -> Dictionary:
 		return _travel_error("SHIP_NOT_ANCHORED", "Ship is already traveling")
 
 	var origin: Vector2i = ship.position
-	var dist: float = TravelMath.distance(origin, destination)
+	var dist: float = TravelMathScript.distance(origin, destination)
 	var depart_ts: int = _now_ms.call()
-	var arrive_ts_value: int = TravelMath.arrive_ts(depart_ts, dist, _config.travel_speed_tiles_per_min)
+	var arrive_ts_value: int = TravelMathScript.arrive_ts(depart_ts, dist, _config.travel_speed_tiles_per_min)
 
 	var old_pos: Vector2i = ship.position
 	ship.state = "TRAVELING"
@@ -139,7 +141,7 @@ func _materialize_travel_positions() -> void:
 	for entity: EntityState in entity_registry.all():
 		if not entity.is_traveling():
 			continue
-		var derived: Vector2i = TravelMath.position_at(
+		var derived: Vector2i = TravelMathScript.position_at(
 			Vector2i(int(entity.travel.get("origin", [0, 0])[0]), int(entity.travel.get("origin", [0, 0])[1])),
 			_travel_destination(entity),
 			int(entity.travel.get("depart_ts", 0)),
