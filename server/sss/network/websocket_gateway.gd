@@ -99,6 +99,9 @@ func _handle_packet(session_id: int, raw: String) -> void:
 	if message_type == "auth":
 		_handle_auth(session_id, message)
 		return
+	if message_type == "start_travel":
+		_handle_start_travel(session_id, message)
+		return
 	if not bool(session.get("authenticated", false)):
 		_send_error(session_id, "ERR_NOT_AUTHENTICATED", "Authenticate first")
 		return
@@ -115,6 +118,23 @@ func _handle_packet(session_id: int, raw: String) -> void:
 			})
 		_:
 			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Unsupported TEAM3-M1 message")
+
+
+func _handle_start_travel(session_id: int, message: Dictionary) -> void:
+	var session: Dictionary = _sessions[session_id]
+	var player_id: String = str(session.get("player_id", ""))
+	var dest_arr: Array = message.get("destination", [])
+	if dest_arr.size() != 2:
+		_send_error(session_id, "INVALID_REQUEST", "Destination must be array [x, y]")
+		return
+	var destination: Vector2i = Vector2i(int(dest_arr[0]), int(dest_arr[1]))
+	var res: Dictionary = _world.start_travel(player_id, destination)
+	if res.has("error_code"):
+		_send_error(session_id, str(res["error_code"]), str(res.get("message", "")))
+		return
+	# Éxito: NO se envía travel_started.
+	# La confirmación llega por map_delta en flush_pending_deltas (mismo ciclo).
+	# El start_travel registró un update en el ChangeSet; el siguiente flush lo emite.
 
 
 func _handle_auth(session_id: int, message: Dictionary) -> void:
