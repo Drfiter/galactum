@@ -1,7 +1,7 @@
 class_name SssConfig
 extends Resource
 
-@export var protocol_version: String = "team3-m1.0"
+@export var protocol_version: String = "team3-m2.0"
 @export_range(1, 65535, 1) var port: int = 9100
 @export_range(0.5, 10.0, 0.5) var tick_hz: float = 2.0
 @export var map_size: Vector2i = Vector2i(600, 600)
@@ -10,3 +10,6 @@ extends Resource
 ## Radio del Area of Interest en unidades de mundo (independiente del cell size).
 ## Es una configuración interna del SSS; NO viaja al cliente en M1.
 @export_range(1, 2000, 1) var aoi_radius: int = 50
+## Velocidad de viaje de la astronave en casillas por minuto (TEAM3-M2-I).
+## Valor M2 configurable; la futura integración con Equipo 2 reemplazará la fuente.
+@export_range(0.1, 1000.0, 0.1) var travel_speed_tiles_per_min: float = 10.0
