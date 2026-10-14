@@ -3,3 +3,18 @@
 /android/
 /builds/
 *.log
+*.translation
+
+# Android signing files must remain local.
+*.keystore
+*.jks
+
+# Operating system metadata.
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor temporary files.
+*.swp
+*.swo
+*~
