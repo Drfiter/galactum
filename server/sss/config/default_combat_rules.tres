@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CombatRules" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://combat/combat_rules.gd" id="1_rules"]
+[ext_resource type="Script" path="res://combat/combat_unit_definition.gd" id="2_unit"]
+
+[sub_resource type="Resource" id="Resource_mock_alpha"]
+script = ExtResource("2_unit")
+unit_type_id = "mock_unit_alpha"
+attack = 4
+durability = 5
+
+[sub_resource type="Resource" id="Resource_mock_beta"]
+script = ExtResource("2_unit")
+unit_type_id = "mock_unit_beta"
+attack = 7
+durability = 10
+
+[resource]
+script = ExtResource("1_rules")
+combat_version = "m3-provisional-1"
+unit_definitions = Array[ExtResource("2_unit")]([SubResource("Resource_mock_alpha"), SubResource("Resource_mock_beta")])

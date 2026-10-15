@@ -9,6 +9,7 @@ var tick_count: int = 0
 var server_time: int = 0
 
 var _config: SssConfig
+var _asteroid_config: AsteroidConfig
 var entity_registry: EntityRegistry
 var spatial_hash: SpatialHash
 var aoi_engine: AoiEngine
@@ -16,6 +17,7 @@ var aoi_engine: AoiEngine
 ## ChangeSet del último tick; perdura hasta el siguiente tick. Cada sesión filtra
 ## su propia vista por AOI sin destruirlo.
 var change_set: WorldChangeSet
+var mining_service: MiningService
 
 ## Fuente del tiempo inyectable para tests (Callable() -> int, Unix ms).
 ## Por defecto usa el reloj del sistema; los tests de viaje la reemplazan.
@@ -24,12 +26,14 @@ var _now_ms: Callable
 
 func _init(config: SssConfig, seed: MockWorldSeed) -> void:
 	_config = config
+	_asteroid_config = seed.asteroid_config.duplicate(true) as AsteroidConfig
 	system_id = seed.system_id
 	map_size = config.map_size
 	entity_registry = EntityRegistry.new()
 	spatial_hash = SpatialHash.new(config.spatial_cell_size)
 	aoi_engine = AoiEngine.new(spatial_hash, config.aoi_radius)
 	change_set = WorldChangeSet.new()
+	mining_service = MiningService.new(entity_registry, change_set, system_id, config.mining_config)
 	_now_ms = _system_now_ms
 	_update_server_time()
 	# Sembrar mundo: nave del jugador + entidades extra del MockWorldSeed.
@@ -62,6 +66,7 @@ func tick() -> void:
 	_update_server_time()
 	_process_travel_arrivals()
 	_materialize_travel_positions()
+	mining_service.tick(server_time)
 
 
 ## Limpia el ChangeSet del tick anterior. NO drena por sesión.
@@ -93,6 +98,7 @@ func start_travel(player_id: String, destination: Vector2i) -> Dictionary:
 	var dist: float = TravelMathScript.distance(origin, destination)
 	var depart_ts: int = _now_ms.call()
 	var arrive_ts_value: int = TravelMathScript.arrive_ts(depart_ts, dist, _config.travel_speed_tiles_per_min)
+	mining_service.cancel_for_travel(ship.entity_id, depart_ts)
 
 	var old_pos: Vector2i = ship.position
 	ship.state = "TRAVELING"
@@ -114,6 +120,30 @@ func _ship_for_player(player_id: String) -> EntityState:
 		if entity.kind == "ship" and str(entity.payload.get("player_id", "")) == player_id:
 			return entity
 	return null
+
+
+## Consultas autoritativas mínimas consumidas por servicios del SSS.
+func get_ship_for_player(player_id: String) -> EntityState:
+	return _ship_for_player(player_id)
+
+
+func get_entity(entity_id: String) -> EntityState:
+	return entity_registry.get_entity(entity_id)
+
+
+## Sólo después de aceptar/aplicar un combate nuevo, nunca durante replay.
+func cancel_mining_for_combat(attacker_id: String, defender_id: String) -> void:
+	_update_server_time()
+	mining_service.cancel_for_combat(attacker_id, server_time)
+	mining_service.cancel_for_combat(defender_id, server_time)
+
+
+func is_entity_visible_to(player_id: String, entity_id: String) -> bool:
+	var player_ship: EntityState = _ship_for_player(player_id)
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if player_ship == null or entity == null:
+		return false
+	return _is_in_aoi(entity.position, player_ship.position, _config.aoi_radius)
 
 
 ## Procesa llegadas: now >= arrive_ts -> position = destination, ANCHORED, travel limpio.
@@ -165,11 +195,21 @@ func _travel_error(error_code: String, message: String) -> Dictionary:
 	return {"error_code": error_code, "message": message}
 
 
+func start_mining(player_id: String, request_id: String, asteroid_id: String) -> Dictionary:
+	_update_server_time()
+	return mining_service.start(player_id, request_id, asteroid_id, server_time)
+
+
+func stop_mining(player_id: String, mining_id: String) -> Dictionary:
+	_update_server_time()
+	return mining_service.stop(player_id, mining_id, server_time)
+
+
 # ---------------------------------------------------------------------------
 # Snapshots y deltas (sin cambios respecto a M1 salvo state/travel)
 # ---------------------------------------------------------------------------
 
-func full_snapshot_for(player_id: String) -> Dictionary:
+func full_snapshot_for(player_id: String, include_asteroid_data: bool = false) -> Dictionary:
 	var player_pos: Vector2i = _player_position(player_id)
 	if player_pos == Vector2i(-1, -1):
 		return {
@@ -185,7 +225,7 @@ func full_snapshot_for(player_id: String) -> Dictionary:
 	for eid: Variant in aoi_ids:
 		var entity: EntityState = entity_registry.get_entity(str(eid))
 		if entity != null and _is_in_aoi(entity.position, player_pos, _config.aoi_radius):
-			added.append(entity.to_add_snapshot())
+			added.append(_add_snapshot(entity, include_asteroid_data))
 	return {
 		"system_id": system_id,
 		"map_size": [map_size.x, map_size.y],
@@ -202,7 +242,7 @@ func full_snapshot_for(player_id: String) -> Dictionary:
 ## 2. previous inside  + current inside -> updated
 ## 3. previous inside  + current outside -> removed
 ## 4. previous outside + current outside -> nada
-func delta_for(player_id: String) -> Dictionary:
+func delta_for(player_id: String, include_asteroid_data: bool = false) -> Dictionary:
 	if not change_set.has_changes():
 		return {}
 	var player_pos: Vector2i = _player_position(player_id)
@@ -218,7 +258,7 @@ func delta_for(player_id: String) -> Dictionary:
 	# 1. Entidades agregadas en el mundo (creación de entidad)
 	for entity: EntityState in change_set.added():
 		if _is_in_aoi(entity.position, player_pos, radius):
-			added_out.append(entity.to_add_snapshot())
+			added_out.append(_add_snapshot(entity, include_asteroid_data))
 
 	# 2. Entidades modificadas / movidas en el mundo
 	for item: Dictionary in change_set.updated():
@@ -230,7 +270,7 @@ func delta_for(player_id: String) -> Dictionary:
 		# Sin esto, un salto grande (llegada) clasificaría outside->inside (added)
 		# porque el centro se recentra con la nave en el mismo tick.
 		if entity.entity_id == own_ship_id:
-			updated_out.append(entity.to_updated_snapshot())
+			updated_out.append(_updated_snapshot(entity, include_asteroid_data))
 			continue
 		var prev_pos: Vector2i = item.get("previous_position", entity.position)
 		var curr_pos: Vector2i = entity.position
@@ -239,10 +279,10 @@ func delta_for(player_id: String) -> Dictionary:
 
 		if not prev_in and curr_in:
 			# Caso 1: outside -> inside => added (entidad completa)
-			added_out.append(entity.to_add_snapshot())
+			added_out.append(_add_snapshot(entity, include_asteroid_data))
 		elif prev_in and curr_in:
 			# Caso 2: inside -> inside => updated (entity_id + campos modificados)
-			updated_out.append(entity.to_updated_snapshot())
+			updated_out.append(_updated_snapshot(entity, include_asteroid_data))
 		elif prev_in and not curr_in:
 			# Caso 3: inside -> outside => removed (solo entity_id)
 			if not removed_out.has(entity.entity_id):
@@ -272,6 +312,59 @@ func delta_for(player_id: String) -> Dictionary:
 	}
 
 
+## Replica previa de UNA sesión: contempla entidades inmóviles al mover el AOI.
+## No modifica visible_ids ni consume el ChangeSet; gateway confirma el envío.
+func delta_for_session(
+		player_id: String,
+		visible_ids: Array[String],
+		include_asteroid_data: bool = false,
+) -> Dictionary:
+	var snapshot: Dictionary = full_snapshot_for(player_id, include_asteroid_data)
+	var current: Dictionary = {}
+	for entity: Dictionary in snapshot["added"]:
+		current[str(entity["entity_id"])] = entity
+	var changed_ids: Dictionary = {}
+	for entry: Dictionary in change_set.updated():
+		var entity: EntityState = entry["entity"]
+		changed_ids[entity.entity_id] = true
+	var added: Array[Dictionary] = []
+	var updated: Array[Dictionary] = []
+	var removed: Array[String] = []
+	for entity_id: String in current:
+		if not visible_ids.has(entity_id):
+			added.append(current[entity_id])
+		elif changed_ids.has(entity_id):
+			updated.append(_updated_snapshot(entity_registry.get_entity(entity_id), include_asteroid_data))
+	for entity_id: String in visible_ids:
+		if not current.has(entity_id):
+			removed.append(entity_id)
+	if added.is_empty() and updated.is_empty() and removed.is_empty():
+		return {}
+	return {
+		"system_id": system_id, "full": false,
+		"added": added, "updated": updated, "removed": removed,
+	}
+
+
+func _add_snapshot(entity: EntityState, include_asteroid_data: bool) -> Dictionary:
+	if entity is AsteroidState and not include_asteroid_data:
+		return (entity as AsteroidState).to_m2_add_snapshot()
+	return _with_mining_snapshot(entity, entity.to_add_snapshot(), include_asteroid_data)
+
+
+func _updated_snapshot(entity: EntityState, include_asteroid_data: bool) -> Dictionary:
+	if entity is AsteroidState and not include_asteroid_data:
+		return (entity as AsteroidState).to_m2_updated_snapshot()
+	return _with_mining_snapshot(entity, entity.to_updated_snapshot(), include_asteroid_data)
+
+
+func _with_mining_snapshot(entity: EntityState, snapshot: Dictionary, include_m3_data: bool) -> Dictionary:
+	if include_m3_data and entity.kind == "ship":
+		snapshot["mining"] = null if entity.mining.is_empty() else entity.mining.duplicate(true)
+		snapshot["last_mining_result"] = null if entity.last_mining_result.is_empty() else entity.last_mining_result.duplicate(true)
+	return snapshot
+
+
 func _is_in_aoi(pos: Vector2i, aoc: Vector2i, radius: int) -> bool:
 	return abs(pos.x - aoc.x) <= radius and abs(pos.y - aoc.y) <= radius
 
@@ -281,6 +374,8 @@ func _is_in_aoi(pos: Vector2i, aoc: Vector2i, radius: int) -> bool:
 # ---------------------------------------------------------------------------
 
 func add_mock_entity(entity_id: String, kind: String, position: Vector2i, payload: Dictionary = {}) -> void:
+	if entity_id.is_empty() or entity_registry.has(entity_id):
+		return
 	_register_mock_entity(entity_id, kind, position, payload)
 	var entity: EntityState = entity_registry.get_entity(entity_id)
 	if entity != null:
@@ -297,6 +392,20 @@ func set_entity_position(entity_id: String, position: Vector2i) -> void:
 	entity.position = position
 	spatial_hash.move(entity_id, old, position)
 	change_set.update_entity(entity, old)
+
+
+## Frontera de actualización autoritativa del modelo, sin ciclo de minería.
+func set_asteroid_resource_state(entity_id: String, quantity: int, occupant_id: String) -> bool:
+	var asteroid: AsteroidState = entity_registry.get_entity(entity_id) as AsteroidState
+	if asteroid == null:
+		return false
+	var previous_quantity: int = asteroid.remaining_quantity
+	var previous_occupant: String = asteroid.occupant_entity_id
+	if not asteroid.set_resource_state(quantity, occupant_id):
+		return false
+	if previous_quantity != quantity or previous_occupant != occupant_id:
+		change_set.update_entity(asteroid, asteroid.position)
+	return true
 
 
 func remove_mock_entity(entity_id: String) -> void:
@@ -322,7 +431,17 @@ func _register_ship_from_seed(seed: MockWorldSeed) -> void:
 
 
 func _register_mock_entity(entity_id: String, kind: String, position: Vector2i, payload: Dictionary) -> void:
-	var entity := EntityState.new(entity_id, kind, position)
+	# Validar antes de tocar registro/índice, incluso en el API de pruebas.
+	if entity_id.is_empty() or entity_registry.has(entity_id):
+		return
+	var entity: EntityState
+	if kind == "asteroid":
+		if not _asteroid_config.is_valid():
+			push_error("Invalid asteroid seed configuration")
+			return
+		entity = AsteroidState.new(entity_id, system_id, position, _asteroid_config)
+	else:
+		entity = EntityState.new(entity_id, kind, position)
 	entity.payload = payload.duplicate(true) if payload != null else {}
 	_register_entity(entity)
 

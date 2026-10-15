@@ -30,6 +30,7 @@ const ENTITY_PICK_RADIUS_PX: float = 22.0
 var _selection: ShipSelectionState
 var _tap_actions_enabled: bool = true
 var _destination_selection_enabled: bool = false
+var _asteroid_selection_enabled: bool = false
 var _has_provisional_destination: bool = false
 var _provisional_destination: Vector2i = Vector2i.ZERO
 
@@ -64,6 +65,10 @@ func set_destination_selection_enabled(enabled: bool) -> void:
 	_destination_selection_enabled = enabled
 
 
+func set_asteroid_selection_enabled(enabled: bool) -> void:
+	_asteroid_selection_enabled = enabled
+
+
 func set_tap_actions_enabled(enabled: bool) -> void:
 	_tap_actions_enabled = enabled
 
@@ -78,6 +83,7 @@ func clear_selection() -> void:
 	if _selection != null:
 		_selection.clear()
 	_destination_selection_enabled = false
+	_asteroid_selection_enabled = false
 	_has_provisional_destination = false
 	queue_redraw()
 
@@ -252,7 +258,7 @@ func _handle_tap(screen_pos: Vector2) -> void:
 	if _world == null or not _tap_actions_enabled:
 		return
 	var world_pos: Vector2 = _camera.screen_to_world(screen_pos)
-	if _destination_selection_enabled:
+	if _destination_selection_enabled and not _asteroid_selection_enabled:
 		if (world_pos.x < 0.0 or world_pos.y < 0.0
 			or world_pos.x >= float(_world.map_size.x)
 			or world_pos.y >= float(_world.map_size.y)):
@@ -261,18 +267,24 @@ func _handle_tap(screen_pos: Vector2) -> void:
 		return
 
 	var closest_id: String = ""
+	var closest_is_ship: bool = false
 	var closest_dist_sq: float = ENTITY_PICK_RADIUS_PX * ENTITY_PICK_RADIUS_PX
 	var server_now_ms: int = _world.estimated_server_time_ms()
 	for raw_entity: Variant in _world.entities.values():
 		if not raw_entity is Dictionary:
 			continue
 		var entity: Dictionary = raw_entity
+		if _asteroid_selection_enabled and str(entity.get("kind", "")) != "asteroid":
+			continue
 		var entity_screen: Vector2 = _camera.world_to_screen(
 			TRAVEL_PROJECTION.display_position(entity, server_now_ms))
 		var d_sq: float = entity_screen.distance_squared_to(screen_pos)
-		if d_sq < closest_dist_sq:
+		var is_ship: bool = str(entity.get("kind", "")) == "ship"
+		if (d_sq < closest_dist_sq or (closest_id != "" and is_equal_approx(d_sq, closest_dist_sq)
+			and is_ship and not closest_is_ship)):
 			closest_dist_sq = d_sq
 			closest_id = str(entity.get("entity_id", ""))
+			closest_is_ship = is_ship
 	_selection.select_entity(closest_id)
 	entity_selected.emit(get_selected_entity_id())
 	queue_redraw()

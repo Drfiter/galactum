@@ -2,7 +2,9 @@
 
 ## Estado de esta matriz
 
-Esta tabla se obtuvo de los archivos de prueba versionados. **Las pruebas no fueron ejecutadas durante la preparación de esta documentación**, por lo que los valores de “resultado esperado” describen el marcador que cada prueba imprime cuando termina correctamente, no una validación realizada en esta actualización.
+Verificación de cierre de minería: **2026-10-14, Windows, Godot 4.6.2.stable.official.71f334935**, rama `feature/team3-m3-mining`, HEAD `374c833` más cambios locales de ETAPAS 2–5 sobre base `2899abb`. Pasaron 34 pruebas distintas en 35 ejecuciones: 32 de lógica/protocolo, una escena de minería y una escena de nave ejecutada en M2 y M3. Cada ejecución terminó con código 0 y su marcador OK.
+
+La evidencia anterior registra el cierre minero sobre esa base. La solución actual también incorpora Combat de `a18c195`: la revisión conjunta aprobó **44 pruebas distintas / 46 ejecuciones**, incluida cancelación minera de ambos participantes al aceptarse combate. Ver [informe de convivencia](team3/TEAM3-M3-MINING-COMBAT-REVIEW.md). Los smoke M0/M1 siguen siendo históricos y no se ejecutaron.
 
 En los comandos, `godot` representa el ejecutable de Godot 4.6.2. En Windows puede reemplazarse por la ruta completa del `.exe`.
 
@@ -34,7 +36,7 @@ En los comandos, `godot` representa el ejecutable de Godot 4.6.2. En Windows pue
 
 ## Compatibilidad de los smoke tests históricos
 
-Los runners `run_m0_smoke.ps1` y `run_m1_smoke.ps1` esperan versiones de protocolo históricas. El cliente y el SSS activos usan `team3-m2.0`, por lo que esos runners no deben presentarse como smoke tests ejecutables sobre el runtime M2 actual hasta que el equipo defina una estrategia de compatibilidad o los actualice.
+Los runners `run_m0_smoke.ps1` y `run_m1_smoke.ps1` esperan versiones de protocolo históricas. En esta rama el cliente demo usa `team3-m3.0` y el SSS acepta M2/M3 por sesión; esos runners no deben presentarse como smoke tests ejecutables sobre el runtime actual hasta que el equipo defina una estrategia de compatibilidad o los actualice.
 
 Esta limitación no cambia que M0 y M1 sean hitos completados; indica que sus harnesses E2E quedaron ligados a sus versiones históricas.
 
@@ -50,3 +52,60 @@ Antes de registrar un resultado como evidencia CAPSTONE se recomienda guardar:
 - salida con el marcador esperado;
 - plataforma usada;
 - fecha de ejecución.
+
+## Matriz M3 verificada
+
+Las filas siguientes también dieron OK en el cierre. Las pruebas de gateway abren
+sus propios servidores; no requieren iniciar otro SSS. No existe un umbral de
+cobertura porcentual establecido: la evidencia cubre los comportamientos indicados.
+
+| Prueba | Proyecto | Qué valida | Marcador obtenido |
+| --- | --- | --- | --- |
+| `m3_ship_representation_test.gd` | Cliente | Selección visual, estado y proyección de nave | `M3_SHIP_REPRESENTATION_TEST_OK` |
+| `m3_ship_selection_test.gd` | Cliente | Selección única, ownership y desaparición | `M3_SHIP_SELECTION_TEST_OK` |
+| `m3_ship_scene_test.gd` | Cliente + SSS | Escena de viaje, reconexión y llegada; ejecutada en M2/M3 | `M3_SHIP_SCENE_TEST_OK` |
+| `asteroid_state_test.gd` | SSS | Configuración independiente, cantidad, ocupación y agotamiento | `ASTEROID_STATE_TEST_OK` |
+| `asteroid_world_sync_test.gd` | SSS | Snapshot/delta, cambios y entradas/salidas de AOI | `ASTEROID_WORLD_SYNC_TEST_OK` |
+| `asteroid_gateway_sync_test.gd` | SSS | Dos sesiones WebSocket, secuencias y formato M2/M3 | `ASTEROID_GATEWAY_SYNC_TEST_OK` |
+| `m3_asteroid_replica_test.gd` | Cliente | Réplica de asteroides, merge y removed | `M3_ASTEROID_REPLICA_TEST_OK` |
+| `mining_lifecycle_test.gd` | SSS | Inicio, extracción temporal, cancelación y agotamiento | `MINING_LIFECYCLE_TEST_OK` |
+| `mining_validation_test.gd` | SSS | Ownership, rango, sistema, estado y exclusividad | `MINING_VALIDATION_TEST_OK` |
+| `mining_idempotency_test.gd` | SSS | Replay, conflicto, stop antiguo, reloj y límite del diario | `MINING_IDEMPOTENCY_TEST_OK` |
+| `mining_gateway_test.gd` | SSS | Payload mínimo, autoridad, correlación y replay por WebSocket | `MINING_GATEWAY_TEST_OK` |
+| `m3_mining_intent_test.gd` | Cliente | Intención, recuperación y resultado deduplicado | `M3_MINING_INTENT_TEST_OK` |
+| `m3_mining_connection_test.gd` | Cliente | Versión, pending común, errores y desync | `M3_MINING_CONNECTION_TEST_OK` |
+| `m3_mining_input_test.gd` | Cliente | Mouse/touch, asteroide superpuesto y convivencia con Travel | `M3_MINING_INPUT_TEST_OK` |
+| `m3_mining_scene_test.gd` | Cliente + SSS | Demo E2E: viaje, rango, reconexión, parada, agotamiento y desync | `M3_MINING_SCENE_TEST_OK` |
+
+Para pruebas individuales, sustituir `<prueba>` por el nombre de la tabla:
+
+```powershell
+# Importar ambos proyectos antes de ejecutar scripts:
+godot --headless --editor --path . --import
+godot --headless --editor --path server/sss --import
+# Cliente:
+godot --headless --path . --script res://tests/<prueba>.gd
+# SSS:
+godot --headless --path server/sss --script res://tests/<prueba>.gd
+# E2E minería: el runner inicia y cierra su propio SSS de prueba.
+powershell.exe -NoProfile -File tools/run_m3_mining_smoke.ps1 -GodotPath C:/ruta/a/godot.exe -Port 19325
+```
+
+Para la escena de nave, iniciar un SSS nuevo en otro terminal con
+`godot --headless --path server/sss -- --port=19323`; ejecutar
+`godot --headless --path . --script res://tests/m3_ship_scene_test.gd -- --port=19323 --protocol=team3-m2.0`.
+Repetir con SSS nuevo y `--protocol=team3-m3.0`. El cierre empleó un helper temporal
+que automatiza ese mismo ciclo, sin versionar rutas específicas de esta máquina.
+
+La fixture de minería acelera sólo Travel a 600 unidades/minuto; producción
+conserva 10. Se comprobó parada con cantidad 1 y agotamiento posterior con 9,
+sin duplicar resultados al reconectar. El test de registro emite errores
+intencionales para duplicado/inexistente y concluye con `ENTITY_REGISTRY_TEST_OK`.
+
+Importaciones terminaron con código 0. El editor del cliente informa que falta
+Android build-tools: no se generó APK ni se probó en dispositivo. Input touch y
+layout 360×720 se verificaron de forma simulada/headless; no equivalen a validación
+visual ni a background/resume real de Android. Persistencia y economía quedan fuera.
+
+Informe de alcance, inventario y recomendación de integración:
+[TEAM3-M3-MINING-DESIGN.md](team3/TEAM3-M3-MINING-DESIGN.md#15-informe-de-cierre--etapa-5).

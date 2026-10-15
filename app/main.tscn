@@ -39,39 +39,47 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="Content" type="VBoxContainer" parent="Margin"]
+[node name="Scroll" type="ScrollContainer" parent="Margin"]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Margin/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="Margin/Content"]
+[node name="Title" type="Label" parent="Margin/Scroll/Content"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Galactum · TEAM3-M2-I"
+autowrap_mode = 2
+text = "Galactum · Minería y combate"
 
-[node name="Subtitle" type="Label" parent="Margin/Content"]
+[node name="Subtitle" type="Label" parent="Margin/Scroll/Content"]
 layout_mode = 2
+autowrap_mode = 2
 text = "Vista diagnóstica cliente → WebSocket → SSS headless"
 
-[node name="ConnectionRow" type="HBoxContainer" parent="Margin/Content"]
+[node name="ConnectionRow" type="HFlowContainer" parent="Margin/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HostLabel" type="Label" parent="Margin/Content/ConnectionRow"]
+[node name="HostLabel" type="Label" parent="Margin/Scroll/Content/ConnectionRow"]
 layout_mode = 2
 text = "Host"
 
-[node name="HostEdit" type="LineEdit" parent="Margin/Content/ConnectionRow"]
+[node name="HostEdit" type="LineEdit" parent="Margin/Scroll/Content/ConnectionRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "127.0.0.1 o IP LAN"
 
-[node name="PortLabel" type="Label" parent="Margin/Content/ConnectionRow"]
+[node name="PortLabel" type="Label" parent="Margin/Scroll/Content/ConnectionRow"]
 layout_mode = 2
 text = "Puerto"
 
-[node name="PortEdit" type="SpinBox" parent="Margin/Content/ConnectionRow"]
+[node name="PortEdit" type="SpinBox" parent="Margin/Scroll/Content/ConnectionRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 48)
 layout_mode = 2
@@ -81,57 +89,138 @@ value = 9100.0
 allow_greater = false
 allow_lesser = false
 
-[node name="ConnectButton" type="Button" parent="Margin/Content/ConnectionRow"]
+[node name="ConnectButton" type="Button" parent="Margin/Scroll/Content/ConnectionRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 48)
 layout_mode = 2
 text = "Conectar"
 
-[node name="StatusLabel" type="Label" parent="Margin/Content"]
+[node name="StatusLabel" type="Label" parent="Margin/Scroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
+autowrap_mode = 2
 text = "SSS: desconectado"
 
-[node name="MetadataLabel" type="Label" parent="Margin/Content"]
+[node name="MetadataLabel" type="Label" parent="Margin/Scroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 2
 text = "protocol=— · seq=— · server_time=—"
 
-[node name="ShipLabel" type="Label" parent="Margin/Content"]
+[node name="ShipLabel" type="Label" parent="Margin/Scroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 2
 text = "Nave dummy: esperando full_snapshot"
 
-[node name="TravelLabel" type="Label" parent="Margin/Content"]
+[node name="TravelLabel" type="Label" parent="Margin/Scroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 2
 text = "Selecciona tu nave para preparar un viaje"
 
-[node name="TravelActions" type="HBoxContainer" parent="Margin/Content"]
+[node name="TravelActions" type="HBoxContainer" parent="Margin/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ConfirmTravelButton" type="Button" parent="Margin/Content/TravelActions"]
+[node name="ConfirmTravelButton" type="Button" parent="Margin/Scroll/Content/TravelActions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 48)
 layout_mode = 2
 disabled = true
 text = "Confirmar viaje"
 
-[node name="CancelTravelButton" type="Button" parent="Margin/Content/TravelActions"]
+[node name="CancelTravelButton" type="Button" parent="Margin/Scroll/Content/TravelActions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 48)
 layout_mode = 2
 disabled = true
 text = "Cancelar"
 
-[node name="WorldDebugView" type="Control" parent="Margin/Content"]
+[node name="CombatTargetLabel" type="Label" parent="Margin/Scroll/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 240)
+layout_mode = 2
+autowrap_mode = 2
+text = "Objetivo: selecciona una nave ajena"
+
+[node name="CombatActions" type="HFlowContainer" parent="Margin/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AttackButton" type="Button" parent="Margin/Scroll/Content/CombatActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+disabled = true
+text = "Atacar"
+
+[node name="CombatStatusLabel" type="Label" parent="Margin/Scroll/Content/CombatActions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "Combat no disponible"
+
+[node name="CombatResultLabel" type="Label" parent="Margin/Scroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Resultado: —"
+
+[node name="WorldDebugView" type="Control" parent="Margin/Scroll/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 240)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 0
 script = ExtResource("3_world_view")
+
+[node name="MiningPanel" type="VBoxContainer" parent="Margin/Scroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MiningLabel" type="Label" parent="Margin/Scroll/Content/MiningPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Selecciona tu nave y pulsa Elegir asteroide"
+
+[node name="MiningActions" type="HFlowContainer" parent="Margin/Scroll/Content/MiningPanel"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+
+[node name="ChooseAsteroidButton" type="Button" parent="Margin/Scroll/Content/MiningPanel/MiningActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 48)
+layout_mode = 2
+disabled = true
+text = "Elegir asteroide"
+
+[node name="StartMiningButton" type="Button" parent="Margin/Scroll/Content/MiningPanel/MiningActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 48)
+layout_mode = 2
+disabled = true
+text = "Minar"
+
+[node name="StopMiningButton" type="Button" parent="Margin/Scroll/Content/MiningPanel/MiningActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 48)
+layout_mode = 2
+disabled = true
+text = "Detener minería"
+
+[node name="RetryMiningButton" type="Button" parent="Margin/Scroll/Content/MiningPanel/MiningActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 48)
+layout_mode = 2
+disabled = true
+text = "Recuperar solicitud"
+
+[node name="MiningResultLabel" type="Label" parent="Margin/Scroll/Content/MiningPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Resultado: —"
