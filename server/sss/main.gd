@@ -2,10 +2,12 @@ extends Node
 
 const DEFAULT_CONFIG: SssConfig = preload("res://config/default_sss_config.tres")
 const DEFAULT_SEED: MockWorldSeed = preload("res://mock/default_mock_world_seed.tres")
+const DEFAULT_COMBAT_RULES: CombatRules = preload("res://config/default_combat_rules.tres")
 
 var _config: SssConfig
 var _world: SolarSystemWorld
 var _gateway: WebSocketGateway
+var _combat_service: CombatService
 
 
 func _ready() -> void:
@@ -14,7 +16,15 @@ func _ready() -> void:
 	var seed: MockWorldSeed = DEFAULT_SEED.duplicate(true) as MockWorldSeed
 	_world = SolarSystemWorld.new(_config, seed)
 	var authenticator := MockClientAuthenticator.new(seed)
-	_gateway = WebSocketGateway.new(_config, authenticator, _world)
+	var combat_provider := MockCombatSnapshotProvider.new(seed.combat_units_by_entity())
+	var combat_rules: CombatRules = DEFAULT_COMBAT_RULES.duplicate(true) as CombatRules
+	_combat_service = CombatService.new(
+		_world,
+		combat_provider,
+		LocalCombatResolver.new(),
+		combat_rules,
+	)
+	_gateway = WebSocketGateway.new(_config, authenticator, _world, _combat_service)
 	add_child(_gateway)
 	var error: Error = _gateway.start()
 	if error != OK:

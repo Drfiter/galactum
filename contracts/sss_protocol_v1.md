@@ -310,3 +310,114 @@ La posición visual se deriva de `origin`, `destination`, `depart_ts` y
 
 Reserva de destino, persistencia, recovery del SSS por timestamps, Redis,
 costos/economía, cooldown, minería y combate corresponden a etapas posteriores.
+
+---
+
+# Extensión provisional TEAM3-M3 Combat sobre `team3-m2.0`
+
+Esta extensión añade ataque autoritativo nave contra nave sin cambiar la
+versión global ni modificar la semántica de `start_travel`. No representa el
+contrato definitivo de flotas o combate de Galactum.
+
+`protocol_version: "team3-m2.0"` versiona el transporte actualmente aceptado
+por cliente y SSS. `combat_version` versiona exclusivamente el resolver y sus
+reglas; no modifica ni reemplaza `protocol_version`.
+
+## Intención cliente → SSS: `attack`
+
+```json
+{
+  "type": "attack",
+  "protocol_version": "team3-m2.0",
+  "request_id": "client-generated-request-id",
+  "target_entity_id": "target-world-entity-id"
+}
+```
+
+Son los únicos cuatro campos aceptados. La presencia de campos adicionales se
+rechaza con `INVALID_ATTACK_REQUEST`. En particular, el cliente no envía ni
+controla atacante, `player_id`, `ship_id`, unidades, daño u outcome.
+
+El SSS procesa `attack` sólo después de autenticar la sesión. Deriva la nave
+atacante desde el `player_id` autenticado y usa `target_entity_id` únicamente
+para resolver el objetivo visible en el mundo autoritativo.
+
+## Resultado SSS → cliente: `combat_result`
+
+```json
+{
+  "type": "combat_result",
+  "protocol_version": "team3-m2.0",
+  "seq": 4,
+  "server_time": 1780000000000,
+  "request_id": "client-generated-request-id",
+  "combat_id": "combat-server-generated-id",
+  "combat_version": "m3-provisional-1",
+  "resolved_ts": 1780000000000,
+  "attacker": {
+    "entity_id": "attacker-world-entity-id",
+    "ship_id": "attacker-ship-id"
+  },
+  "defender": {
+    "entity_id": "target-world-entity-id",
+    "ship_id": "target-ship-id"
+  },
+  "outcome": "attacker_win|defender_win|draw",
+  "casualties": {
+    "attacker": [{"unit_type_id": "mock_unit_alpha", "quantity": 1}],
+    "defender": []
+  },
+  "remaining_forces": {
+    "attacker": [{"unit_type_id": "mock_unit_alpha", "quantity": 2}],
+    "defender": [{"unit_type_id": "mock_unit_beta", "quantity": 1}]
+  }
+}
+```
+
+`combat_id` lo genera el SSS. Los nombres `mock_unit_alpha` y
+`mock_unit_beta` son datos técnicos provisionales, no un catálogo oficial.
+Las bajas sólo afectan al estado mock de Combat y no modifican entidades del
+mundo, economía, inventario o progresión.
+
+## Idempotencia
+
+- La clave en memoria es `(player_id autenticado, request_id)`.
+- Repetir la misma solicitud con el mismo target devuelve el mismo cuerpo de
+  resultado y `combat_id`, sin resolver ni aplicar bajas otra vez.
+- `seq` y `server_time` pertenecen al sobre de la conexión actual y continúan
+  avanzando aunque el cuerpo sea un replay idempotente.
+- Reutilizar `request_id` con otro target devuelve
+  `ATTACK_REQUEST_CONFLICT`.
+- No existe persistencia de esta garantía después de reiniciar el SSS.
+
+## Validaciones y errores de Combat
+
+- `ERR_NOT_AUTHENTICATED`
+- `INVALID_ATTACK_REQUEST`
+- `ATTACKER_NOT_FOUND`
+- `TARGET_NOT_FOUND`
+- `UNSUPPORTED_ATTACKER_KIND`
+- `UNSUPPORTED_TARGET_KIND`
+- `CANNOT_ATTACK_SELF`
+- `CANNOT_ATTACK_OWN_SHIP`
+- `ATTACKER_NOT_ANCHORED`
+- `TARGET_NOT_ANCHORED`
+- `TARGET_NOT_VISIBLE`
+- `COMBAT_DATA_UNAVAILABLE`
+- `INVALID_COMBAT_CONFIGURATION`
+- `COMBAT_ID_GENERATION_FAILED`
+- `COMBAT_RESULT_APPLY_FAILED`
+- `ATTACK_REQUEST_CONFLICT`
+- `COMBAT_UNAVAILABLE`
+
+Los errores de esta extensión incluyen `request_type: "attack"` y, cuando el
+valor recibido permite correlación, `request_id`. Esto los mantiene separados
+de los rechazos de Travel.
+
+## Fuera de esta extensión
+
+No se incluyen flotas funcionales, rango de gameplay, destrucción o retirada
+de naves, loot, economía, progresión, Criosantuario, recompensas, PvE,
+Xenoforms ni persistencia entre reinicios. La UI no forma parte del contrato
+wire; el cliente mínimo de la vertical slice se documenta en
+`docs/team3/TEAM3-M3-COMBAT-DESIGN.md`.

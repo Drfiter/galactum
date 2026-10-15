@@ -7,6 +7,8 @@ extends Node
 ## WorldState. Reinicia el seguimiento de seq al abrir cada conexión nueva.
 ## TEAM3-M2-I: envía una única intención start_travel pendiente, publica el
 ## reloj del SSS y separa rechazos del servidor de errores de protocolo.
+## TEAM3-M3: añade la extensión provisional attack sobre team3-m2.0, con
+## correlación por request_id y separación estricta entre Combat y Travel.
 
 signal connection_state_changed(state: String)
 signal authenticated(payload: Dictionary)
@@ -16,6 +18,7 @@ signal latency_updated(milliseconds: int)
 signal server_time_received(server_time_ms: int)
 signal protocol_error(message: String)
 signal server_error(payload: Dictionary)
+signal combat_result_received(payload: Dictionary)
 signal desync_detected
 
 const PROTOCOL_VERSION: String = "team3-m2.0"
@@ -45,6 +48,8 @@ var _last_ping_ticks: int = 0
 # -1 => aún sin base (esperamos el primer mensaje de la conexión).
 var _next_expected_seq: int = -1
 var _start_travel_pending: bool = false
+var _attack_pending_request_id: String = ""
+var _issued_attack_request_ids: Dictionary = {}
 
 
 func connect_to_server(config: ClientConnectionConfig) -> void:
@@ -97,11 +102,51 @@ func is_start_travel_pending() -> bool:
 	return _start_travel_pending
 
 
+## Envia exclusivamente la intencion minima aprobada. El SSS deriva al atacante.
+## Devuelve el request_id generado o "" cuando no pudo iniciar la solicitud.
+func request_attack(target_entity_id: String) -> String:
+	if (_state != State.AUTHENTICATED or target_entity_id == ""
+		or _attack_pending_request_id != ""):
+		return ""
+	var request_id: String = _generate_attack_request_id()
+	if not _send(_build_attack_payload(target_entity_id, request_id)):
+		return ""
+	_attack_pending_request_id = request_id
+	_issued_attack_request_ids[request_id] = true
+	return request_id
+
+
+func resolve_attack_request(request_id: String = "") -> bool:
+	if _attack_pending_request_id == "":
+		return false
+	if request_id != "" and request_id != _attack_pending_request_id:
+		return false
+	_attack_pending_request_id = ""
+	return true
+
+
+func is_attack_pending() -> bool:
+	return _attack_pending_request_id != ""
+
+
+func pending_attack_request_id() -> String:
+	return _attack_pending_request_id
+
+
 static func _build_start_travel_payload(destination: Vector2i) -> Dictionary:
 	return {
 		"type": "start_travel",
 		"protocol_version": PROTOCOL_VERSION,
 		"destination": [destination.x, destination.y],
+	}
+
+
+static func _build_attack_payload(target_entity_id: String, request_id: String) -> Dictionary:
+	return {
+		"type": "attack",
+		"protocol_version": PROTOCOL_VERSION,
+		"request_id": request_id,
+		"target_entity_id": target_entity_id,
 	}
 
 
@@ -188,9 +233,14 @@ func _handle_packet(raw: String) -> void:
 			var echoed_time: int = int(message.get("client_time", _last_ping_ticks))
 			latency_updated.emit(maxi(0, Time.get_ticks_msec() - echoed_time))
 		"error":
-			if TRAVEL_ERROR_CODES.has(str(message.get("error_code", ""))):
+			if str(message.get("request_type", "")) == "attack":
+				resolve_attack_request(str(message.get("request_id", "")))
+			elif TRAVEL_ERROR_CODES.has(str(message.get("error_code", ""))):
 				_start_travel_pending = false
 			server_error.emit(message)
+		"combat_result":
+			resolve_attack_request(str(message.get("request_id", "")))
+			combat_result_received.emit(message)
 		_:
 			protocol_error.emit("Tipo de mensaje M2 desconocido: %s" % message.get("type", ""))
 
@@ -214,6 +264,14 @@ func _validate_sequence(message: Dictionary) -> bool:
 func _reset_sequence_tracking() -> void:
 	_next_expected_seq = -1
 	_start_travel_pending = false
+	_attack_pending_request_id = ""
+
+
+func _generate_attack_request_id() -> String:
+	var request_id: String = ""
+	while request_id == "" or _issued_attack_request_ids.has(request_id):
+		request_id = "attack-%s" % Crypto.new().generate_random_bytes(16).hex_encode()
+	return request_id
 
 
 func _send(payload: Dictionary) -> bool:

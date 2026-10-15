@@ -46,7 +46,7 @@ theme_override_constants/separation = 10
 [node name="Title" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Galactum · TEAM3-M2-I"
+text = "Galactum · TEAM3-M3 Combat"
 
 [node name="Subtitle" type="Label" parent="Margin/Content"]
 layout_mode = 2
@@ -127,6 +127,36 @@ custom_minimum_size = Vector2(120, 48)
 layout_mode = 2
 disabled = true
 text = "Cancelar"
+
+[node name="CombatTargetLabel" type="Label" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Objetivo: selecciona una nave ajena"
+
+[node name="CombatActions" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AttackButton" type="Button" parent="Margin/Content/CombatActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+disabled = true
+text = "Atacar"
+
+[node name="CombatStatusLabel" type="Label" parent="Margin/Content/CombatActions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+text = "Combat no disponible"
+
+[node name="CombatResultLabel" type="Label" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+text = "Resultado: —"
 
 [node name="WorldDebugView" type="Control" parent="Margin/Content"]
 unique_name_in_owner = true

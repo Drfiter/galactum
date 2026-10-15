@@ -4,15 +4,22 @@ extends Node
 var _config: SssConfig
 var _authenticator: ClientAuthenticator
 var _world: SolarSystemWorld
+var _combat_service: CombatService
 var _tcp_server := TCPServer.new()
 var _sessions: Dictionary = {}
 var _next_session_id: int = 1
 
 
-func _init(config: SssConfig, authenticator: ClientAuthenticator, world: SolarSystemWorld) -> void:
+func _init(
+		config: SssConfig,
+		authenticator: ClientAuthenticator,
+		world: SolarSystemWorld,
+		combat_service: CombatService = null,
+) -> void:
 	_config = config
 	_authenticator = authenticator
 	_world = world
+	_combat_service = combat_service
 
 
 func start() -> Error:
@@ -102,6 +109,15 @@ func _handle_packet(session_id: int, raw: String) -> void:
 	if message_type == "start_travel":
 		_handle_start_travel(session_id, message)
 		return
+	# Combat valida autenticación antes de inspeccionar o procesar la intención.
+	# El orden histórico de start_travel se conserva fuera de este cambio.
+	if message_type == "attack":
+		var attack_request_id: String = str(message.get("request_id", ""))
+		if not bool(session.get("authenticated", false)):
+			_send_combat_error(session_id, attack_request_id, "ERR_NOT_AUTHENTICATED", "Authenticate first")
+			return
+		_handle_attack(session_id, message)
+		return
 	if not bool(session.get("authenticated", false)):
 		_send_error(session_id, "ERR_NOT_AUTHENTICATED", "Authenticate first")
 		return
@@ -118,6 +134,44 @@ func _handle_packet(session_id: int, raw: String) -> void:
 			})
 		_:
 			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Unsupported TEAM3-M1 message")
+
+
+func _handle_attack(session_id: int, message: Dictionary) -> void:
+	var raw_request_id: Variant = message.get("request_id", "")
+	var request_id: String = raw_request_id if raw_request_id is String else ""
+	var allowed_fields: Array[String] = [
+		"type",
+		"protocol_version",
+		"request_id",
+		"target_entity_id",
+	]
+	for raw_key: Variant in message.keys():
+		if not allowed_fields.has(str(raw_key)):
+			_send_combat_error(
+				session_id,
+				request_id,
+				CombatService.ERROR_INVALID_ATTACK_REQUEST,
+				"Unexpected field in attack request: %s" % str(raw_key),
+			)
+			return
+	if not raw_request_id is String or not message.get("target_entity_id", "") is String:
+		_send_combat_error(
+			session_id,
+			request_id,
+			CombatService.ERROR_INVALID_ATTACK_REQUEST,
+			"request_id and target_entity_id must be strings",
+		)
+		return
+	if _combat_service == null:
+		_send_combat_error(session_id, request_id, "COMBAT_UNAVAILABLE", "Combat service is unavailable")
+		return
+	var session: Dictionary = _sessions[session_id]
+	var result: Dictionary = _combat_service.request_attack(
+		str(session.get("player_id", "")),
+		request_id,
+		str(message.get("target_entity_id", "")),
+	)
+	_send(session_id, result)
 
 
 func _handle_start_travel(session_id: int, message: Dictionary) -> void:
@@ -161,6 +215,10 @@ func _send_error(session_id: int, error_code: String, message: String) -> void:
 		"error_code": error_code,
 		"message": message,
 	})
+
+
+func _send_combat_error(session_id: int, request_id: String, error_code: String, message: String) -> void:
+	_send(session_id, CombatService.combat_error(request_id, error_code, message))
 
 
 func _send(session_id: int, payload: Dictionary) -> void:

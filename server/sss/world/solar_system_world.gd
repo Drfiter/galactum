@@ -116,6 +116,23 @@ func _ship_for_player(player_id: String) -> EntityState:
 	return null
 
 
+## Consultas autoritativas mínimas consumidas por servicios del SSS.
+func get_ship_for_player(player_id: String) -> EntityState:
+	return _ship_for_player(player_id)
+
+
+func get_entity(entity_id: String) -> EntityState:
+	return entity_registry.get_entity(entity_id)
+
+
+func is_entity_visible_to(player_id: String, entity_id: String) -> bool:
+	var player_ship: EntityState = _ship_for_player(player_id)
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if player_ship == null or entity == null:
+		return false
+	return _is_in_aoi(entity.position, player_ship.position, _config.aoi_radius)
+
+
 ## Procesa llegadas: now >= arrive_ts -> position = destination, ANCHORED, travel limpio.
 func _process_travel_arrivals() -> void:
 	var now: int = _now_ms.call()
