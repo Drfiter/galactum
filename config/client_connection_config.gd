@@ -1,6 +1,8 @@
 class_name ClientConnectionConfig
 extends Resource
 
+@export_enum("team3-m2.0", "team3-m3.0") var protocol_version: String = "team3-m2.0"
+
 @export var host: String = "127.0.0.1"
 @export_range(1, 65535, 1) var port: int = 9100
 @export var mock_token: String = "team3-m0-local-player"

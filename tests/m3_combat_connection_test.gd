@@ -10,6 +10,7 @@ class FakeSssConnection extends SssConnection:
 
 	func authenticate_for_test() -> void:
 		_state = State.AUTHENTICATED
+		_has_world_snapshot = true
 
 	func _send(payload: Dictionary) -> bool:
 		sent_messages.append(payload.duplicate(true))
@@ -20,6 +21,7 @@ func _initialize() -> void:
 	_test_exact_payload_and_unique_request_ids()
 	_test_error_domains_and_result()
 	_test_reconnect_clears_pending_attack()
+	_test_mining_and_combat_share_pending()
 	_finish()
 
 
@@ -55,7 +57,10 @@ func _test_error_domains_and_result() -> void:
 	connection.authenticate_for_test()
 	connection.combat_result_received.connect(func(_payload: Dictionary) -> void: _combat_results += 1)
 	_check(connection.request_start_travel(Vector2i(420, 180)), "Travel pendiente para prueba de separación")
-	var attack_id: String = connection.request_attack("target-1")
+	_check(connection.request_attack("target-1") == "", "Travel pendiente bloquea attack")
+	# Inyectar ambos dominios para comprobar aislamiento incluso ante respuestas antiguas.
+	var attack_id: String = "attack-fixture-1"
+	connection._attack_pending_request_id = attack_id
 	connection.call("_handle_packet", JSON.stringify(_envelope({
 		"type": "error",
 		"request_type": "attack",
@@ -66,7 +71,11 @@ func _test_error_domains_and_result() -> void:
 	_check(not connection.is_attack_pending(), "error Combat limpia sólo Combat")
 	_check(connection.is_start_travel_pending(), "error Combat no resuelve Travel aunque comparta código")
 
+	connection.resolve_start_travel_request()
 	var second_attack_id: String = connection.request_attack("target-2")
+	_check(not second_attack_id.is_empty(), "Combat disponible al resolver Travel")
+	_check(not connection.request_start_travel(Vector2i(420, 180)), "Combat pendiente bloquea Travel")
+	connection._start_travel_pending = true
 	connection.call("_handle_packet", JSON.stringify(_envelope({
 		"type": "error",
 		"error_code": "INVALID_DESTINATION",
@@ -98,6 +107,22 @@ func _test_reconnect_clears_pending_attack() -> void:
 	connection.call("_reset_sequence_tracking")
 	_check(not connection.is_attack_pending() and connection.pending_attack_request_id() == "",
 		"nueva conexión no conserva pendiente falsa")
+	connection.free()
+
+
+func _test_mining_and_combat_share_pending() -> void:
+	var connection := FakeSssConnection.new()
+	connection._config = ClientConnectionConfig.new()
+	connection._config.protocol_version = "team3-m3.0"
+	connection.authenticate_for_test()
+	var action: Dictionary = {"type": "start_mining", "request_id": "00000000-0000-4000-8000-000000000001", "asteroid_entity_id": "asteroid"}
+	_check(connection.request_mining(action), "M3 inicia intención minera")
+	_check(connection.request_attack("target") == "", "minería pendiente bloquea ataque")
+	connection.resolve_mining_request()
+	var request_id: String = connection.request_attack("target")
+	_check(not request_id.is_empty(), "M3 admite combate")
+	_check(connection.sent_messages[-1]["protocol_version"] == "team3-m3.0", "attack usa versión negociada")
+	_check(not connection.request_mining(action), "ataque pendiente bloquea minería")
 	connection.free()
 
 

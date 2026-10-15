@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AsteroidConfig" format=3]
+
+[ext_resource type="Script" path="res://config/asteroid_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+asteroid_type = "demo_asteroid"
+resource_type = "demo_ore"
+initial_quantity = 10
+rate_units_per_second = 1
+mining_range = 1.0

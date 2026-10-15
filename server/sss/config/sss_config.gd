@@ -2,6 +2,7 @@ class_name SssConfig
 extends Resource
 
 @export var protocol_version: String = "team3-m2.0"
+@export var mining_config: MiningConfig = preload("res://config/default_mining_config.tres")
 @export_range(1, 65535, 1) var port: int = 9100
 @export_range(0.5, 10.0, 0.5) var tick_hz: float = 2.0
 @export var map_size: Vector2i = Vector2i(600, 600)

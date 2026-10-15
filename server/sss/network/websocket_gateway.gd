@@ -1,6 +1,9 @@
 class_name WebSocketGateway
 extends Node
 
+const M2_PROTOCOL: String = "team3-m2.0"
+const M3_PROTOCOL: String = "team3-m3.0"
+
 var _config: SssConfig
 var _authenticator: ClientAuthenticator
 var _world: SolarSystemWorld
@@ -64,10 +67,11 @@ func flush_pending_deltas() -> void:
 	for raw_session_id: Variant in _sessions.keys():
 		var session_id: int = int(raw_session_id)
 		var session: Dictionary = _sessions[session_id]
-		if not bool(session.get("authenticated", false)):
+		if not bool(session.get("authenticated", false)) or not bool(session.get("has_snapshot", false)):
 			continue
 		var player_id: String = str(session.get("player_id", ""))
-		var delta: Dictionary = _world.delta_for(player_id)
+		var visible_ids: Array[String] = session["visible_ids"]
+		var delta: Dictionary = _world.delta_for_session(player_id, visible_ids, session["protocol_version"] == M3_PROTOCOL)
 		if delta.is_empty():
 			continue
 		delta["type"] = "map_delta"
@@ -81,12 +85,16 @@ func _accept_connection() -> void:
 	if error != OK:
 		stream.disconnect_from_host()
 		return
+	var visible_ids: Array[String] = []
 	_sessions[_next_session_id] = {
 		"peer": peer,
 		"authenticated": false,
 		"player_id": "",
 		"system_id": "",
 		"seq": 0,
+		"visible_ids": visible_ids,
+		"has_snapshot": false,
+		"protocol_version": _config.protocol_version,
 	}
 	_next_session_id += 1
 
@@ -97,14 +105,24 @@ func _handle_packet(session_id: int, raw: String) -> void:
 		_send_error(session_id, "ERR_INVALID_JSON", "Expected a JSON object")
 		return
 	var message: Dictionary = parsed
-	if str(message.get("protocol_version", "")) != _config.protocol_version:
+	var incoming_version: String = str(message.get("protocol_version", ""))
+	var session: Dictionary = _sessions[session_id]
+	if (incoming_version not in [M2_PROTOCOL, M3_PROTOCOL]
+		or (bool(session["authenticated"]) and incoming_version != str(session["protocol_version"]))):
 		_send_error(session_id, "ERR_PROTOCOL_VERSION", "Unsupported protocol_version")
 		return
-
-	var session: Dictionary = _sessions[session_id]
+	if not bool(session["authenticated"]):
+		session["protocol_version"] = incoming_version
+		_sessions[session_id] = session
 	var message_type: String = str(message.get("type", ""))
 	if message_type == "auth":
 		_handle_auth(session_id, message)
+		return
+	if message_type in ["start_mining", "stop_mining"]:
+		if incoming_version != M3_PROTOCOL:
+			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Mining requires team3-m3.0")
+		else:
+			_handle_mining(session_id, message)
 		return
 	if message_type == "start_travel":
 		_handle_start_travel(session_id, message)
@@ -124,7 +142,7 @@ func _handle_packet(session_id: int, raw: String) -> void:
 
 	match message_type:
 		"full_snapshot":
-			var snapshot: Dictionary = _world.full_snapshot_for(str(session.get("player_id", "")))
+			var snapshot: Dictionary = _world.full_snapshot_for(str(session.get("player_id", "")), incoming_version == M3_PROTOCOL)
 			snapshot["type"] = "map_delta"
 			_send(session_id, snapshot)
 		"ping":
@@ -133,7 +151,61 @@ func _handle_packet(session_id: int, raw: String) -> void:
 				"client_time": int(message.get("client_time", 0)),
 			})
 		_:
-			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Unsupported TEAM3-M1 message")
+			_send_error(session_id, "ERR_UNKNOWN_MESSAGE", "Unsupported message")
+
+
+func _handle_mining(session_id: int, message: Dictionary) -> void:
+	var session: Dictionary = _sessions[session_id]
+	if not bool(session["authenticated"]):
+		_send_mining_error(session_id, message, "MINING_NOT_AUTHENTICATED")
+		return
+	var request_type: String = str(message["type"])
+	var allowed: Array[String] = ["type", "protocol_version"]
+	var valid: bool
+	if request_type == "start_mining":
+		allowed.append_array(["request_id", "asteroid_entity_id"])
+		valid = (message.get("request_id") is String
+			and MiningService.is_valid_request_id(str(message["request_id"]))
+			and message.get("asteroid_entity_id") is String
+			and not str(message["asteroid_entity_id"]).is_empty())
+	else:
+		allowed.append("mining_id")
+		valid = message.get("mining_id") is String and not str(message["mining_id"]).is_empty()
+	for field: Variant in message:
+		if not allowed.has(str(field)):
+			valid = false
+	if not valid:
+		_send_mining_error(session_id, message, "MINING_INVALID_REQUEST")
+		return
+	var player_id: String = str(session["player_id"])
+	var result: Dictionary
+	if request_type == "start_mining":
+		result = _world.start_mining(player_id, str(message["request_id"]), str(message["asteroid_entity_id"]))
+	else:
+		result = _world.stop_mining(player_id, str(message["mining_id"]))
+	if result.has("error_code"):
+		_send_mining_error(session_id, message, str(result["error_code"]))
+	elif result.has("result"):
+		var replay: Dictionary = {
+			"type": "mining_replay", "request_type": request_type,
+			"mining_id": result["mining_id"], "result": result["result"],
+		}
+		if message.has("request_id"):
+			replay["request_id"] = str(message["request_id"]).to_lower()
+		_send(session_id, replay)
+	# Inicio/parada nuevos se confirman sólo por el próximo map_delta del tick.
+
+
+func _send_mining_error(session_id: int, request: Dictionary, code: String) -> void:
+	var response: Dictionary = {
+		"type": "error", "error_code": code, "message": code,
+		"request_type": str(request.get("type", "")),
+	}
+	if request.get("request_id") is String:
+		response["request_id"] = str(request["request_id"]).to_lower()
+	if request.get("mining_id") is String:
+		response["mining_id"] = request["mining_id"]
+	_send(session_id, response)
 
 
 func _handle_attack(session_id: int, message: Dictionary) -> void:
@@ -200,6 +272,9 @@ func _handle_auth(session_id: int, message: Dictionary) -> void:
 	session["authenticated"] = true
 	session["player_id"] = str(identity.get("player_id", ""))
 	session["system_id"] = str(identity.get("system_id", ""))
+	var visible_ids: Array[String] = []
+	session["visible_ids"] = visible_ids
+	session["has_snapshot"] = false
 	_sessions[session_id] = session
 	_send(session_id, {
 		"type": "auth_ok",
@@ -228,10 +303,22 @@ func _send(session_id: int, payload: Dictionary) -> void:
 	var peer: WebSocketPeer = session["peer"]
 	if peer.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return
-	session["seq"] = int(session.get("seq", 0)) + 1
-	_sessions[session_id] = session
 	var message: Dictionary = payload.duplicate(true)
-	message["protocol_version"] = _config.protocol_version
-	message["seq"] = session["seq"]
+	message["protocol_version"] = session["protocol_version"]
+	message["seq"] = int(session.get("seq", 0)) + 1
 	message["server_time"] = _world.server_time
-	peer.send_text(JSON.stringify(message))
+	if peer.send_text(JSON.stringify(message)) != OK:
+		return
+	session["seq"] = message["seq"]
+	if str(payload.get("type", "")) == "map_delta":
+		var visible_ids: Array[String] = session["visible_ids"]
+		if bool(payload.get("full", false)):
+			visible_ids.clear()
+			session["has_snapshot"] = true
+		for entity: Dictionary in payload.get("added", []):
+			var entity_id: String = str(entity["entity_id"])
+			if not visible_ids.has(entity_id):
+				visible_ids.append(entity_id)
+		for entity_id: String in payload.get("removed", []):
+			visible_ids.erase(entity_id)
+	_sessions[session_id] = session
