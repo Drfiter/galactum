@@ -310,3 +310,50 @@ La posición visual se deriva de `origin`, `destination`, `depart_ts` y
 
 Reserva de destino, persistencia, recovery del SSS por timestamps, Redis,
 costos/economía, cooldown, minería y combate corresponden a etapas posteriores.
+
+---
+
+# Extensión M3 World PvE — SSS etapa 2
+
+Extensión de entidad aprobada para `feature/team3-m3-world-pve`. Mantiene
+`team3-m2.0`, el sobre y `map_delta`; no añade mensajes cliente → SSS.
+No altera los estados ni el flujo de viaje de naves.
+
+## Xenoform completo
+
+```json
+{
+  "entity_id": "...",
+  "kind": "xenoform",
+  "system_id": "...",
+  "position": [310, 315],
+  "display_name": "Xenoform M3 de diagnóstico",
+  "state": "IDLE",
+  "xenoform": {"config_id": "m3-demo-static"}
+}
+```
+
+- `entity_id` identifica la instancia y `xenoform.config_id` su configuración.
+- `position` conserva coordenadas enteras autoritativas del mapa M2.
+- `IDLE` es reposo técnico de un Xenoform estático; no indica vida, rango o
+  permiso de combate. ANCHORED/TRAVELING siguen perteneciendo al viaje de nave.
+- Los Xenoforms tipados no publican travel, ship_id, fleet_id o player_id.
+- No se publican costos de energía, Resources, rutas o datos internos de balance.
+- Snapshot y added contienen la entidad completa. Un updated de Xenoform
+  contiene los mismos campos visibles; reemplaza completo el bloque xenoform.
+  WorldState conserva su merge superficial.
+- La creación/retirada es interna al SSS. No hay petición de spawn/attack,
+  economía, HP, daño, loot o respawn automático en esta etapa.
+
+## Visibilidad por conexión
+
+Cada conexión establece su baseline de IDs con el full_snapshot enviado.
+El SSS compara ese baseline con el AOI actual para generar added/removed,
+incluyendo entidades inmóviles cuando viaja el observador. Updated sólo se envía
+para entidades ya conocidas que permanecen visibles. Un ID ocupa como máximo
+una categoría por delta. Un nuevo full_snapshot reemplaza el baseline.
+
+Removed sigue significando salida de la réplica visible: no certifica destrucción.
+El cliente reconstruye mediante full_snapshot al reconectar/desincronizarse,
+sin ACKs o retransmisión propios. Clientes con validación estricta de entidades
+deben aceptar estos campos y el estado IDLE; las garantías de viaje M2 permanecen.

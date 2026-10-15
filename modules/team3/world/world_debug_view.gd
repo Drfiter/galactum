@@ -249,17 +249,9 @@ func _gui_input(event: InputEvent) -> void:
 ## Al tocar/cliquear selecciona una entidad o, durante planificación, una
 ## coordenada entera dentro del mapa. Ninguna de las dos acciones envía red.
 func _handle_tap(screen_pos: Vector2) -> void:
-	if _world == null or not _tap_actions_enabled:
+	if _world == null or _selection == null or not _tap_actions_enabled:
 		return
 	var world_pos: Vector2 = _camera.screen_to_world(screen_pos)
-	if _destination_selection_enabled:
-		if (world_pos.x < 0.0 or world_pos.y < 0.0
-			or world_pos.x >= float(_world.map_size.x)
-			or world_pos.y >= float(_world.map_size.y)):
-			return
-		destination_selected.emit(Vector2i(floori(world_pos.x), floori(world_pos.y)))
-		return
-
 	var closest_id: String = ""
 	var closest_dist_sq: float = ENTITY_PICK_RADIUS_PX * ENTITY_PICK_RADIUS_PX
 	var server_now_ms: int = _world.estimated_server_time_ms()
@@ -273,6 +265,15 @@ func _handle_tap(screen_pos: Vector2) -> void:
 		if d_sq < closest_dist_sq:
 			closest_dist_sq = d_sq
 			closest_id = str(entity.get("entity_id", ""))
+	# Inspeccionar una entidad tiene prioridad sobre preparar coordenadas de viaje.
+	# El bloqueo de solicitudes pendientes continúa aplicándose antes del picking.
+	if closest_id == "" and _destination_selection_enabled:
+		if (world_pos.x < 0.0 or world_pos.y < 0.0
+			or world_pos.x >= float(_world.map_size.x)
+			or world_pos.y >= float(_world.map_size.y)):
+			return
+		destination_selected.emit(Vector2i(floori(world_pos.x), floori(world_pos.y)))
+		return
 	_selection.select_entity(closest_id)
 	entity_selected.emit(get_selected_entity_id())
 	queue_redraw()

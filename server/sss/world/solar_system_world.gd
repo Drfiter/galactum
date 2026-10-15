@@ -20,6 +20,8 @@ var change_set: WorldChangeSet
 ## Fuente del tiempo inyectable para tests (Callable() -> int, Unix ms).
 ## Por defecto usa el reloj del sistema; los tests de viaje la reemplazan.
 var _now_ms: Callable
+## IDs PvE usados en esta ejecución; una retirada no permite reciclar identidad.
+var _used_xenoform_ids: Dictionary[String, bool] = {}
 
 
 func _init(config: SssConfig, seed: MockWorldSeed) -> void:
@@ -46,6 +48,60 @@ func _init(config: SssConfig, seed: MockWorldSeed) -> void:
 		)
 		var payload: Dictionary = entry.get("payload", {})
 		_register_mock_entity(entity_id, kind, pos, payload)
+	if seed.xenoform_config != null:
+		spawn_xenoform(seed.xenoform_entity_id, seed.xenoform_config, seed.xenoform_position)
+	# Bootstrap anterior a las sesiones: el primer full_snapshot ya incluye el seed.
+	acknowledge_changes()
+
+
+## Sólo llamadores internos del SSS. Rechazo atómico: no deja registro/índice/delta.
+func spawn_xenoform(entity_id: String, configuration: XenoformConfig,
+		position: Vector2i) -> XenoformState:
+	if (entity_id.strip_edges().is_empty() or entity_registry.has(entity_id)
+		or _used_xenoform_ids.has(entity_id) or configuration == null
+		or not configuration.is_valid() or not _position_in_map(position)):
+		return null
+	var entity := XenoformState.new(entity_id, configuration, system_id, position)
+	_register_entity(entity)
+	_used_xenoform_ids[entity_id] = true
+	change_set.add_entity(entity)
+	return entity
+
+
+## Consulta interna SSS para Combat: copia actual, independiente de escena y AOI.
+## {} = inexistente o no Xenoform tipado. No autoriza atacar ni resuelve Combat.
+## Reconsultar por ID al ejecutar: una copia retenida puede quedar obsoleta.
+func get_xenoform_target(entity_id: String) -> Dictionary:
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if not entity is XenoformState:
+		return {}
+	var xenoform: XenoformState = entity as XenoformState
+	var configuration: XenoformConfig = xenoform.get_configuration()
+	return {
+		"entity_id": xenoform.entity_id,
+		"kind": xenoform.kind,
+		"system_id": xenoform.system_id,
+		"position": [xenoform.position.x, xenoform.position.y],
+		"state": xenoform.state,
+		"config_id": configuration.config_id,
+		"energy_cost": configuration.energy_cost if configuration.has_energy_cost else null,
+	}
+
+
+## Retirada administrativa del mundo; no resuelve muerte, combate o recompensa.
+func remove_xenoform(entity_id: String) -> bool:
+	var entity: EntityState = entity_registry.get_entity(entity_id)
+	if not entity is XenoformState:
+		return false
+	spatial_hash.remove(entity_id, entity.position)
+	entity_registry.erase(entity_id)
+	change_set.remove_entity(entity_id, entity.position)
+	return true
+
+
+func _position_in_map(position: Vector2i) -> bool:
+	return (position.x >= 0 and position.y >= 0
+		and position.x < map_size.x and position.y < map_size.y)
 
 
 func _system_now_ms() -> int:
@@ -166,25 +222,14 @@ func _travel_error(error_code: String, message: String) -> Dictionary:
 
 
 # ---------------------------------------------------------------------------
-# Snapshots y deltas (sin cambios respecto a M1 salvo state/travel)
+# Snapshots y deltas con visibilidad explícita por conexión (M3 etapa 2)
 # ---------------------------------------------------------------------------
 
 func full_snapshot_for(player_id: String) -> Dictionary:
-	var player_pos: Vector2i = _player_position(player_id)
-	if player_pos == Vector2i(-1, -1):
-		return {
-			"system_id": system_id,
-			"map_size": [map_size.x, map_size.y],
-			"full": true,
-			"added": [],
-			"updated": [],
-			"removed": [],
-		}
-	var aoi_ids: Array = aoi_engine.entities_for(player_pos)
 	var added: Array = []
-	for eid: Variant in aoi_ids:
-		var entity: EntityState = entity_registry.get_entity(str(eid))
-		if entity != null and _is_in_aoi(entity.position, player_pos, _config.aoi_radius):
+	for eid: String in visible_entity_ids_for(player_id):
+		var entity: EntityState = entity_registry.get_entity(eid)
+		if entity != null:
 			added.append(entity.to_add_snapshot())
 	return {
 		"system_id": system_id,
@@ -196,71 +241,48 @@ func full_snapshot_for(player_id: String) -> Dictionary:
 	}
 
 
-## Delta incremental para una sesión, filtrado por AOI. No drena el changeset.
-## Resuelve las 4 transiciones de visibilidad por sesión:
-## 1. previous outside + current inside -> added
-## 2. previous inside  + current inside -> updated
-## 3. previous inside  + current outside -> removed
-## 4. previous outside + current outside -> nada
-func delta_for(player_id: String) -> Dictionary:
-	if not change_set.has_changes():
-		return {}
+## IDs visibles en el estado autoritativo actual; no serializa todo el mundo.
+func visible_entity_ids_for(player_id: String) -> Array[String]:
+	var ids: Array[String] = []
 	var player_pos: Vector2i = _player_position(player_id)
 	if player_pos == Vector2i(-1, -1):
-		return {}
-	var player_entity: EntityState = _ship_for_player(player_id)
-	var own_ship_id: String = "" if player_entity == null else player_entity.entity_id
-	var radius: int = _config.aoi_radius
+		return ids
+	for raw_id: Variant in aoi_engine.entities_for(player_pos):
+		var entity: EntityState = entity_registry.get_entity(str(raw_id))
+		if entity != null and _is_in_aoi(entity.position, player_pos, _config.aoi_radius):
+			ids.append(entity.entity_id)
+	ids.sort()
+	return ids
+
+
+## Baseline explícito por conexión. Función pura respecto a baseline/ChangeSet.
+## Incluye entradas/salidas de entidades inmóviles al moverse el observador.
+func delta_for(player_id: String, known_entity_ids: Array[String]) -> Dictionary:
+	var current_ids: Array[String] = visible_entity_ids_for(player_id)
+	var current: Dictionary[String, bool] = {}
+	var known: Dictionary[String, bool] = {}
+	for entity_id: String in current_ids:
+		current[entity_id] = true
+	for entity_id: String in known_entity_ids:
+		known[entity_id] = true
 	var added_out: Array = []
 	var updated_out: Array = []
 	var removed_out: Array = []
-
-	# 1. Entidades agregadas en el mundo (creación de entidad)
-	for entity: EntityState in change_set.added():
-		if _is_in_aoi(entity.position, player_pos, radius):
-			added_out.append(entity.to_add_snapshot())
-
-	# 2. Entidades modificadas / movidas en el mundo
+	for entity_id: String in current_ids:
+		if not known.has(entity_id):
+			added_out.append(entity_registry.get_entity(entity_id).to_add_snapshot())
+	for entity_id: String in known:
+		if not current.has(entity_id):
+			removed_out.append(entity_id)
+	removed_out.sort()
+	var updated_ids: Dictionary[String, bool] = {}
 	for item: Dictionary in change_set.updated():
 		var entity: EntityState = item.get("entity")
-		if entity == null:
+		if (entity == null or not current.has(entity.entity_id)
+			or not known.has(entity.entity_id) or updated_ids.has(entity.entity_id)):
 			continue
-		# La nave del jugador ES el centro del AOI: el cliente siempre la tiene,
-		# así que cualquier cambio sobre ella es un `updated` (nunca added/removed).
-		# Sin esto, un salto grande (llegada) clasificaría outside->inside (added)
-		# porque el centro se recentra con la nave en el mismo tick.
-		if entity.entity_id == own_ship_id:
-			updated_out.append(entity.to_updated_snapshot())
-			continue
-		var prev_pos: Vector2i = item.get("previous_position", entity.position)
-		var curr_pos: Vector2i = entity.position
-		var prev_in: bool = _is_in_aoi(prev_pos, player_pos, radius)
-		var curr_in: bool = _is_in_aoi(curr_pos, player_pos, radius)
-
-		if not prev_in and curr_in:
-			# Caso 1: outside -> inside => added (entidad completa)
-			added_out.append(entity.to_add_snapshot())
-		elif prev_in and curr_in:
-			# Caso 2: inside -> inside => updated (entity_id + campos modificados)
-			updated_out.append(entity.to_updated_snapshot())
-		elif prev_in and not curr_in:
-			# Caso 3: inside -> outside => removed (solo entity_id)
-			if not removed_out.has(entity.entity_id):
-				removed_out.append(entity.entity_id)
-		else:
-			# Caso 4: outside -> outside => nada
-			pass
-
-	# 3. Entidades eliminadas del mundo (destrucción de entidad)
-	for entry: Dictionary in change_set.removed():
-		var eid: String = str(entry.get("entity_id", ""))
-		var pos: Vector2i = entry.get("position", Vector2i(-1, -1))
-		if pos == Vector2i(-1, -1):
-			continue
-		if _is_in_aoi(pos, player_pos, radius):
-			if not removed_out.has(eid):
-				removed_out.append(eid)
-
+		updated_ids[entity.entity_id] = true
+		updated_out.append(entity.to_updated_snapshot())
 	if added_out.is_empty() and updated_out.is_empty() and removed_out.is_empty():
 		return {}
 	return {
@@ -290,6 +312,8 @@ func add_mock_entity(entity_id: String, kind: String, position: Vector2i, payloa
 func set_entity_position(entity_id: String, position: Vector2i) -> void:
 	var entity: EntityState = entity_registry.get_entity(entity_id)
 	if entity == null:
+		return
+	if entity is XenoformState and not _position_in_map(position):
 		return
 	var old: Vector2i = entity.position
 	if old == position:

@@ -26,18 +26,21 @@ func _initialize() -> void:
 	player_c.payload = {"player_id": "player_c", "ship_id": "ship_pc"}
 	world.entity_registry.add(player_c)
 	world.spatial_hash.insert("ship_pc", Vector2i(560, 560))
+	var replica_main: RefCounted = preload("res://tests/support/aoi_test_replica.gd").new(world.full_snapshot_for(seed.player_id))
+	var replica_b: RefCounted = preload("res://tests/support/aoi_test_replica.gd").new(world.full_snapshot_for("player_b"))
+	var replica_c: RefCounted = preload("res://tests/support/aoi_test_replica.gd").new(world.full_snapshot_for("player_c"))
 
 	# Viaje corto: (300,300) -> (100,500) (el centro del AOI de B).
 	var res: Dictionary = world.start_travel(seed.player_id, Vector2i(100, 500))
 	_check(res.get("ok", false), "start_travel debe tener éxito")
 
 	# En t ≈ 0, sin acknowledge: el updated de start_travel está visible.
-	var d_main0: Dictionary = world.delta_for(seed.player_id)
+	var d_main0: Dictionary = world.delta_for(seed.player_id, replica_main.known_ids)
 	_check(d_main0.get("updated", []).size() == 1, "player principal debe ver TRAVELING al inicio")
 	_check(d_main0.get("added", []).is_empty(), "player principal no debe recibir added de su propia nave")
-	var d_b0: Dictionary = world.delta_for("player_b")
+	var d_b0: Dictionary = world.delta_for("player_b", replica_b.known_ids)
 	_check(d_b0.is_empty(), "player B no debe ver la nave aún")
-	var d_c0: Dictionary = world.delta_for("player_c")
+	var d_c0: Dictionary = world.delta_for("player_c", replica_c.known_ids)
 	_check(d_c0.is_empty(), "player C no debe ver la nave aún")
 	world.acknowledge_changes()
 
@@ -52,7 +55,7 @@ func _initialize() -> void:
 		var pos: Vector2i = world.entity_registry.get_entity(seed.entity_id).position
 		var in_b: bool = abs(pos.x - 100) <= 50 and abs(pos.y - 500) <= 50
 		if in_b:
-			var d_b: Dictionary = world.delta_for("player_b")
+			var d_b: Dictionary = world.delta_for("player_b", replica_b.known_ids)
 			if not d_b.is_empty():
 				crossed_b = true
 				break
@@ -61,10 +64,11 @@ func _initialize() -> void:
 	_check(crossed_b, "la nave debe entrar al AOI de player B durante el viaje")
 
 	# El delta de B debe contener added con la nave (transición fuera -> dentro).
-	var d_b_entry: Dictionary = world.delta_for("player_b")
+	var d_b_entry: Dictionary = world.delta_for("player_b", replica_b.known_ids)
 	var added_b: Array = d_b_entry.get("added", [])
 	_check(added_b.size() == 1 and str(added_b[0].get("entity_id", "")) == seed.entity_id,
 		"player B debe recibir added de la nave al entrar a su AOI")
+	replica_b.apply(d_b_entry)
 	world.acknowledge_changes()
 
 	# Al llegar, la nave queda ANCHORED dentro del AOI de B: sin re-added.
@@ -73,7 +77,7 @@ func _initialize() -> void:
 	ship = world.entity_registry.get_entity(seed.entity_id)
 	_check(ship.state == "ANCHORED" and ship.position == Vector2i(100, 500),
 		"la nave debe llegar y anclarse en el destino")
-	var d_b_arrive: Dictionary = world.delta_for("player_b")
+	var d_b_arrive: Dictionary = world.delta_for("player_b", replica_b.known_ids)
 	var added_again: Array = d_b_arrive.get("added", [])
 	_check(added_again.is_empty(), "no debe re-enviar added al llegar (ya estaba dentro)")
 

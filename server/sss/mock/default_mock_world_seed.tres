@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="MockWorldSeed" format=3]
 
 [ext_resource type="Script" path="res://mock/mock_world_seed.gd" id="1_seed"]
+[ext_resource type="Resource" path="res://pve/demo_xenoform_config.tres" id="2_xenoform"]
 
 [resource]
 script = ExtResource("1_seed")
@@ -11,3 +12,6 @@ ship_id = "018f0000-0000-7000-8000-000000000002"
 entity_id = "018f0000-0000-7000-8000-000000000004"
 ship_name = "M0 Dummy"
 ship_position = Vector2i(300, 300)
+xenoform_config = ExtResource("2_xenoform")
+xenoform_entity_id = "018f0000-0000-7000-8000-000000000009"
+xenoform_position = Vector2i(310, 315)

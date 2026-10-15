@@ -31,6 +31,11 @@ func get_selected_ship() -> ShipRepresentation:
 	return _world.get_ship(selected_entity_id)
 
 
+## Inspección genérica de la misma selección, incluida PvE; copia de WorldState.
+func get_selected_entity() -> Dictionary:
+	return _world.get_entity(selected_entity_id)
+
+
 func _on_world_changed() -> void:
 	if selected_entity_id == "":
 		return

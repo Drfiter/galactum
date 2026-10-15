@@ -9,6 +9,11 @@ extends Resource
 @export var ship_name: String = "M0 Dummy"
 @export var ship_position: Vector2i = Vector2i(300, 300)
 
+## Fixture PvE de desarrollo, sin política poblacional ni valores de balance.
+@export var xenoform_config: XenoformConfig = preload("res://pve/demo_xenoform_config.tres")
+@export var xenoform_entity_id: String = "018f0000-0000-7000-8000-000000000009"
+@export var xenoform_position: Vector2i = Vector2i(310, 315)
+
 ## Entidades adicionales de prueba (además de la nave del jugador en (300,300)).
 ## AOI por defecto: radio 50 → box [250,350]×[250,350]. Se usa para comprobar
 ## dentro/fuera, agregado/actualizado/eliminado.
@@ -32,11 +37,5 @@ func extra_entities() -> Array[Dictionary]:
 			"kind": "asteroid",
 			"position": [550, 500],
 			"payload": {},
-		},
-		{
-			"entity_id": "018f0000-0000-7000-8000-000000000009",
-			"kind": "xenoform",
-			"position": [310, 315],
-			"payload": {"display_name": "Xenoform Dummy"},
 		},
 	]

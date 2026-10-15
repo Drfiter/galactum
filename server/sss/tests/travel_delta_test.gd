@@ -13,10 +13,12 @@ func _initialize() -> void:
 	var seed: MockWorldSeed = DEFAULT_SEED.duplicate(true) as MockWorldSeed
 	var world := SolarSystemWorld.new(config, seed)
 	world.set_now_provider(func() -> int: return _now)
+	var replica: RefCounted = preload("res://tests/support/aoi_test_replica.gd").new(world.full_snapshot_for(seed.player_id))
 
 	# --- Inicio: el updated debe llevar state + travel completo ---
 	world.start_travel(seed.player_id, Vector2i(420, 180))
-	var delta_start: Dictionary = world.delta_for(seed.player_id)
+	var delta_start: Dictionary = world.delta_for(seed.player_id, replica.known_ids)
+	replica.apply(delta_start)
 	_check(delta_start.get("full", true) == false, "delta de inicio debe ser full:false")
 	var upd_start: Array = delta_start.get("updated", [])
 	_check(upd_start.size() == 1, "debe haber 1 updated al iniciar viaje")
@@ -37,7 +39,8 @@ func _initialize() -> void:
 	world.tick()
 	var ship: EntityState = world.entity_registry.get_entity(seed.entity_id)
 	if ship.position != Vector2i(300, 300):
-		var delta_mid: Dictionary = world.delta_for(seed.player_id)
+		var delta_mid: Dictionary = world.delta_for(seed.player_id, replica.known_ids)
+		replica.apply(delta_mid)
 		var upd_mid: Array = delta_mid.get("updated", [])
 		_check(upd_mid.size() == 1, "debe haber 1 updated durante el viaje")
 		if upd_mid.size() == 1:
@@ -51,7 +54,7 @@ func _initialize() -> void:
 	var arrive_ts_value: int = int(ship.travel.get("arrive_ts", 0))
 	_now = arrive_ts_value
 	world.tick()
-	var delta_arr: Dictionary = world.delta_for(seed.player_id)
+	var delta_arr: Dictionary = world.delta_for(seed.player_id, replica.known_ids)
 	var upd_arr: Array = delta_arr.get("updated", [])
 	_check(upd_arr.size() == 1, "debe haber 1 updated al llegar")
 	if upd_arr.size() == 1:

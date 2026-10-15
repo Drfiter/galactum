@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="XenoformConfig" format=3]
+
+[ext_resource type="Script" path="res://pve/xenoform_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+config_id = "m3-demo-static"
+display_name = "Xenoform M3 de diagnóstico"
+behavior_mode = "STATIC"
+initial_state = "IDLE"
+has_energy_cost = false

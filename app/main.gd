@@ -43,6 +43,7 @@ func _ready() -> void:
 	confirm_travel_button.pressed.connect(_on_confirm_travel)
 	cancel_travel_button.pressed.connect(_on_cancel_travel)
 	status_label.text = "SSS: desconectado"
+	_refresh_selection_label()
 	_refresh_travel_controls()
 	if _runtime_config.auto_connect:
 		_connect_from_form()
@@ -100,7 +101,7 @@ func _on_map_delta(payload: Dictionary) -> void:
 	_travel_intent.apply_authoritative_ship(own_ship)
 	if str(own_ship.get("state", "")) == "TRAVELING":
 		sss_connection.resolve_start_travel_request()
-	_refresh_ship_label()
+	_refresh_selection_label()
 	_refresh_travel_controls()
 	metadata_label.text = "protocol=%s · seq=%d · server_time=%d · system_id=%s · entidades=%d" % [
 		_world_state.protocol_version,
@@ -109,27 +110,55 @@ func _on_map_delta(payload: Dictionary) -> void:
 		_world_state.system_id,
 		_world_state.entities.size(),
 	]
-
-
-func _refresh_ship_label() -> void:
-	var ship: ShipRepresentation = _ship_selection.get_selected_ship()
-	if ship == null:
-		ship = _world_state.get_ship_for_player(_player_id)
-	if ship == null:
-		ship_label.text = "Nave: no encontrada en la réplica"
-		return
-	ship_label.text = "Nave · entity_id=%s · ship_id=%s · player_id=%s · state=%s · pos=%s" % [
-		ship.entity_id,
-		ship.ship_id,
-		ship.player_id if ship.player_id != "" else "desconocido",
-		ship.state,
-		str(ship.position),
-	]
 	print("CLIENT_M2_SNAPSHOT_OK protocol=%s seq=%d entidades=%d" % [
 		_world_state.protocol_version,
 		_world_state.seq,
 		_world_state.entities.size(),
 	])
+
+
+## Presentación de datos recibidos; no deduce muerte ni concede acciones.
+func _refresh_selection_label() -> void:
+	var entity: Dictionary = _ship_selection.get_selected_entity()
+	if entity.is_empty():
+		ship_label.text = "Selección: — (sin entidad visible seleccionada)"
+		return
+	var kind: String = str(entity.get("kind", ""))
+	var type_label: String = "Entidad"
+	match kind:
+		"ship":
+			var ship: ShipRepresentation = _ship_selection.get_selected_ship()
+			if ship.is_owned_by(_player_id):
+				type_label = "Nave propia"
+			elif ship.player_id == "":
+				type_label = "Nave (propietario desconocido)"
+			elif _player_id == "":
+				type_label = "Nave (sin identidad autenticada)"
+			else:
+				type_label = "Nave ajena"
+		"asteroid":
+			type_label = "Asteroide"
+		"xenoform":
+			type_label = "Xenoform"
+		"fleet":
+			type_label = "Flota"
+	ship_label.text = "%s · kind=%s · entity_id=%s · state=%s · pos=%s" % [
+		type_label, kind, str(entity.get("entity_id", "")),
+		str(entity.get("state", "no informado")), str(entity.get("position", [])),
+	]
+	var display_name: String = str(entity.get("display_name", ""))
+	if display_name != "":
+		ship_label.text += " · nombre=%s" % display_name
+	if kind == "ship":
+		ship_label.text += " · ship_id=%s · player_id=%s" % [
+			str(entity.get("ship_id", "")), str(entity.get("player_id", "desconocido")),
+		]
+	elif kind == "xenoform":
+		var raw_xenoform: Variant = entity.get("xenoform")
+		var config_id: String = ""
+		if raw_xenoform is Dictionary:
+			config_id = str(raw_xenoform.get("config_id", ""))
+		ship_label.text += " · config_id=%s" % (config_id if config_id != "" else "no informado")
 
 
 func _on_latency_updated(milliseconds: int) -> void:
@@ -160,28 +189,20 @@ func _on_ship_selection_changed() -> void:
 	var entity_id: String = _ship_selection.selected_entity_id
 	if entity_id == "":
 		_travel_intent.apply_authoritative_ship({})
-		ship_label.text = "Selección: —"
+		_refresh_selection_label()
 		_refresh_travel_controls()
 		return
-	var entity: Dictionary = _world_state.get_entity(entity_id)
+	var entity: Dictionary = _ship_selection.get_selected_entity()
 	if entity.is_empty():
 		_travel_intent.select_entity({})
-		ship_label.text = "Selección: %s (desconocida)" % entity_id
+		_refresh_selection_label()
 		_refresh_travel_controls()
 		return
 	if entity_id != _travel_intent.selected_entity_id:
 		_travel_intent.select_entity(entity)
 	else:
 		_travel_intent.apply_authoritative_ship(entity)
-	var ship: ShipRepresentation = _ship_selection.get_selected_ship()
-	var is_own_ship: bool = ship != null and ship.is_owned_by(_player_id)
-	ship_label.text = "Selección · kind=%s · entity_id=%s · state=%s · pos=%s%s" % [
-		entity.get("kind", ""),
-		entity_id,
-		entity.get("state", ""),
-		str(entity.get("position", [])),
-		" · propia" if is_own_ship else "",
-	]
+	_refresh_selection_label()
 	_refresh_travel_controls()
 
 

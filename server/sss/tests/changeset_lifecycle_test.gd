@@ -36,10 +36,11 @@ func _initialize() -> void:
 	main_node.set("_config", config)
 	main_node.set("_world", world)
 	main_node.set("_gateway", gateway)
+	var replica: RefCounted = preload("res://tests/support/aoi_test_replica.gd").new(world.full_snapshot_for(seed.player_id))
 
 	world.add_mock_entity("changeset_runtime_probe", "asteroid", Vector2i(305, 305))
 	_check(world.change_set.has_changes(), "el cambio debe existir antes del tick")
-	var visible_before_flush: Dictionary = world.delta_for(seed.player_id)
+	var visible_before_flush: Dictionary = world.delta_for(seed.player_id, replica.known_ids)
 	_check(not visible_before_flush.is_empty(), "delta_for debe ver el cambio antes del flush")
 	_check(world.change_set.has_changes(), "delta_for no debe drenar el ChangeSet")
 

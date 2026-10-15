@@ -49,22 +49,25 @@ func _process(_delta: float) -> void:
 
 
 ## Called after each tick by main.gd. Emits map_delta(full:false) a cada sesión
-## si el changeset tiene cambios relevantes para su AOI.
+## si cambian entidades conocidas o la visibilidad del AOI de esa conexión.
 ## No drena el changeset — el ChangeSet del mundo es compartido entre todas las sesiones.
 func flush_pending_deltas() -> void:
-	if not _world.change_set.has_changes():
-		return
 	for raw_session_id: Variant in _sessions.keys():
 		var session_id: int = int(raw_session_id)
 		var session: Dictionary = _sessions[session_id]
-		if not bool(session.get("authenticated", false)):
+		if not bool(session.get("authenticated", false)) or not bool(session.get("snapshot_ready", false)):
 			continue
 		var player_id: String = str(session.get("player_id", ""))
-		var delta: Dictionary = _world.delta_for(player_id)
+		var known_ids: Array[String] = session["visible_entity_ids"]
+		var delta: Dictionary = _world.delta_for(player_id, known_ids)
 		if delta.is_empty():
 			continue
 		delta["type"] = "map_delta"
-		_send(session_id, delta)
+		if _send(session_id, delta):
+			for entity_id: String in delta["removed"]:
+				known_ids.erase(entity_id)
+			for entity: Dictionary in delta["added"]:
+				known_ids.append(str(entity["entity_id"]))
 
 
 func _accept_connection() -> void:
@@ -74,12 +77,15 @@ func _accept_connection() -> void:
 	if error != OK:
 		stream.disconnect_from_host()
 		return
+	var visible_ids: Array[String] = []
 	_sessions[_next_session_id] = {
 		"peer": peer,
 		"authenticated": false,
 		"player_id": "",
 		"system_id": "",
 		"seq": 0,
+		"snapshot_ready": false,
+		"visible_entity_ids": visible_ids,
 	}
 	_next_session_id += 1
 
@@ -110,7 +116,12 @@ func _handle_packet(session_id: int, raw: String) -> void:
 		"full_snapshot":
 			var snapshot: Dictionary = _world.full_snapshot_for(str(session.get("player_id", "")))
 			snapshot["type"] = "map_delta"
-			_send(session_id, snapshot)
+			if _send(session_id, snapshot):
+				var visible_ids: Array[String] = []
+				for entity: Dictionary in snapshot["added"]:
+					visible_ids.append(str(entity["entity_id"]))
+				session["visible_entity_ids"] = visible_ids
+				session["snapshot_ready"] = true
 		"ping":
 			_send(session_id, {
 				"type": "pong",
@@ -144,6 +155,9 @@ func _handle_auth(session_id: int, message: Dictionary) -> void:
 		return
 	var session: Dictionary = _sessions[session_id]
 	session["authenticated"] = true
+	session["snapshot_ready"] = false
+	var empty_ids: Array[String] = []
+	session["visible_entity_ids"] = empty_ids
 	session["player_id"] = str(identity.get("player_id", ""))
 	session["system_id"] = str(identity.get("system_id", ""))
 	_sessions[session_id] = session
@@ -163,17 +177,21 @@ func _send_error(session_id: int, error_code: String, message: String) -> void:
 	})
 
 
-func _send(session_id: int, payload: Dictionary) -> void:
+func _send(session_id: int, payload: Dictionary) -> bool:
 	if not _sessions.has(session_id):
-		return
+		return false
 	var session: Dictionary = _sessions[session_id]
 	var peer: WebSocketPeer = session["peer"]
 	if peer.get_ready_state() != WebSocketPeer.STATE_OPEN:
-		return
-	session["seq"] = int(session.get("seq", 0)) + 1
-	_sessions[session_id] = session
+		return false
 	var message: Dictionary = payload.duplicate(true)
 	message["protocol_version"] = _config.protocol_version
-	message["seq"] = session["seq"]
+	message["seq"] = int(session.get("seq", 0)) + 1
 	message["server_time"] = _world.server_time
-	peer.send_text(JSON.stringify(message))
+	if peer.send_text(JSON.stringify(message)) != OK:
+		# Sin ACKs propios: una escritura fallida fuerza reconstrucción por conexión.
+		peer.close(1011, "send failed")
+		session["snapshot_ready"] = false
+		return false
+	session["seq"] = message["seq"]
+	return true
