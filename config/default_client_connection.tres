@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_config")
+protocol_version = "team3-m3.0"
 host = "127.0.0.1"
 port = 9100
 mock_token = "team3-m0-local-player"

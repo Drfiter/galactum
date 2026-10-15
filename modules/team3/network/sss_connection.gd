@@ -20,8 +20,10 @@ signal protocol_error(message: String)
 signal server_error(payload: Dictionary)
 signal combat_result_received(payload: Dictionary)
 signal desync_detected
+signal mining_replay_received(payload: Dictionary)
 
 const PROTOCOL_VERSION: String = "team3-m2.0"
+const MINING_PROTOCOL_VERSION: String = "team3-m3.0"
 const TRAVEL_ERROR_CODES: Array[String] = [
 	"INVALID_REQUEST",
 	"INVALID_DESTINATION",
@@ -52,10 +54,17 @@ var _attack_pending_request_id: String = ""
 var _issued_attack_request_ids: Dictionary = {}
 
 
+var _mining_pending: Dictionary = {}
+var _has_world_snapshot: bool = false
+var _desynchronized: bool = false
+
+
 func connect_to_server(config: ClientConnectionConfig) -> void:
 	_config = config
 	_manual_disconnect = false
 	_reconnect_remaining = 0.0
+	if _peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
+		_peer.close(1000, "reconnect")
 	_peer = WebSocketPeer.new()
 	# Nueva conexión => nuevo seguimiento de secuencia (el SSS la reinicia en 1).
 	_reset_sequence_tracking()
@@ -80,15 +89,16 @@ func disconnect_from_server() -> void:
 func request_full_snapshot() -> void:
 	if _state != State.AUTHENTICATED:
 		return
+	_has_world_snapshot = false
 	_send({"type": "full_snapshot"})
 
 
 ## Envía una única intención de viaje para la nave del jugador autenticado.
 ## El SSS identifica esa nave: el cliente no envía entity_id ni player_id.
 func request_start_travel(destination: Vector2i) -> bool:
-	if _state != State.AUTHENTICATED or _start_travel_pending:
+	if _state != State.AUTHENTICATED or is_action_pending() or _desynchronized:
 		return false
-	if not _send(_build_start_travel_payload(destination)):
+	if not _send(_build_start_travel_payload(destination, protocol_version())):
 		return false
 	_start_travel_pending = true
 	return true
@@ -106,10 +116,10 @@ func is_start_travel_pending() -> bool:
 ## Devuelve el request_id generado o "" cuando no pudo iniciar la solicitud.
 func request_attack(target_entity_id: String) -> String:
 	if (_state != State.AUTHENTICATED or target_entity_id == ""
-		or _attack_pending_request_id != ""):
+		or is_action_pending() or _desynchronized or not _has_world_snapshot):
 		return ""
 	var request_id: String = _generate_attack_request_id()
-	if not _send(_build_attack_payload(target_entity_id, request_id)):
+	if not _send(_build_attack_payload(target_entity_id, request_id, protocol_version())):
 		return ""
 	_attack_pending_request_id = request_id
 	_issued_attack_request_ids[request_id] = true
@@ -133,21 +143,51 @@ func pending_attack_request_id() -> String:
 	return _attack_pending_request_id
 
 
-static func _build_start_travel_payload(destination: Vector2i) -> Dictionary:
+static func _build_start_travel_payload(destination: Vector2i, version: String = PROTOCOL_VERSION) -> Dictionary:
 	return {
 		"type": "start_travel",
-		"protocol_version": PROTOCOL_VERSION,
+		"protocol_version": version,
 		"destination": [destination.x, destination.y],
 	}
 
 
-static func _build_attack_payload(target_entity_id: String, request_id: String) -> Dictionary:
+static func _build_attack_payload(target_entity_id: String, request_id: String, version: String = PROTOCOL_VERSION) -> Dictionary:
 	return {
 		"type": "attack",
-		"protocol_version": PROTOCOL_VERSION,
+		"protocol_version": version,
 		"request_id": request_id,
 		"target_entity_id": target_entity_id,
 	}
+
+
+func protocol_version() -> String:
+	return PROTOCOL_VERSION if _config == null else _config.protocol_version
+
+
+func is_action_pending() -> bool:
+	return _start_travel_pending or is_attack_pending() or not _mining_pending.is_empty()
+
+
+func request_mining(action: Dictionary) -> bool:
+	if (_state != State.AUTHENTICATED or protocol_version() != MINING_PROTOCOL_VERSION
+		or not _has_world_snapshot or _desynchronized or is_action_pending()):
+		return false
+	var payload: Dictionary = {"type": str(action.get("type", "")), "protocol_version": protocol_version()}
+	if payload["type"] == "start_mining":
+		payload["request_id"] = action.get("request_id", "")
+		payload["asteroid_entity_id"] = action.get("asteroid_entity_id", "")
+	elif payload["type"] == "stop_mining":
+		payload["mining_id"] = action.get("mining_id", "")
+	else:
+		return false
+	if not _send(payload):
+		return false
+	_mining_pending = payload.duplicate(true)
+	return true
+
+
+func resolve_mining_request() -> void:
+	_mining_pending.clear()
 
 
 func _process(delta: float) -> void:
@@ -196,7 +236,7 @@ func _handle_packet(raw: String) -> void:
 		protocol_error.emit("El SSS envió JSON inválido")
 		return
 	var message: Dictionary = parsed
-	if str(message.get("protocol_version", "")) != PROTOCOL_VERSION:
+	if str(message.get("protocol_version", "")) != protocol_version():
 		protocol_error.emit("Versión de protocolo incompatible")
 		return
 	if not message.has("seq") or not message.has("server_time"):
@@ -213,6 +253,8 @@ func _handle_packet(raw: String) -> void:
 		else:
 			# Gap real de secuencia: no inventamos estado, marcamos desync y
 			# reconstruimos desde un full_snapshot.
+			_desynchronized = true
+			_has_world_snapshot = false
 			desync_detected.emit()
 			protocol_error.emit("Secuencia desincronizada (seq=%d)" % int(message.get("seq", -1)))
 			request_full_snapshot()
@@ -226,6 +268,9 @@ func _handle_packet(raw: String) -> void:
 			authenticated.emit(message)
 			request_full_snapshot()
 		"map_delta":
+			if is_full_snapshot:
+				_has_world_snapshot = true
+				_desynchronized = false
 			map_delta_received.emit(message)
 			if bool(message.get("full", false)):
 				full_snapshot_received.emit(message)
@@ -237,12 +282,21 @@ func _handle_packet(raw: String) -> void:
 				resolve_attack_request(str(message.get("request_id", "")))
 			elif TRAVEL_ERROR_CODES.has(str(message.get("error_code", ""))):
 				_start_travel_pending = false
+			if str(message.get("error_code", "")).begins_with("MINING_") and MiningIntentState.matches_response(_mining_pending, message):
+				_mining_pending.clear()
 			server_error.emit(message)
 		"combat_result":
 			resolve_attack_request(str(message.get("request_id", "")))
 			combat_result_received.emit(message)
+
+
+		"mining_replay":
+			if protocol_version() != MINING_PROTOCOL_VERSION:
+				protocol_error.emit("Replay de minería incompatible")
+				return
+			mining_replay_received.emit(message)
 		_:
-			protocol_error.emit("Tipo de mensaje M2 desconocido: %s" % message.get("type", ""))
+			protocol_error.emit("Tipo de mensaje desconocido: %s" % message.get("type", ""))
 
 
 ## Valida que el seq entrante sea estrictamente el siguiente esperado.
@@ -265,6 +319,9 @@ func _reset_sequence_tracking() -> void:
 	_next_expected_seq = -1
 	_start_travel_pending = false
 	_attack_pending_request_id = ""
+	_mining_pending.clear()
+	_has_world_snapshot = false
+	_desynchronized = false
 
 
 func _generate_attack_request_id() -> String:
@@ -278,7 +335,7 @@ func _send(payload: Dictionary) -> bool:
 	if _peer.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return false
 	var message: Dictionary = payload.duplicate(true)
-	message["protocol_version"] = PROTOCOL_VERSION
+	message["protocol_version"] = protocol_version()
 	return _peer.send_text(JSON.stringify(message)) == OK
 
 

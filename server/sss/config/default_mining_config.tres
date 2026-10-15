@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="MiningConfig" format=3]
+
+[ext_resource type="Script" path="res://config/mining_config.gd" id="1_config"]
+
+[resource]
+script = ExtResource("1_config")
+max_intentions_per_player = 256

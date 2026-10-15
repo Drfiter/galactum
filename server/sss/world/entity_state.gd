@@ -12,6 +12,9 @@ var state: String = "ANCHORED"
 ## { "origin": [x,y], "destination": [x,y], "depart_ts": int ms, "arrive_ts": int ms }
 ## Al llegar es null/{} (se limpia).
 var travel: Dictionary = {}
+## Estado independiente de viaje; sólo se publica en sesiones del protocolo M3.
+var mining: Dictionary = {}
+var last_mining_result: Dictionary = {}
 
 
 func _init(p_entity_id: String = "", p_kind: String = "", p_position: Vector2i = Vector2i.ZERO) -> void:

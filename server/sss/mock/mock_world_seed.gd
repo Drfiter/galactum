@@ -8,6 +8,7 @@ extends Resource
 @export var entity_id: String = "018f0000-0000-7000-8000-000000000004"
 @export var ship_name: String = "M0 Dummy"
 @export var ship_position: Vector2i = Vector2i(300, 300)
+@export var asteroid_config: AsteroidConfig = preload("res://config/default_asteroid_config.tres")
 
 ## Entidades adicionales de prueba (además de la nave del jugador en (300,300)).
 ## AOI por defecto: radio 50 → box [250,350]×[250,350]. Se usa para comprobar

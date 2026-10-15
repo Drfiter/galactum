@@ -103,6 +103,7 @@ func request_attack(player_id: String, request_id: String, target_entity_id: Str
 			return combat_error(request_id, ERROR_COMBAT_RESULT_APPLY_FAILED, "Combat mock state rejected result")
 		_applied_combat_ids[combat_id] = true
 
+	_world.cancel_mining_for_combat(attacker.entity_id, target.entity_id)
 	var result: Dictionary = {
 		"type": "combat_result",
 		"request_id": request_id,
