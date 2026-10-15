@@ -151,4 +151,4 @@ concurrentes en app/main.gd, WorldState, WorldDebugView y TravelIntentState. Con
 una selección compuesta con la misma réplica, el renombre del ID y la semántica M2.
 Minería/Combate deben consumir los modelos/IDs y no acceder a controles o NodePaths.
 Repetir las 15 pruebas en la rama de integración y validar Android antes de entrega.
-No se realizaron commit, push, merge ni PR en esta tarea.
+La implementación está commiteada y subida a esta rama; el merge a `integration/team3-m3` sigue pendiente.
