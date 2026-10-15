@@ -17,6 +17,7 @@ const TRAVEL_PROJECTION = preload("res://modules/team3/travel/travel_projection.
 @onready var world_debug_view: WorldDebugView = %WorldDebugView
 
 var _world_state := WorldState.new()
+var _ship_selection := ShipSelectionState.new(_world_state)
 var _travel_intent: RefCounted = TRAVEL_INTENT_STATE.new()
 var _runtime_config: ClientConnectionConfig
 var _player_id: String = ""
@@ -27,6 +28,7 @@ func _ready() -> void:
 	host_edit.text = _runtime_config.host
 	port_edit.value = _runtime_config.port
 	world_debug_view.set_world_state(_world_state)
+	world_debug_view.set_selection_state(_ship_selection)
 	connect_button.pressed.connect(_connect_from_form)
 	sss_connection.connection_state_changed.connect(_on_connection_state_changed)
 	sss_connection.authenticated.connect(_on_authenticated)
@@ -36,7 +38,7 @@ func _ready() -> void:
 	sss_connection.protocol_error.connect(_on_protocol_error)
 	sss_connection.server_error.connect(_on_server_error)
 	sss_connection.desync_detected.connect(_on_desync_detected)
-	world_debug_view.entity_selected.connect(_on_entity_selected)
+	_ship_selection.changed.connect(_on_ship_selection_changed)
 	world_debug_view.destination_selected.connect(_on_destination_selected)
 	confirm_travel_button.pressed.connect(_on_confirm_travel)
 	cancel_travel_button.pressed.connect(_on_cancel_travel)
@@ -110,18 +112,18 @@ func _on_map_delta(payload: Dictionary) -> void:
 
 
 func _refresh_ship_label() -> void:
-	var ship: Dictionary = _world_state.ship_for_player(_player_id)
-	if ship.is_empty():
-		ship = _world_state.first_ship()
-	if ship.is_empty():
+	var ship: ShipRepresentation = _ship_selection.get_selected_ship()
+	if ship == null:
+		ship = _world_state.get_ship_for_player(_player_id)
+	if ship == null:
 		ship_label.text = "Nave: no encontrada en la réplica"
 		return
 	ship_label.text = "Nave · entity_id=%s · ship_id=%s · player_id=%s · state=%s · pos=%s" % [
-		ship.get("entity_id", ""),
-		ship.get("ship_id", ""),
-		ship.get("player_id", ""),
-		ship.get("state", ""),
-		str(ship.get("position", [])),
+		ship.entity_id,
+		ship.ship_id,
+		ship.player_id if ship.player_id != "" else "desconocido",
+		ship.state,
+		str(ship.position),
 	]
 	print("CLIENT_M2_SNAPSHOT_OK protocol=%s seq=%d entidades=%d" % [
 		_world_state.protocol_version,
@@ -154,9 +156,10 @@ func _on_desync_detected() -> void:
 	status_label.text = "SSS: secuencia desincronizada — solicitando full_snapshot"
 
 
-func _on_entity_selected(entity_id: String) -> void:
+func _on_ship_selection_changed() -> void:
+	var entity_id: String = _ship_selection.selected_entity_id
 	if entity_id == "":
-		_travel_intent.select_entity({})
+		_travel_intent.apply_authoritative_ship({})
 		ship_label.text = "Selección: —"
 		_refresh_travel_controls()
 		return
@@ -166,7 +169,12 @@ func _on_entity_selected(entity_id: String) -> void:
 		ship_label.text = "Selección: %s (desconocida)" % entity_id
 		_refresh_travel_controls()
 		return
-	var is_own_ship: bool = _travel_intent.select_entity(entity)
+	if entity_id != _travel_intent.selected_entity_id:
+		_travel_intent.select_entity(entity)
+	else:
+		_travel_intent.apply_authoritative_ship(entity)
+	var ship: ShipRepresentation = _ship_selection.get_selected_ship()
+	var is_own_ship: bool = ship != null and ship.is_owned_by(_player_id)
 	ship_label.text = "Selección · kind=%s · entity_id=%s · state=%s · pos=%s%s" % [
 		entity.get("kind", ""),
 		entity_id,
@@ -241,7 +249,7 @@ func _refresh_travel_controls(preserve_rejection_text: bool = false) -> void:
 	if _travel_intent.has_provisional_destination:
 		travel_label.text = "Destino provisional %s" % str(_travel_intent.provisional_destination)
 		return
-	if _travel_intent.selected_own_ship_id != "":
+	if _travel_intent.selected_own_entity_id != "":
 		if ship_state == "ANCHORED":
 			travel_label.text = "ANCHORED · toca una coordenada del mapa"
 		else:
@@ -263,6 +271,7 @@ func _format_eta(remaining_ms: int) -> String:
 func _clear_transient_travel_ui() -> void:
 	sss_connection.resolve_start_travel_request()
 	_travel_intent.reset_transient()
+	world_debug_view.clear_selection()
 	world_debug_view.set_destination_selection_enabled(false)
 	world_debug_view.set_provisional_destination(Vector2i.ZERO, false)
 	_refresh_travel_controls()

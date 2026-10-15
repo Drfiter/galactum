@@ -40,6 +40,19 @@ func _initialize() -> void:
 	view.set_destination_selection_enabled(true)
 	_send_touch_tap(view, Vector2(420, 180))
 	_check(_destination == Vector2i(420, 180), "touch selecciona coordenada de destino")
+	view.set_destination_selection_enabled(false)
+	view.clear_selection()
+	_send_touch_tap(view, Vector2(300, 300))
+	_check(view.get_selected_entity_id() == "own", "touch selecciona nave")
+	world.apply_map_delta({"seq": 2, "removed": ["own"]})
+	_check(view.get_selected_entity_id() == "", "salida AOI limpia selección visual")
+	world.apply_full_snapshot({"seq": 3, "map_size": [600, 600], "added": [{
+		"entity_id": "foreign", "kind": "ship", "player_id": "player-2", "position": [300, 300],
+	}]})
+	_send_mouse_tap(view, Vector2(300, 300))
+	_check(view.get_selected_entity_id() == "foreign", "nave ajena seleccionable por mouse")
+	world.clear()
+	_check(view.get_selected_entity_id() == "", "clear de réplica limpia selección visual")
 
 	view.free()
 	if _failures == 0:

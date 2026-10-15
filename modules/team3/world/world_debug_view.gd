@@ -27,7 +27,7 @@ const TAP_SLOP_PX: float = 8.0
 const ENTITY_PICK_RADIUS_PX: float = 22.0
 
 # Selección técnica actual
-var _selected_entity_id: String = ""
+var _selection: ShipSelectionState
 var _tap_actions_enabled: bool = true
 var _destination_selection_enabled: bool = false
 var _has_provisional_destination: bool = false
@@ -45,9 +45,19 @@ func set_world_state(world_state: WorldState) -> void:
 	if _world != null and _world.changed.is_connected(_on_world_changed):
 		_world.changed.disconnect(_on_world_changed)
 	_world = world_state
+	set_selection_state(ShipSelectionState.new(world_state) if world_state != null else null)
 	if _world != null:
 		_world.changed.connect(_on_world_changed)
 	_on_world_changed()
+
+
+func set_selection_state(selection: ShipSelectionState) -> void:
+	if _selection != null and _selection.changed.is_connected(queue_redraw):
+		_selection.changed.disconnect(queue_redraw)
+	_selection = selection
+	if _selection != null:
+		_selection.changed.connect(queue_redraw)
+	queue_redraw()
 
 
 func set_destination_selection_enabled(enabled: bool) -> void:
@@ -65,14 +75,15 @@ func set_provisional_destination(destination: Vector2i, visible: bool) -> void:
 
 
 func clear_selection() -> void:
-	_selected_entity_id = ""
+	if _selection != null:
+		_selection.clear()
 	_destination_selection_enabled = false
 	_has_provisional_destination = false
 	queue_redraw()
 
 
 func get_selected_entity_id() -> String:
-	return _selected_entity_id
+	return "" if _selection == null else _selection.selected_entity_id
 
 
 func get_camera() -> WorldCamera2D:
@@ -134,7 +145,7 @@ func _draw_provisional_destination(server_now_ms: int) -> void:
 	if not _has_provisional_destination or _world == null:
 		return
 	var destination_screen: Vector2 = _camera.world_to_screen(Vector2(_provisional_destination))
-	var selected: Dictionary = _world.get_entity(_selected_entity_id)
+	var selected: Dictionary = _world.get_entity(get_selected_entity_id())
 	if not selected.is_empty():
 		var start: Vector2 = _camera.world_to_screen(
 			TRAVEL_PROJECTION.display_position(selected, server_now_ms))
@@ -157,7 +168,7 @@ func _compute_map_rect() -> Rect2:
 
 func _draw_entity(entity_id: String, kind: String, _world_pos: Vector2, screen_pos: Vector2) -> void:
 	var color: Color = MARKER_COLORS.get(kind, Color("9aa5b1"))
-	var selected := (entity_id == _selected_entity_id)
+	var selected := (entity_id == get_selected_entity_id())
 	# Tamaño base por tipo (diagnóstico), sin arte final.
 	var radius: float = 6.0 if not selected else 9.0
 	if kind == "asteroid":
@@ -262,8 +273,8 @@ func _handle_tap(screen_pos: Vector2) -> void:
 		if d_sq < closest_dist_sq:
 			closest_dist_sq = d_sq
 			closest_id = str(entity.get("entity_id", ""))
-	_selected_entity_id = closest_id
-	entity_selected.emit(_selected_entity_id)
+	_selection.select_entity(closest_id)
+	entity_selected.emit(get_selected_entity_id())
 	queue_redraw()
 
 

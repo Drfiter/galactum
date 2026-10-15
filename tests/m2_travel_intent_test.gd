@@ -11,6 +11,9 @@ func _initialize() -> void:
 	_test_destination_and_cancel()
 	_test_exactly_one_pending_request_and_rejection()
 	_test_authoritative_travel_clears_provisional()
+	_test_selection_loss_does_not_resolve_pending_request()
+	_test_reset_requires_new_selection()
+	_test_authoritative_acceptance_after_selection_loss()
 	if _failures == 0:
 		print("M2_TRAVEL_INTENT_TEST_OK")
 		quit(0)
@@ -69,6 +72,39 @@ func _ready_state() -> RefCounted:
 	state.set_player_id("player-1")
 	state.select_entity(_ship("own", "player-1", "ANCHORED"))
 	return state
+
+
+func _test_selection_loss_does_not_resolve_pending_request() -> void:
+	var state := _ready_state()
+	_check(state.selected_own_entity_id == "own", "selección conserva entity_id explícito")
+	state.choose_destination(Vector2i(420, 180), Vector2i(600, 600))
+	state.begin_request()
+	state.apply_authoritative_ship({})
+	_check(state.selected_own_entity_id == "", "nave ausente invalida selección")
+	_check(state.awaiting_resolution, "removed no confirma ni rechaza start_travel")
+	_check(not state.begin_request(), "no permite segunda solicitud tras removed")
+	state.reject_request("SHIP_NOT_FOUND")
+	_check(not state.awaiting_resolution, "rechazo del SSS resuelve espera")
+
+
+func _test_reset_requires_new_selection() -> void:
+	var state := _ready_state()
+	state.choose_destination(Vector2i(420, 180), Vector2i(600, 600))
+	state.reset_transient()
+	_check(not state.can_choose_destination(), "resume no conserva selección habilitada")
+	_check(not state.has_provisional_destination and state.selected_entity_id == "", "reset limpia selección y destino")
+
+
+func _test_authoritative_acceptance_after_selection_loss() -> void:
+	var state := _ready_state()
+	state.choose_destination(Vector2i(420, 180), Vector2i(600, 600))
+	state.begin_request()
+	state.apply_authoritative_ship({})
+	state.apply_authoritative_ship(_ship("foreign", "player-2", "TRAVELING"))
+	_check(state.awaiting_resolution, "nave ajena no confirma solicitud tras perder selección")
+	state.apply_authoritative_ship(_ship("own", "player-1", "TRAVELING"))
+	_check(not state.awaiting_resolution, "TRAVELING propio confirma aun sin selección visible")
+	_check(state.selected_own_entity_id == "", "aceptación no recrea selección")
 
 
 func _ship(entity_id: String, player_id: String, state: String) -> Dictionary:

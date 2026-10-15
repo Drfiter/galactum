@@ -5,7 +5,7 @@ extends RefCounted
 
 var player_id: String = ""
 var selected_entity_id: String = ""
-var selected_own_ship_id: String = ""
+var selected_own_entity_id: String = ""
 var authoritative_state: String = ""
 var provisional_destination: Vector2i = Vector2i.ZERO
 var has_provisional_destination: bool = false
@@ -21,19 +21,19 @@ func select_entity(entity: Dictionary) -> bool:
 	if awaiting_resolution:
 		return false
 	selected_entity_id = str(entity.get("entity_id", ""))
-	selected_own_ship_id = ""
+	selected_own_entity_id = ""
 	authoritative_state = str(entity.get("state", ""))
 	clear_destination()
 	if str(entity.get("kind", "")) != "ship":
 		return false
 	if player_id == "" or str(entity.get("player_id", "")) != player_id:
 		return false
-	selected_own_ship_id = selected_entity_id
+	selected_own_entity_id = selected_entity_id
 	return true
 
 
 func can_choose_destination() -> bool:
-	return (selected_own_ship_id != ""
+	return (selected_own_entity_id != ""
 		and authoritative_state == "ANCHORED"
 		and not awaiting_resolution)
 
@@ -75,7 +75,22 @@ func reject_request(error_code: String) -> bool:
 
 
 func apply_authoritative_ship(ship: Dictionary) -> void:
-	if ship.is_empty() or str(ship.get("entity_id", "")) != selected_own_ship_id:
+	if ship.is_empty():
+		selected_entity_id = ""
+		selected_own_entity_id = ""
+		authoritative_state = ""
+		clear_destination()
+		# Una desaparición del AOI no confirma ni rechaza la solicitud pendiente.
+		return
+	if (awaiting_resolution and player_id != ""
+		and str(ship.get("kind", "")) == "ship"
+		and str(ship.get("player_id", "")) == player_id
+		and str(ship.get("state", "")) == "TRAVELING"):
+		# La confirmación depende del SSS y ownership, no de una selección visible.
+		awaiting_resolution = false
+		clear_destination()
+		last_rejection_code = ""
+	if str(ship.get("entity_id", "")) != selected_own_entity_id:
 		return
 	authoritative_state = str(ship.get("state", ""))
 	if authoritative_state == "TRAVELING":
@@ -85,6 +100,9 @@ func apply_authoritative_ship(ship: Dictionary) -> void:
 
 
 func reset_transient() -> void:
+	selected_entity_id = ""
+	selected_own_entity_id = ""
+	authoritative_state = ""
 	awaiting_resolution = false
 	clear_destination()
 	last_rejection_code = ""

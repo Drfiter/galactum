@@ -115,6 +115,19 @@ func get_entity(entity_id: String) -> Dictionary:
 	return {}
 
 
+## Consultas para Minería/Combate: copias tipadas de la réplica, nunca autoridad.
+func get_ship(entity_id: String) -> ShipRepresentation:
+	var entity: Dictionary = get_entity(entity_id)
+	if entity.is_empty() or str(entity.get("kind", "")) != "ship":
+		return null
+	return ShipRepresentation.new(entity)
+
+
+func get_ship_for_player(player_id: String) -> ShipRepresentation:
+	var entity: Dictionary = ship_for_player(player_id)
+	return null if entity.is_empty() else ShipRepresentation.new(entity)
+
+
 ## Devuelve la nave perteneciente al player_id autenticado, sin asumir que sea
 ## la primera nave de la réplica AOI.
 func ship_for_player(player_id: String) -> Dictionary:
