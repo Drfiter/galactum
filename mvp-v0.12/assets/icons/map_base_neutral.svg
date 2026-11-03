@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe1a8"/><stop offset="1" stop-color="#a8701f"/></linearGradient><radialGradient id="e" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff0cf"/><stop offset="1" stop-color="#00000000"/></radialGradient><linearGradient id="w" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb347"/><stop offset="1" stop-color="#a8701f"/></linearGradient></defs>
+<ellipse cx="64" cy="112" rx="18" ry="14" fill="url(#e)"/>
+<ellipse cx="40" cy="104" rx="10" ry="12" fill="url(#e)"/><ellipse cx="88" cy="104" rx="10" ry="12" fill="url(#e)"/>
+<polygon points="64,8 76,36 118,74 118,88 80,82 74,100 54,100 48,82 10,88 10,74 52,36" fill="url(#h)" stroke="#0b1020" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="64,8 76,36 70,96 58,96 52,36" fill="#ffb347" opacity=".55"/>
+<polygon points="52,48 14,78 14,84 50,76" fill="url(#w)" opacity=".7"/><polygon points="76,48 114,78 114,84 78,76" fill="url(#w)" opacity=".7"/>
+<ellipse cx="64" cy="42" rx="6" ry="11" fill="#0b1020"/><ellipse cx="64" cy="40" rx="3.5" ry="7" fill="#fff0cf"/>
+<rect x="30" y="86" width="10" height="14" rx="3" fill="#0b1020"/><rect x="88" y="86" width="10" height="14" rx="3" fill="#0b1020"/>
+<rect x="56" y="98" width="16" height="8" rx="3" fill="#fff0cf"/></svg>
