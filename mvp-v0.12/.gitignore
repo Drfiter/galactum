@@ -1,0 +1,8 @@
+.godot/
+build/
+*.tmp
+
+Godot/
+*.keystore
+*.jks
+.godot/
