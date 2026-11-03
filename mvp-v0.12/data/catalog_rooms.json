@@ -1,0 +1,498 @@
+{
+ "version": "mvp-1.0",
+ "max_level": 10,
+ "free_speedup_sec": 15,
+ "rooms": [
+  {
+   "id": "bridge",
+   "name": "Puente de Mando",
+   "art": "s01_puente_de_mando",
+   "category": "core",
+   "desc": "Centro de mando de la Astronave. Su nivel limita al resto de salas y desbloquea flotas simultáneas.",
+   "cost": {
+    "ore": 220,
+    "roderitium": 120,
+    "aluminium": 80,
+    "credits": 120
+   },
+   "growth": 1.6,
+   "time": 25,
+   "time_growth": 1.65,
+   "effects": {
+    "march_slots": {
+     "base": 2,
+     "per_level": 0.34,
+     "label": "Flotas simultáneas",
+     "floor": true
+    }
+   },
+   "power": 60
+  },
+  {
+   "id": "factory",
+   "name": "Fábrica",
+   "art": "s02_fabrica",
+   "category": "production",
+   "desc": "Produce Mineral, Aminoácidos y CO₂ dentro de la nave (seguro frente a ataques).",
+   "cost": {
+    "ore": 120,
+    "roderitium": 60,
+    "credits": 50
+   },
+   "growth": 1.5,
+   "time": 15,
+   "time_growth": 1.6,
+   "produces": {
+    "ore": {
+     "base": 40,
+     "per_level": 18
+    },
+    "aminoacids": {
+     "base": 24,
+     "per_level": 11
+    },
+    "co2": {
+     "base": 24,
+     "per_level": 11
+    }
+   },
+   "storage_minutes": 20,
+   "power": 30
+  },
+  {
+   "id": "platform",
+   "name": "Segunda Plataforma",
+   "art": "s09_segunda_plataforma",
+   "category": "production",
+   "desc": "Cultivos y reactores: Alimento, Oxígeno y Plasma de Fusión.",
+   "cost": {
+    "ore": 120,
+    "copper": 50,
+    "credits": 50
+   },
+   "growth": 1.5,
+   "time": 15,
+   "time_growth": 1.6,
+   "produces": {
+    "food": {
+     "base": 34,
+     "per_level": 15
+    },
+    "oxygen": {
+     "base": 34,
+     "per_level": 15
+    },
+    "plasma": {
+     "base": 3,
+     "per_level": 1.5
+    }
+   },
+   "storage_minutes": 20,
+   "power": 30
+  },
+  {
+   "id": "bank",
+   "name": "Banco Galáctico",
+   "art": "s20_banco_galactico",
+   "category": "production",
+   "desc": "Genera Créditos Galácticos, la moneda común del sistema.",
+   "cost": {
+    "ore": 150,
+    "aluminium": 60,
+    "credits": 40
+   },
+   "growth": 1.5,
+   "time": 18,
+   "time_growth": 1.6,
+   "produces": {
+    "credits": {
+     "base": 30,
+     "per_level": 14
+    }
+   },
+   "storage_minutes": 20,
+   "power": 30
+  },
+  {
+   "id": "hangar",
+   "name": "Hangar",
+   "art": "s05_hangar",
+   "category": "military",
+   "desc": "Entrena las 5 fuerzas. Su nivel aumenta el lote máximo y la velocidad de entrenamiento.",
+   "cost": {
+    "ore": 160,
+    "roderitium": 80,
+    "kliptium": 60,
+    "credits": 60
+   },
+   "growth": 1.55,
+   "time": 20,
+   "time_growth": 1.6,
+   "effects": {
+    "train_batch": {
+     "base": 60,
+     "per_level": 30,
+     "label": "Lote máximo"
+    },
+    "train_speed": {
+     "base": 0,
+     "per_level": 0.08,
+     "label": "Velocidad de entrenamiento",
+     "pct": true
+    }
+   },
+   "power": 40
+  },
+  {
+   "id": "lab",
+   "name": "Laboratorio",
+   "art": "s04_laboratorio",
+   "category": "military",
+   "desc": "Investigación tecnológica. El nivel del laboratorio limita el nivel de cada tecnología.",
+   "cost": {
+    "ore": 160,
+    "kliptium": 90,
+    "water": 60,
+    "credits": 80
+   },
+   "growth": 1.55,
+   "time": 22,
+   "time_growth": 1.6,
+   "effects": {
+    "research_speed": {
+     "base": 0,
+     "per_level": 0.08,
+     "label": "Velocidad de investigación",
+     "pct": true
+    }
+   },
+   "power": 40
+  },
+  {
+   "id": "fleet_hq",
+   "name": "Sala de Coordinación de Flota",
+   "art": "s16_sala_de_coordinacion_de_flota",
+   "category": "military",
+   "desc": "Define cuántas tropas puede llevar cada flota.",
+   "cost": {
+    "ore": 180,
+    "roderitium": 80,
+    "copper": 60,
+    "credits": 70
+   },
+   "growth": 1.55,
+   "time": 20,
+   "time_growth": 1.6,
+   "effects": {
+    "march_capacity": {
+     "base": 150,
+     "per_level": 60,
+     "label": "Capacidad por flota"
+    }
+   },
+   "power": 40
+  },
+  {
+   "id": "medbay",
+   "name": "Bahía Médica",
+   "art": "s12_bahia_medica",
+   "category": "defense",
+   "desc": "Recupera a los heridos. Sin espacio, los heridos cuentan como bajas mortales.",
+   "cost": {
+    "ore": 140,
+    "food": 80,
+    "water": 60,
+    "credits": 50
+   },
+   "growth": 1.5,
+   "time": 16,
+   "time_growth": 1.6,
+   "effects": {
+    "medbay_capacity": {
+     "base": 150,
+     "per_level": 90,
+     "label": "Capacidad de heridos"
+    }
+   },
+   "power": 30
+  },
+  {
+   "id": "cryo",
+   "name": "Criosantuario",
+   "art": "s17_criosantuario",
+   "category": "defense",
+   "desc": "El 80% de las bajas mortales queda en criostasis recuperable.",
+   "cost": {
+    "ore": 150,
+    "water": 80,
+    "oxygen": 60,
+    "credits": 60
+   },
+   "growth": 1.5,
+   "time": 18,
+   "time_growth": 1.6,
+   "effects": {
+    "cryo_capacity": {
+     "base": 250,
+     "per_level": 150,
+     "label": "Capacidad criogénica"
+    }
+   },
+   "power": 30
+  },
+  {
+   "id": "vault",
+   "name": "Bóveda Cuántica",
+   "art": "s13_boveda_cuantica",
+   "category": "defense",
+   "desc": "Protege una cantidad fija de cada elemento contra el saqueo.",
+   "cost": {
+    "ore": 130,
+    "aluminium": 70,
+    "credits": 60
+   },
+   "growth": 1.5,
+   "time": 16,
+   "time_growth": 1.6,
+   "effects": {
+    "vault_protect": {
+     "base": 600,
+     "per_level": 450,
+     "label": "Protección por elemento"
+    }
+   },
+   "power": 30
+  },
+  {
+   "id": "perimeter",
+   "name": "Escudo Perimetral",
+   "art": "s11_escudo_perimetral",
+   "category": "defense",
+   "desc": "Escudo de la nave anclada: absorbe daño antes que tus tropas. Los Cañoneros lo destruyen.",
+   "cost": {
+    "ore": 170,
+    "copper": 90,
+    "aluminium": 70,
+    "credits": 60
+   },
+   "growth": 1.55,
+   "time": 20,
+   "time_growth": 1.6,
+   "effects": {
+    "perimeter_hp": {
+     "base": 900,
+     "per_level": 650,
+     "label": "Integridad del escudo"
+    },
+    "defense_bonus": {
+     "base": 0.02,
+     "per_level": 0.02,
+     "label": "Defensa de tropas",
+     "pct": true
+    }
+   },
+   "power": 40
+  },
+  {
+   "id": "sensors",
+   "name": "Sala de Sensores",
+   "art": "s10_sala_de_sensores",
+   "category": "defense",
+   "desc": "Precisión del espionaje y alerta temprana de ataques.",
+   "cost": {
+    "ore": 120,
+    "copper": 60,
+    "kliptium": 40,
+    "credits": 50
+   },
+   "growth": 1.5,
+   "time": 15,
+   "time_growth": 1.6,
+   "effects": {
+    "scout_level": {
+     "base": 1,
+     "per_level": 1,
+     "label": "Nivel de espionaje"
+    }
+   },
+   "power": 30
+  },
+  {
+   "id": "cantina",
+   "name": "Cantina",
+   "art": "s06_cantina",
+   "category": "crew",
+   "phase": "Fase 2",
+   "desc": "Recluta a los 45 Tripulantes. Cada nivel mejora la suerte del reclutamiento y da un reclutamiento gratis cada día.",
+   "unlock": {
+    "bridge": 2,
+    "cost": {
+     "ore": 900,
+     "food": 900,
+     "credits": 600,
+     "dark_matter": 60
+    }
+   },
+   "cost": {
+    "ore": 300,
+    "food": 300,
+    "credits": 200
+   },
+   "growth": 1.6,
+   "time": 30,
+   "time_growth": 1.6,
+   "effects": {
+    "recruit_luck": {
+     "base": 1,
+     "per_level": 1,
+     "label": "Suerte de reclutamiento"
+    }
+   },
+   "power": 40
+  },
+  {
+   "id": "crew",
+   "name": "Gestión de Tripulación",
+   "art": "s07_gestion_de_tripulacion",
+   "category": "crew",
+   "phase": "Fase 2",
+   "desc": "Camarotes de la tripulación: cada nivel permite llevar más tripulantes activos y potencia sus pasivas.",
+   "unlock": {
+    "bridge": 3,
+    "cost": {
+     "ore": 1400,
+     "aluminium": 900,
+     "credits": 900,
+     "dark_matter": 90
+    }
+   },
+   "cost": {
+    "ore": 400,
+    "aluminium": 250,
+    "credits": 250
+   },
+   "growth": 1.6,
+   "time": 35,
+   "time_growth": 1.6,
+   "effects": {
+    "crew_slots": {
+     "base": 3,
+     "per_level": 0.5,
+     "label": "Tripulantes activos",
+     "floor": true
+    },
+    "crew_power": {
+     "base": 0.0,
+     "per_level": 0.05,
+     "label": "Potencia de pasivas",
+     "pct": true
+    }
+   },
+   "power": 40
+  },
+  {
+   "id": "armory",
+   "name": "Armería",
+   "art": "s03_armeria",
+   "category": "military",
+   "phase": "Fase 2",
+   "desc": "Forja armas nuevas para tus fuerzas: más ataque y más daño contra Xenoformas por nivel.",
+   "unlock": {
+    "bridge": 3,
+    "cost": {
+     "roderitium": 1500,
+     "copper": 1200,
+     "credits": 900,
+     "dark_matter": 90
+    }
+   },
+   "cost": {
+    "roderitium": 450,
+    "copper": 350,
+    "credits": 250
+   },
+   "growth": 1.6,
+   "time": 35,
+   "time_growth": 1.65,
+   "effects": {
+    "attack_bonus": {
+     "base": 0.04,
+     "per_level": 0.03,
+     "label": "Ataque de fuerzas",
+     "pct": true
+    },
+    "pve_bonus": {
+     "base": 0.05,
+     "per_level": 0.04,
+     "label": "Daño contra Xenoformas",
+     "pct": true
+    }
+   },
+   "power": 50
+  },
+  {
+   "id": "workshop",
+   "name": "Taller de Piezas",
+   "art": "s08_taller_de_piezas",
+   "category": "economy",
+   "phase": "Fase 2",
+   "desc": "Canjea elementos que te sobran por los que te faltan. Cada nivel mejora la tasa de canje.",
+   "unlock": {
+    "bridge": 2,
+    "cost": {
+     "aluminium": 800,
+     "copper": 800,
+     "credits": 500,
+     "dark_matter": 40
+    }
+   },
+   "cost": {
+    "aluminium": 250,
+    "copper": 250,
+    "credits": 150
+   },
+   "growth": 1.55,
+   "time": 25,
+   "time_growth": 1.6,
+   "effects": {
+    "exchange_rate": {
+     "base": 5,
+     "per_level": -0.4,
+     "label": "Canje (X a 1)",
+     "floor": true
+    }
+   },
+   "power": 30
+  }
+ ],
+ "locked": [
+  {
+   "id": "dock",
+   "name": "Muelle de Atraque",
+   "art": "s15_muelle_de_atraque",
+   "phase": "Fase 2",
+   "desc": "Refuerzos de aliados."
+  },
+  {
+   "id": "cloak",
+   "name": "Bahía de Ocultación",
+   "art": "s14_bahia_de_ocultacion",
+   "phase": "Fase 2",
+   "desc": "Oculta fuerzas y al Comandante."
+  },
+  {
+   "id": "incubator",
+   "name": "Cámara de Incubación",
+   "art": "s23_camara_de_incubacion",
+   "phase": "Fase 3",
+   "desc": "Bio-Símbiontes."
+  },
+  {
+   "id": "foundry",
+   "name": "Fundición Estelar",
+   "art": "s24_fundicion_estelar",
+   "phase": "Fase 3",
+   "desc": "Desbloqueo de fuerzas N5."
+  }
+ ]
+}

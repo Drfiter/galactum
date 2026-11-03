@@ -1,0 +1,215 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Eventos rotativos (bonos de recursos), torneos con pozo de premios en USD y dinámicas de alianza. Los valores en USD se convierten a objetos con la tabla de catalog_shop.json.",
+ "resource_event_minutes": 60,
+ "resource_events": [
+  {
+   "id": "kliptium_rush",
+   "name": "Fiebre de Kliptium",
+   "desc": "El Kliptium y el Roderitium se extraen al doble de velocidad.",
+   "icon": "mine",
+   "effects": {
+    "element_gather": {
+     "kliptium": 1.0,
+     "roderitium": 1.0
+    }
+   }
+  },
+  {
+   "id": "meteor_shower",
+   "name": "Lluvia de Meteoritos",
+   "desc": "+50% de velocidad de minería en todos los asteroides.",
+   "icon": "mine",
+   "effects": {
+    "gather_speed": 0.5
+   }
+  },
+  {
+   "id": "hunting_season",
+   "name": "Temporada de Caza",
+   "desc": "+50% de recompensas al cazar Xenoformas y -30% de Energía por caza.",
+   "icon": "hunt",
+   "effects": {
+    "hunt_reward": 0.5,
+    "hunt_energy": -0.3
+   }
+  },
+  {
+   "id": "double_shift",
+   "name": "Turno Doble",
+   "desc": "Las salas productoras de la nave producen +50%.",
+   "icon": "build",
+   "effects": {
+    "production": 0.5
+   }
+  }
+ ],
+ "tournament_minutes": 180,
+ "tournaments": [
+  {
+   "id": "hunters",
+   "name": "Torneo de Cazadores",
+   "desc": "10 puntos por cada nivel de Xenoforma abatida.",
+   "icon": "hunt",
+   "scoring": {
+    "xeno_kill": 10
+   },
+   "prize_pool_usd": 500
+  },
+  {
+   "id": "miners",
+   "name": "Torneo de Mineros",
+   "desc": "1 punto por cada 100 recursos entregados en la nave.",
+   "icon": "mine",
+   "scoring": {
+    "resources": 0.01
+   },
+   "prize_pool_usd": 300
+  },
+  {
+   "id": "warlords",
+   "name": "Guerra de Comandantes",
+   "desc": "50 puntos por victoria PvP y 1 punto por cada 10 de poder enemigo destruido.",
+   "icon": "attack",
+   "scoring": {
+    "pvp_win": 50,
+    "power_destroyed": 0.1
+   },
+   "prize_pool_usd": 800
+  }
+ ],
+ "prize_shares": [
+  0.3,
+  0.18,
+  0.12,
+  0.06,
+  0.06,
+  0.06,
+  0.055,
+  0.055,
+  0.055,
+  0.055
+ ],
+ "prize_mix": [
+  {
+   "id": "dark_matter",
+   "share": 0.45
+  },
+  {
+   "id": "speedup_1h",
+   "share": 0.2
+  },
+  {
+   "id": "warp_jump",
+   "share": 0.1
+  },
+  {
+   "id": "interstellar_jump",
+   "share": 0.1
+  },
+  {
+   "id": "resource_crate",
+   "share": 0.08
+  },
+  {
+   "id": "energy_cell",
+   "share": 0.07
+  }
+ ],
+ "profit_targets": {
+  "raise_above": 4.0,
+  "lower_below": 2.0
+ },
+ "alliance": {
+  "cycle_hours": 24,
+  "points": {
+   "xeno_kill": 8,
+   "resources": 0.002,
+   "pvp_win": 40,
+   "help": 2,
+   "target_hit": 120
+  },
+  "level_xp": [
+   0,
+   3000,
+   9000,
+   20000,
+   40000,
+   75000,
+   130000,
+   220000,
+   360000,
+   560000
+  ],
+  "level_perks": {
+   "gather_speed": 0.02,
+   "march_speed": 0.01
+  },
+  "chest_tiers": [
+   {
+    "points": 1500,
+    "name": "Cofre de Bronce",
+    "reward": {
+     "credits": 400,
+     "speedup_5m": 2,
+     "energy_cell": 1
+    }
+   },
+   {
+    "points": 6000,
+    "name": "Cofre de Plata",
+    "reward": {
+     "dark_matter": 50,
+     "speedup_1h": 1,
+     "resource_crate": 1
+    }
+   },
+   {
+    "points": 15000,
+    "name": "Cofre de Oro",
+    "reward": {
+     "dark_matter": 150,
+     "speedup_1h": 2,
+     "warp_jump": 1
+    }
+   }
+  ],
+  "goals": [
+   {
+    "id": "hunt",
+    "name": "Cacería conjunta",
+    "desc": "Cazar %d Xenoformas entre todos",
+    "kind": "xeno_kill_count",
+    "target": 60,
+    "points": 600,
+    "icon": "hunt"
+   },
+   {
+    "id": "deliver",
+    "name": "Cadena de suministro",
+    "desc": "Entregar %s recursos en las naves",
+    "kind": "resources",
+    "target": 250000,
+    "points": 600,
+    "icon": "cargo"
+   },
+   {
+    "id": "war",
+    "name": "Frente unido",
+    "desc": "Ganar %d combates PvP",
+    "kind": "pvp_win",
+    "target": 12,
+    "points": 800,
+    "icon": "attack"
+   }
+  ],
+  "member_quota": {
+   "kind": "xeno_kill_count",
+   "target": 5,
+   "label": "Caza 5 Xenoformas al día"
+  },
+  "target_minutes": 30,
+  "target_bot_waves": 4,
+  "bot_weight": 0.35
+ }
+}

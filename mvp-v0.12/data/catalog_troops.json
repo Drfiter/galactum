@@ -1,0 +1,271 @@
+{
+ "version": "mvp-1.0",
+ "order": [
+  "infantry",
+  "drones",
+  "pilots",
+  "shields",
+  "gunners"
+ ],
+ "triangle_bonus": 0.3,
+ "siege_multiplier": 2.5,
+ "siege_vs_triangle": 0.75,
+ "shield_absorb_share": 0.6,
+ "types": {
+  "infantry": {
+   "name": "Infantería",
+   "role": "triangle",
+   "beats": "drones",
+   "damage_class": "fisica",
+   "desc": "Tropas de abordaje. Vencen a los Drones (+30%).",
+   "tiers": [
+    {
+     "tier": 1,
+     "stats": {
+      "attack": 12,
+      "defense": 8,
+      "hp": 30,
+      "load": 12,
+      "speed": 1.0
+     },
+     "recipe": {
+      "roderitium": 5,
+      "food": 4,
+      "water": 3,
+      "aminoacids": 3,
+      "oxygen": 3,
+      "credits": 1
+     },
+     "train_sec": 0.6,
+     "power": 2,
+     "requires_tech": ""
+    },
+    {
+     "tier": 2,
+     "stats": {
+      "attack": 22,
+      "defense": 14,
+      "hp": 54,
+      "load": 22,
+      "speed": 1.0
+     },
+     "recipe": {
+      "roderitium": 15,
+      "food": 12,
+      "water": 9,
+      "aminoacids": 9,
+      "oxygen": 9,
+      "credits": 3
+     },
+     "train_sec": 1.2,
+     "power": 8,
+     "requires_tech": "tier2_protocol"
+    }
+   ]
+  },
+  "drones": {
+   "name": "Drones",
+   "role": "triangle",
+   "beats": "pilots",
+   "damage_class": "energetica",
+   "desc": "Enjambres autónomos rápidos. Vencen a los Pilotos (+30%).",
+   "tiers": [
+    {
+     "tier": 1,
+     "stats": {
+      "attack": 15,
+      "defense": 6,
+      "hp": 24,
+      "load": 8,
+      "speed": 1.4
+     },
+     "recipe": {
+      "roderitium": 4,
+      "kliptium": 4,
+      "water": 3,
+      "co2": 3,
+      "oxygen": 3,
+      "credits": 1
+     },
+     "train_sec": 0.6,
+     "power": 2,
+     "requires_tech": ""
+    },
+    {
+     "tier": 2,
+     "stats": {
+      "attack": 27,
+      "defense": 11,
+      "hp": 43,
+      "load": 14,
+      "speed": 1.4
+     },
+     "recipe": {
+      "roderitium": 12,
+      "kliptium": 12,
+      "water": 9,
+      "co2": 9,
+      "oxygen": 9,
+      "credits": 3
+     },
+     "train_sec": 1.2,
+     "power": 8,
+     "requires_tech": "tier2_protocol"
+    }
+   ]
+  },
+  "pilots": {
+   "name": "Pilotos",
+   "role": "triangle",
+   "beats": "infantry",
+   "damage_class": "energetica",
+   "desc": "Cazas tripulados. Vencen a la Infantería (+30%).",
+   "tiers": [
+    {
+     "tier": 1,
+     "stats": {
+      "attack": 13,
+      "defense": 7,
+      "hp": 28,
+      "load": 10,
+      "speed": 1.2
+     },
+     "recipe": {
+      "kliptium": 5,
+      "food": 4,
+      "water": 3,
+      "aminoacids": 3,
+      "oxygen": 3,
+      "credits": 1
+     },
+     "train_sec": 0.6,
+     "power": 2,
+     "requires_tech": ""
+    },
+    {
+     "tier": 2,
+     "stats": {
+      "attack": 23,
+      "defense": 13,
+      "hp": 50,
+      "load": 18,
+      "speed": 1.2
+     },
+     "recipe": {
+      "kliptium": 15,
+      "food": 12,
+      "water": 9,
+      "aminoacids": 9,
+      "oxygen": 9,
+      "credits": 3
+     },
+     "train_sec": 1.2,
+     "power": 8,
+     "requires_tech": "tier2_protocol"
+    }
+   ]
+  },
+  "shields": {
+   "name": "Escudos",
+   "role": "defense",
+   "beats": "",
+   "damage_class": "fisica",
+   "desc": "Muralla portátil: absorben el primer daño del combate.",
+   "tiers": [
+    {
+     "tier": 1,
+     "stats": {
+      "attack": 3,
+      "defense": 22,
+      "hp": 70,
+      "load": 6,
+      "speed": 0.8
+     },
+     "recipe": {
+      "roderitium": 5,
+      "copper": 5,
+      "aluminium": 4,
+      "oxygen": 3,
+      "credits": 1
+     },
+     "train_sec": 0.6,
+     "power": 2,
+     "requires_tech": ""
+    },
+    {
+     "tier": 2,
+     "stats": {
+      "attack": 5,
+      "defense": 40,
+      "hp": 126,
+      "load": 11,
+      "speed": 0.8
+     },
+     "recipe": {
+      "roderitium": 15,
+      "copper": 15,
+      "aluminium": 12,
+      "oxygen": 9,
+      "credits": 3
+     },
+     "train_sec": 1.2,
+     "power": 8,
+     "requires_tech": "tier2_protocol"
+    }
+   ]
+  },
+  "gunners": {
+   "name": "Cañoneros",
+   "role": "siege",
+   "beats": "shields",
+   "damage_class": "fisica",
+   "desc": "Asedio: destruyen Escudos y el Escudo Perimetral (x2.5). Débiles contra el triángulo.",
+   "tiers": [
+    {
+     "tier": 1,
+     "stats": {
+      "attack": 18,
+      "defense": 4,
+      "hp": 20,
+      "load": 14,
+      "speed": 0.7
+     },
+     "recipe": {
+      "kliptium": 4,
+      "aluminium": 4,
+      "food": 3,
+      "water": 3,
+      "aminoacids": 3,
+      "oxygen": 3,
+      "credits": 2
+     },
+     "train_sec": 0.6,
+     "power": 2,
+     "requires_tech": ""
+    },
+    {
+     "tier": 2,
+     "stats": {
+      "attack": 32,
+      "defense": 7,
+      "hp": 36,
+      "load": 25,
+      "speed": 0.7
+     },
+     "recipe": {
+      "kliptium": 12,
+      "aluminium": 12,
+      "food": 9,
+      "water": 9,
+      "aminoacids": 9,
+      "oxygen": 9,
+      "credits": 6
+     },
+     "train_sec": 1.2,
+     "power": 8,
+     "requires_tech": "tier2_protocol"
+    }
+   ]
+  }
+ }
+}

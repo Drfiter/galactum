@@ -1,0 +1,229 @@
+{
+ "portraits": {
+  "p01": {
+   "file": "p01_comandante_kael_g3.png",
+   "name": "Comandante Kael",
+   "role": "especialista"
+  },
+  "p02": {
+   "file": "p02_ingeniera_zora_g3.png",
+   "name": "Ingeniera Zora",
+   "role": "especialista"
+  },
+  "p03": {
+   "file": "p03_cazador_jax_g3.png",
+   "name": "Cazador Jax",
+   "role": "asalto"
+  },
+  "p04": {
+   "file": "p04_medico_elara_g3.png",
+   "name": "Medico Elara",
+   "role": "especialista"
+  },
+  "p05": {
+   "file": "p05_capitan_volkov_g3.png",
+   "name": "Capitan Volkov",
+   "role": "vanguardia"
+  },
+  "p06": {
+   "file": "p06_psiquico_xylo_g3.png",
+   "name": "Psiquico Xylo",
+   "role": "especialista"
+  },
+  "p07": {
+   "file": "p07_guerrero_rakk_g3.png",
+   "name": "Guerrero Rakk",
+   "role": "vanguardia"
+  },
+  "p08": {
+   "file": "p08_hacker_seraph_g3.png",
+   "name": "Hacker Seraph",
+   "role": "especialista"
+  },
+  "p09": {
+   "file": "p09_ninja_kai_g3.png",
+   "name": "Ninja Kai",
+   "role": "asalto"
+  },
+  "p10": {
+   "file": "p10_oraculo_mya_g3.png",
+   "name": "Oraculo Mya",
+   "role": "especialista"
+  },
+  "p11": {
+   "file": "p11_artillero_griz_g3.png",
+   "name": "Artillero Griz",
+   "role": "vanguardia"
+  },
+  "p12": {
+   "file": "p12_biologo_finn_g3.png",
+   "name": "Biologo Finn",
+   "role": "especialista"
+  },
+  "p13": {
+   "file": "p13_goleador_brock_g3.png",
+   "name": "Goleador Brock",
+   "role": "asalto"
+  },
+  "p14": {
+   "file": "p14_chaman_lyra_g3.png",
+   "name": "Chaman Lyra",
+   "role": "especialista"
+  },
+  "p15": {
+   "file": "p15_diplomatico_valen_g3.png",
+   "name": "Diplomatico Valen",
+   "role": "especialista"
+  },
+  "p16": {
+   "file": "p16_mercenario_drek_g3.png",
+   "name": "Mercenario Drek",
+   "role": "vanguardia"
+  },
+  "p17": {
+   "file": "p17_tecnocrata_nira_g3.png",
+   "name": "Tecnocrata Nira",
+   "role": "especialista"
+  },
+  "p18": {
+   "file": "p18_defensor_gorth_g3.png",
+   "name": "Defensor Gorth",
+   "role": "vanguardia"
+  },
+  "p19": {
+   "file": "p19_sombra_zephyr_g3.png",
+   "name": "Sombra Zephyr",
+   "role": "asalto"
+  },
+  "p20": {
+   "file": "p20_alquimista_hex_g3.png",
+   "name": "Alquimista Hex",
+   "role": "especialista"
+  },
+  "p21": {
+   "file": "p21_gladiador_titus_g3.png",
+   "name": "Gladiador Titus",
+   "role": "vanguardia"
+  },
+  "p22": {
+   "file": "p22_cientifica_anya_g3.png",
+   "name": "Cientifica Anya",
+   "role": "especialista"
+  },
+  "p23": {
+   "file": "p23_vigilante_kiro_g3.png",
+   "name": "Vigilante Kiro",
+   "role": "asalto"
+  },
+  "p24": {
+   "file": "p24_mago_eldrin_g3.png",
+   "name": "Mago Eldrin",
+   "role": "especialista"
+  },
+  "p25": {
+   "file": "p25_estratega_petra_g3.png",
+   "name": "Estratega Petra",
+   "role": "especialista"
+  },
+  "p26": {
+   "file": "p26_robot_b_3_g3.png",
+   "name": "Robot B 3",
+   "role": "vanguardia"
+  },
+  "p27": {
+   "file": "p27_telepata_zara_g3.png",
+   "name": "Telepata Zara",
+   "role": "especialista"
+  },
+  "p28": {
+   "file": "p28_piloto_finn_g3.png",
+   "name": "Piloto Finn",
+   "role": "especialista"
+  },
+  "p29": {
+   "file": "p29_brujo_gorok_g3.png",
+   "name": "Brujo Gorok",
+   "role": "vanguardia"
+  },
+  "p30": {
+   "file": "p30_explorador_rico_g3.png",
+   "name": "Explorador Rico",
+   "role": "asalto"
+  },
+  "p31": {
+   "file": "p31_especialista_kit_g3.png",
+   "name": "Especialista Kit",
+   "role": "especialista"
+  },
+  "p32": {
+   "file": "p32_guardia_rex_g3.png",
+   "name": "Guardia Rex",
+   "role": "vanguardia"
+  },
+  "p33": {
+   "file": "p33_maestro_shen_g3.png",
+   "name": "Maestro Shen",
+   "role": "especialista"
+  },
+  "p34": {
+   "file": "p34_centinela_vex_g3.png",
+   "name": "Centinela Vex",
+   "role": "asalto"
+  },
+  "p35": {
+   "file": "p35_quimico_rix_g3.png",
+   "name": "Quimico Rix",
+   "role": "especialista"
+  },
+  "p36": {
+   "file": "p36_tanque_hodor_g3.png",
+   "name": "Tanque Hodor",
+   "role": "vanguardia"
+  },
+  "p37": {
+   "file": "p37_ilusionista_jinn_g3.png",
+   "name": "Ilusionista Jinn",
+   "role": "especialista"
+  },
+  "p38": {
+   "file": "p38_luchador_croc_g3.png",
+   "name": "Luchador Croc",
+   "role": "vanguardia"
+  },
+  "p39": {
+   "file": "p39_juez_syrus_g3.png",
+   "name": "Juez Syrus",
+   "role": "especialista"
+  },
+  "p40": {
+   "file": "p40_espia_cloe_g3.png",
+   "name": "Espia Cloe",
+   "role": "asalto"
+  },
+  "p41": {
+   "file": "p41_maestro_de_drones_g3.png",
+   "name": "Maestro De Drones",
+   "role": "especialista"
+  },
+  "p42": {
+   "file": "p42_hechicero_drax_g3.png",
+   "name": "Hechicero Drax",
+   "role": "especialista"
+  },
+  "p43": {
+   "file": "p43_cibernetico_zero_g3.png",
+   "name": "Cibernetico Zero",
+   "role": "asalto"
+  },
+  "p44": {
+   "file": "p44_atleta_tyra_g3.png",
+   "name": "Atleta Tyra",
+   "role": "asalto"
+  },
+  "p45": {
+   "file": "p45_sacerdote_al_g3.png",
+   "name": "Sacerdote Al",
+   "role": "especialista"
+  }
+ }
+}

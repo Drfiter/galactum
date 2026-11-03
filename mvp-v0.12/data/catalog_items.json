@@ -1,0 +1,81 @@
+{
+ "version": "mvp-1.0",
+ "items": [
+  {
+   "id": "speedup_1m",
+   "name": "Acelerador 1 min",
+   "kind": "speedup",
+   "seconds": 60,
+   "icon": "speedup",
+   "desc": "Reduce 1 minuto cualquier temporizador."
+  },
+  {
+   "id": "speedup_5m",
+   "name": "Acelerador 5 min",
+   "kind": "speedup",
+   "seconds": 300,
+   "icon": "speedup",
+   "desc": "Reduce 5 minutos cualquier temporizador."
+  },
+  {
+   "id": "speedup_1h",
+   "name": "Acelerador 1 h",
+   "kind": "speedup",
+   "seconds": 3600,
+   "icon": "speedup",
+   "desc": "Reduce 1 hora cualquier temporizador."
+  },
+  {
+   "id": "energy_cell",
+   "name": "Célula de Energía",
+   "kind": "energy",
+   "amount": 50,
+   "icon": "energy",
+   "desc": "+50 de Energía para cazar Xenoformas."
+  },
+  {
+   "id": "peace_field_15m",
+   "name": "Campo de Distorsión 15 min",
+   "kind": "shield",
+   "seconds": 900,
+   "icon": "shield",
+   "desc": "Tu nave anclada no puede ser atacada ni espiada. Se rompe si atacas."
+  },
+  {
+   "id": "warp_jump",
+   "name": "Salto Warp",
+   "kind": "warp",
+   "icon": "warp",
+   "desc": "Teletransporta la Astronave al punto elegido sin estado de tránsito."
+  },
+  {
+   "id": "escape_jump",
+   "name": "Salto de Emergencia",
+   "kind": "escape",
+   "icon": "warp",
+   "desc": "Teletransporta la Astronave a un punto aleatorio lejano del sistema. Ideal para escapar de un ataque."
+  },
+  {
+   "id": "interstellar_jump",
+   "name": "Motor de Salto Interestelar",
+   "kind": "interstellar",
+   "icon": "warp",
+   "desc": "Lleva la Astronave a otro Sistema Solar desde cualquier punto. Conservas tu Alianza."
+  },
+  {
+   "id": "resource_crate",
+   "name": "Cápsula de elementos",
+   "kind": "crate",
+   "amount": 400,
+   "icon": "crate",
+   "desc": "Contiene 400 de cada elemento de minería."
+  },
+  {
+   "id": "recruit_ticket",
+   "name": "Contrato de Tripulante",
+   "kind": "recruit",
+   "icon": "crew",
+   "desc": "Recluta a un tripulante al azar en la Cantina."
+  }
+ ]
+}

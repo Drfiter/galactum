@@ -1,0 +1,31 @@
+{
+ "version": "mvp-1.0",
+ "levels": [
+  {
+   "level": 1,
+   "quantity": 500,
+   "rate": 16
+  },
+  {
+   "level": 2,
+   "quantity": 900,
+   "rate": 22
+  },
+  {
+   "level": 3,
+   "quantity": 1500,
+   "rate": 28
+  },
+  {
+   "level": 4,
+   "quantity": 2300,
+   "rate": 36
+  },
+  {
+   "level": 5,
+   "quantity": 3200,
+   "rate": 46
+  }
+ ],
+ "respawn_sec": 60
+}

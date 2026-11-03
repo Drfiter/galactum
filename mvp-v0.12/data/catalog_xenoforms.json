@@ -1,0 +1,241 @@
+{
+ "version": "mvp-1.0",
+ "species": [
+  {
+   "id": "x01",
+   "slug": "leviatan_del_vacio",
+   "name": "Leviatán del Vacío",
+   "weakness": "fisica",
+   "color": "#68e35f"
+  },
+  {
+   "id": "x02",
+   "slug": "enjambre_cristalino",
+   "name": "Enjambre Cristalino",
+   "weakness": "energetica",
+   "color": "#45acd2"
+  },
+  {
+   "id": "x03",
+   "slug": "devorador_de_plasma",
+   "name": "Devorador de Plasma",
+   "weakness": "energetica",
+   "color": "#da5742"
+  },
+  {
+   "id": "x04",
+   "slug": "acechador_umbrio",
+   "name": "Acechador Umbrío",
+   "weakness": "fisica",
+   "color": "#a36fe8"
+  },
+  {
+   "id": "x05",
+   "slug": "coloso_magmatico",
+   "name": "Coloso Magmático",
+   "weakness": "fisica",
+   "color": "#edb94e"
+  },
+  {
+   "id": "x06",
+   "slug": "medusa_estelar",
+   "name": "Medusa Estelar",
+   "weakness": "energetica",
+   "color": "#e857c1"
+  },
+  {
+   "id": "x07",
+   "slug": "carroero_orbital",
+   "name": "Carroñero Orbital",
+   "weakness": "fisica",
+   "color": "#5cd3b1"
+  },
+  {
+   "id": "x08",
+   "slug": "tejedora_de_niebla",
+   "name": "Tejedora de Niebla",
+   "weakness": "energetica",
+   "color": "#7081df"
+  },
+  {
+   "id": "x09",
+   "slug": "quimera_lunar",
+   "name": "Quimera Lunar",
+   "weakness": "fisica",
+   "color": "#66e15e"
+  },
+  {
+   "id": "x10",
+   "slug": "pulpo_gravitatorio",
+   "name": "Pulpo Gravitatorio",
+   "weakness": "energetica",
+   "color": "#44aad1"
+  },
+  {
+   "id": "x11",
+   "slug": "escarabajo_ferrico",
+   "name": "Escarabajo Férrico",
+   "weakness": "fisica",
+   "color": "#d85642"
+  },
+  {
+   "id": "x12",
+   "slug": "anguila_ionica",
+   "name": "Anguila Iónica",
+   "weakness": "energetica",
+   "color": "#a571ea"
+  },
+  {
+   "id": "x13",
+   "slug": "brutalisco_xeno",
+   "name": "Brutalisco Xeno",
+   "weakness": "fisica",
+   "color": "#ebb84d"
+  },
+  {
+   "id": "x14",
+   "slug": "espectro_radiante",
+   "name": "Espectro Radiante",
+   "weakness": "energetica",
+   "color": "#e858c1"
+  },
+  {
+   "id": "x15",
+   "slug": "larva_titanica",
+   "name": "Larva Titánica",
+   "weakness": "fisica",
+   "color": "#5dd4b3"
+  },
+  {
+   "id": "x16",
+   "slug": "sierpe_de_anillos",
+   "name": "Sierpe de Anillos",
+   "weakness": "fisica",
+   "color": "#7081df"
+  },
+  {
+   "id": "x17",
+   "slug": "polilla_del_pulsar",
+   "name": "Polilla del Púlsar",
+   "weakness": "energetica",
+   "color": "#63dd5c"
+  },
+  {
+   "id": "x18",
+   "slug": "gusano_sismico",
+   "name": "Gusano Sísmico",
+   "weakness": "fisica",
+   "color": "#45add3"
+  },
+  {
+   "id": "x19",
+   "slug": "hidra_criogenica",
+   "name": "Hidra Criogénica",
+   "weakness": "energetica",
+   "color": "#d85642"
+  },
+  {
+   "id": "x20",
+   "slug": "mantis_del_cinturon",
+   "name": "Mantis del Cinturón",
+   "weakness": "fisica",
+   "color": "#9f6be6"
+  },
+  {
+   "id": "x21",
+   "slug": "esporo_errante",
+   "name": "Esporo Errante",
+   "weakness": "energetica",
+   "color": "#ebb74d"
+  },
+  {
+   "id": "x22",
+   "slug": "behemot_estelar",
+   "name": "Behemot Estelar",
+   "weakness": "fisica",
+   "color": "#e958c2"
+  },
+  {
+   "id": "x23",
+   "slug": "sombra_nebular",
+   "name": "Sombra Nebular",
+   "weakness": "energetica",
+   "color": "#5ed5b3"
+  },
+  {
+   "id": "x24",
+   "slug": "reina_colmena",
+   "name": "Reina Colmena",
+   "weakness": "fisica",
+   "color": "#7384e2"
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "hp": 1500,
+   "attack": 70,
+   "energy": 10,
+   "rewards": {
+    "credits": 250,
+    "dark_matter": 6
+   },
+   "respawn_sec": 90
+  },
+  {
+   "level": 2,
+   "hp": 4200,
+   "attack": 160,
+   "energy": 15,
+   "rewards": {
+    "credits": 500,
+    "dark_matter": 12
+   },
+   "respawn_sec": 120
+  },
+  {
+   "level": 3,
+   "hp": 9000,
+   "attack": 320,
+   "energy": 20,
+   "rewards": {
+    "credits": 900,
+    "dark_matter": 22
+   },
+   "respawn_sec": 150
+  },
+  {
+   "level": 4,
+   "hp": 18000,
+   "attack": 620,
+   "energy": 30,
+   "rewards": {
+    "credits": 1600,
+    "dark_matter": 40
+   },
+   "respawn_sec": 180
+  },
+  {
+   "level": 5,
+   "hp": 32000,
+   "attack": 1050,
+   "energy": 40,
+   "rewards": {
+    "credits": 2800,
+    "dark_matter": 70
+   },
+   "respawn_sec": 240
+  }
+ ],
+ "weakness_multiplier": 1.5,
+ "rounds": 3,
+ "energy_max": 100,
+ "energy_regen_sec": 10,
+ "consecutive_bonus": [
+  0,
+  0.12,
+  0.25,
+  0.4,
+  0.59
+ ]
+}

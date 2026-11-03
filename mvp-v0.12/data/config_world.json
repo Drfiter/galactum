@@ -1,0 +1,122 @@
+{
+ "version": "mvp-1.0",
+ "map_size": 600,
+ "tick_hz": 2,
+ "aoi_max_radius": 90,
+ "asteroid_count": 2200,
+ "xenoform_count": 1100,
+ "bot_count": 72,
+ "march_speed_tiles_per_sec": 1.6,
+ "relocate_speed_tiles_per_sec": 6.0,
+ "relocate_plasma_base": 10,
+ "relocate_plasma_per_tile": 0.25,
+ "scout_speed_tiles_per_sec": 4.0,
+ "scout_cost_credits": 50,
+ "portal_radius": 14,
+ "newbie_protection_sec": 150,
+ "raid_interval_sec": [
+  300,
+  480
+ ],
+ "raid_warning_sec": 25,
+ "save_interval_sec": 60,
+ "alliances": [
+  {
+   "tag": "VGA",
+   "name": "Vanguardia Galáctica",
+   "color": "#3ddc97",
+   "level": 3
+  },
+  {
+   "tag": "XEN",
+   "name": "Culto Xenón",
+   "color": "#ff4d6d",
+   "level": 4
+  },
+  {
+   "tag": "ORI",
+   "name": "Orión Libre",
+   "color": "#ffb347",
+   "level": 2
+  },
+  {
+   "tag": "VOI",
+   "name": "Hijos del Vacío",
+   "color": "#b388ff",
+   "level": 5
+  },
+  {
+   "tag": "KRT",
+   "name": "Kartel Kuiper",
+   "color": "#4fc3f7",
+   "level": 2
+  }
+ ],
+ "starting": {
+  "resources": {
+   "roderitium": 1800,
+   "kliptium": 1600,
+   "copper": 1200,
+   "water": 1600,
+   "aluminium": 1200,
+   "ore": 1500,
+   "food": 1600,
+   "aminoacids": 1200,
+   "oxygen": 1800,
+   "co2": 1000,
+   "credits": 1500,
+   "dark_matter": 600,
+   "energy": 100,
+   "plasma": 120
+  },
+  "troops": {
+   "infantry_1": 70,
+   "drones_1": 50,
+   "pilots_1": 50,
+   "shields_1": 35,
+   "gunners_1": 25
+  },
+  "items": {
+   "speedup_1m": 5,
+   "speedup_5m": 3,
+   "speedup_1h": 1,
+   "energy_cell": 2,
+   "peace_field_15m": 1,
+   "warp_jump": 1,
+   "resource_crate": 1,
+   "escape_jump": 1,
+   "interstellar_jump": 1
+  },
+  "bridge_level": 2
+ },
+ "galaxy": {
+  "launch_systems": 10,
+  "months_since_launch": 5,
+  "new_system_days": 30,
+  "upcoming": 1,
+  "newest_age_days": 3,
+  "veteran_lock_days": 180,
+  "portal_jump_range": 40,
+  "portal_jump_plasma": 80,
+  "arrival_protection_sec": 300,
+  "names": [
+   "Helios",
+   "Andrómeda Alfa",
+   "Cygnus",
+   "Draco",
+   "Erídano",
+   "Fénix",
+   "Géminis",
+   "Hydra",
+   "Lyra",
+   "Orión Profundo",
+   "Perseo",
+   "Sagitario",
+   "Tauri",
+   "Vela",
+   "Aquila",
+   "Centauri"
+  ]
+ },
+ "escape_jump_min_dist": 60
+}

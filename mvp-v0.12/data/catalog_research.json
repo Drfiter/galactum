@@ -1,0 +1,103 @@
+{
+ "version": "mvp-1.0",
+ "techs": [
+  {
+   "id": "kinetic_alloys",
+   "name": "Aleaciones Cinéticas",
+   "branch": "Combate",
+   "max": 5,
+   "effect": "attack",
+   "per_level": 0.05,
+   "label": "Ataque de fuerzas",
+   "pct": true,
+   "icon": "attack"
+  },
+  {
+   "id": "ablative_armor",
+   "name": "Blindaje Ablativo",
+   "branch": "Combate",
+   "max": 5,
+   "effect": "defense",
+   "per_level": 0.05,
+   "label": "Defensa de fuerzas",
+   "pct": true,
+   "icon": "defense"
+  },
+  {
+   "id": "nanomedicine",
+   "name": "Nanomedicina",
+   "branch": "Combate",
+   "max": 5,
+   "effect": "hp",
+   "per_level": 0.05,
+   "label": "Vida de fuerzas",
+   "pct": true,
+   "icon": "hp"
+  },
+  {
+   "id": "assisted_mining",
+   "name": "Extracción Asistida",
+   "branch": "Economía",
+   "max": 5,
+   "effect": "gather_speed",
+   "per_level": 0.12,
+   "label": "Velocidad de minería",
+   "pct": true,
+   "icon": "mine"
+  },
+  {
+   "id": "expanded_holds",
+   "name": "Bodegas Expandidas",
+   "branch": "Economía",
+   "max": 5,
+   "effect": "load",
+   "per_level": 0.12,
+   "label": "Capacidad de carga",
+   "pct": true,
+   "icon": "cargo"
+  },
+  {
+   "id": "ion_drives",
+   "name": "Impulsores Iónicos",
+   "branch": "Tecnología de Salto",
+   "max": 5,
+   "effect": "march_speed",
+   "per_level": 0.1,
+   "label": "Velocidad de flota",
+   "pct": true,
+   "icon": "speed"
+  },
+  {
+   "id": "xenobiology",
+   "name": "Xenobiología",
+   "branch": "Xenobiología",
+   "max": 5,
+   "effect": "pve_damage",
+   "per_level": 0.1,
+   "label": "Daño contra Xenoformas",
+   "pct": true,
+   "icon": "hunt"
+  },
+  {
+   "id": "tier2_protocol",
+   "name": "Protocolo de Fuerzas N2",
+   "branch": "Combate",
+   "max": 1,
+   "effect": "unlock_tier2",
+   "per_level": 1,
+   "label": "Desbloquea fuerzas N2",
+   "pct": false,
+   "icon": "tier",
+   "requires_lab": 3
+  }
+ ],
+ "cost": {
+  "ore": 140,
+  "kliptium": 70,
+  "water": 50,
+  "credits": 90
+ },
+ "growth": 1.6,
+ "time": 20,
+ "time_growth": 1.7
+}

@@ -1,0 +1,297 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Tripulantes reclutables (los 45 retratos del proyecto). Cada uno da una pasiva según su rol y rareza; los duplicados suben estrellas.",
+ "rarities": [
+  {
+   "id": "common",
+   "name": "Común",
+   "color": "#9aa6c8",
+   "weight": 60,
+   "mult": 1.0
+  },
+  {
+   "id": "rare",
+   "name": "Raro",
+   "color": "#4fa8ff",
+   "weight": 28,
+   "mult": 1.6
+  },
+  {
+   "id": "epic",
+   "name": "Épico",
+   "color": "#b388ff",
+   "weight": 10,
+   "mult": 2.4
+  },
+  {
+   "id": "legendary",
+   "name": "Legendario",
+   "color": "#ffc24a",
+   "weight": 2,
+   "mult": 3.5
+  }
+ ],
+ "luck_per_level": {
+  "legendary": 0.5,
+  "epic": 1.5,
+  "rare": 3.0
+ },
+ "base_bonus": 0.03,
+ "star_bonus": 0.2,
+ "max_stars": 5,
+ "base_slots": 2,
+ "recruit_cost_mo": 150,
+ "recruit10_cost_mo": 1350,
+ "dup_refund_credits": {
+  "common": 150,
+  "rare": 400,
+  "epic": 1000,
+  "legendary": 3000
+ },
+ "stat_labels": {
+  "attack": "Ataque de fuerzas",
+  "defense": "Defensa de fuerzas",
+  "hp": "Vida de fuerzas",
+  "gather_speed": "Velocidad de minería",
+  "load": "Capacidad de carga",
+  "march_speed": "Velocidad de flota",
+  "pve_damage": "Daño contra Xenoformas"
+ },
+ "roles": {
+  "vanguardia": "Vanguardia",
+  "asalto": "Asalto",
+  "especialista": "Especialista"
+ },
+ "crew": [
+  {
+   "id": "p01",
+   "rarity": "legendary",
+   "stat": "gather_speed"
+  },
+  {
+   "id": "p02",
+   "rarity": "rare",
+   "stat": "load"
+  },
+  {
+   "id": "p03",
+   "rarity": "epic",
+   "stat": "attack"
+  },
+  {
+   "id": "p04",
+   "rarity": "rare",
+   "stat": "pve_damage"
+  },
+  {
+   "id": "p05",
+   "rarity": "legendary",
+   "stat": "defense"
+  },
+  {
+   "id": "p06",
+   "rarity": "rare",
+   "stat": "hp"
+  },
+  {
+   "id": "p07",
+   "rarity": "epic",
+   "stat": "hp"
+  },
+  {
+   "id": "p08",
+   "rarity": "rare",
+   "stat": "march_speed"
+  },
+  {
+   "id": "p09",
+   "rarity": "epic",
+   "stat": "pve_damage"
+  },
+  {
+   "id": "p10",
+   "rarity": "common",
+   "stat": "attack"
+  },
+  {
+   "id": "p11",
+   "rarity": "rare",
+   "stat": "defense"
+  },
+  {
+   "id": "p12",
+   "rarity": "common",
+   "stat": "defense"
+  },
+  {
+   "id": "p13",
+   "rarity": "common",
+   "stat": "march_speed"
+  },
+  {
+   "id": "p14",
+   "rarity": "rare",
+   "stat": "gather_speed"
+  },
+  {
+   "id": "p15",
+   "rarity": "common",
+   "stat": "load"
+  },
+  {
+   "id": "p16",
+   "rarity": "rare",
+   "stat": "hp"
+  },
+  {
+   "id": "p17",
+   "rarity": "common",
+   "stat": "pve_damage"
+  },
+  {
+   "id": "p18",
+   "rarity": "epic",
+   "stat": "defense"
+  },
+  {
+   "id": "p19",
+   "rarity": "rare",
+   "stat": "attack"
+  },
+  {
+   "id": "p20",
+   "rarity": "common",
+   "stat": "hp"
+  },
+  {
+   "id": "p21",
+   "rarity": "rare",
+   "stat": "hp"
+  },
+  {
+   "id": "p22",
+   "rarity": "epic",
+   "stat": "march_speed"
+  },
+  {
+   "id": "p23",
+   "rarity": "common",
+   "stat": "pve_damage"
+  },
+  {
+   "id": "p24",
+   "rarity": "legendary",
+   "stat": "attack"
+  },
+  {
+   "id": "p25",
+   "rarity": "rare",
+   "stat": "defense"
+  },
+  {
+   "id": "p26",
+   "rarity": "common",
+   "stat": "defense"
+  },
+  {
+   "id": "p27",
+   "rarity": "epic",
+   "stat": "gather_speed"
+  },
+  {
+   "id": "p28",
+   "rarity": "common",
+   "stat": "load"
+  },
+  {
+   "id": "p29",
+   "rarity": "common",
+   "stat": "hp"
+  },
+  {
+   "id": "p30",
+   "rarity": "rare",
+   "stat": "march_speed"
+  },
+  {
+   "id": "p31",
+   "rarity": "common",
+   "stat": "pve_damage"
+  },
+  {
+   "id": "p32",
+   "rarity": "common",
+   "stat": "defense"
+  },
+  {
+   "id": "p33",
+   "rarity": "legendary",
+   "stat": "hp"
+  },
+  {
+   "id": "p34",
+   "rarity": "rare",
+   "stat": "attack"
+  },
+  {
+   "id": "p35",
+   "rarity": "common",
+   "stat": "march_speed"
+  },
+  {
+   "id": "p36",
+   "rarity": "epic",
+   "stat": "hp"
+  },
+  {
+   "id": "p37",
+   "rarity": "common",
+   "stat": "attack"
+  },
+  {
+   "id": "p38",
+   "rarity": "common",
+   "stat": "defense"
+  },
+  {
+   "id": "p39",
+   "rarity": "common",
+   "stat": "defense"
+  },
+  {
+   "id": "p40",
+   "rarity": "rare",
+   "stat": "pve_damage"
+  },
+  {
+   "id": "p41",
+   "rarity": "common",
+   "stat": "gather_speed"
+  },
+  {
+   "id": "p42",
+   "rarity": "common",
+   "stat": "load"
+  },
+  {
+   "id": "p43",
+   "rarity": "epic",
+   "stat": "march_speed"
+  },
+  {
+   "id": "p44",
+   "rarity": "common",
+   "stat": "attack"
+  },
+  {
+   "id": "p45",
+   "rarity": "common",
+   "stat": "pve_damage"
+  }
+ ],
+ "starter": [
+  "p41",
+  "p10",
+  "p12"
+ ]
+}

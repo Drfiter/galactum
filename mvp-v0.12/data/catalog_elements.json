@@ -1,0 +1,101 @@
+{
+ "version": "mvp-1.0",
+ "elements": [
+  {
+   "id": "roderitium",
+   "name": "Roderitium",
+   "short": "Rod",
+   "source": "mining",
+   "color": "#ff7a59"
+  },
+  {
+   "id": "kliptium",
+   "name": "Kliptium",
+   "short": "Klp",
+   "source": "mining",
+   "color": "#a77bff"
+  },
+  {
+   "id": "copper",
+   "name": "Cobre",
+   "short": "Cu",
+   "source": "mining",
+   "color": "#e8a15a"
+  },
+  {
+   "id": "water",
+   "name": "Agua",
+   "short": "H2O",
+   "source": "mining",
+   "color": "#4fc3f7"
+  },
+  {
+   "id": "aluminium",
+   "name": "Aluminio",
+   "short": "Al",
+   "source": "mining",
+   "color": "#c3d3e6"
+  },
+  {
+   "id": "ore",
+   "name": "Mineral",
+   "short": "Ore",
+   "source": "interior",
+   "color": "#8fa3c0"
+  },
+  {
+   "id": "food",
+   "name": "Alimento",
+   "short": "Ali",
+   "source": "interior",
+   "color": "#7cd67c"
+  },
+  {
+   "id": "aminoacids",
+   "name": "Aminoácidos",
+   "short": "Ami",
+   "source": "interior",
+   "color": "#f06292"
+  },
+  {
+   "id": "oxygen",
+   "name": "Oxígeno",
+   "short": "O2",
+   "source": "interior",
+   "color": "#80deea"
+  },
+  {
+   "id": "co2",
+   "name": "CO₂",
+   "short": "CO2",
+   "source": "interior",
+   "color": "#b0bec5"
+  }
+ ],
+ "currencies": [
+  {
+   "id": "credits",
+   "name": "Créditos Galácticos",
+   "short": "Cr",
+   "color": "#ffc24a"
+  },
+  {
+   "id": "dark_matter",
+   "name": "Materia Oscura",
+   "short": "MO",
+   "color": "#c77dff"
+  },
+  {
+   "id": "energy",
+   "name": "Energía",
+   "short": "En",
+   "color": "#ffe14d"
+  },
+  {
+   "id": "plasma",
+   "name": "Plasma de Fusión",
+   "short": "Pl",
+   "color": "#ff5fa2"
+  }
+ ]
+}

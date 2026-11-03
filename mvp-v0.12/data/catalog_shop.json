@@ -1,0 +1,230 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Moneda opaca: Materia Oscura (MO). Todo en el juego tiene un valor en MO; 1 USD = 100 MO al precio de lista. Valores ajustables para balancear la monetización.",
+ "currency": "dark_matter",
+ "usd_to_mo": 100,
+ "value_mo": {
+  "_per_unit": "Valor en MO de UNA unidad",
+  "roderitium": 0.012,
+  "kliptium": 0.012,
+  "copper": 0.01,
+  "water": 0.008,
+  "aluminium": 0.01,
+  "ore": 0.008,
+  "food": 0.008,
+  "aminoacids": 0.01,
+  "oxygen": 0.008,
+  "co2": 0.006,
+  "credits": 0.05,
+  "dark_matter": 1.0,
+  "energy": 0.5,
+  "plasma": 0.5,
+  "speedup_1m": 4,
+  "speedup_5m": 18,
+  "speedup_1h": 200,
+  "energy_cell": 25,
+  "peace_field_15m": 60,
+  "warp_jump": 300,
+  "escape_jump": 150,
+  "interstellar_jump": 1500,
+  "resource_crate": 25,
+  "recruit_ticket": 150
+ },
+ "instant_finish_mo_per_min": 10,
+ "packs": [
+  {
+   "id": "mo_100",
+   "name": "Puñado de Materia Oscura",
+   "usd": 0.99,
+   "mo": 100,
+   "bonus_pct": 0
+  },
+  {
+   "id": "mo_550",
+   "name": "Bolsa de Materia Oscura",
+   "usd": 4.99,
+   "mo": 550,
+   "bonus_pct": 10
+  },
+  {
+   "id": "mo_1200",
+   "name": "Cofre de Materia Oscura",
+   "usd": 9.99,
+   "mo": 1200,
+   "bonus_pct": 20
+  },
+  {
+   "id": "mo_2600",
+   "name": "Bóveda de Materia Oscura",
+   "usd": 19.99,
+   "mo": 2600,
+   "bonus_pct": 30
+  },
+  {
+   "id": "mo_7000",
+   "name": "Nebulosa de Materia Oscura",
+   "usd": 49.99,
+   "mo": 7000,
+   "bonus_pct": 40
+  },
+  {
+   "id": "mo_15000",
+   "name": "Singularidad",
+   "usd": 99.99,
+   "mo": 15000,
+   "bonus_pct": 50
+  },
+  {
+   "id": "starter",
+   "name": "Pack del Comandante (1 vez)",
+   "usd": 1.99,
+   "mo": 300,
+   "once": true,
+   "items": {
+    "warp_jump": 1,
+    "speedup_5m": 5,
+    "energy_cell": 2,
+    "peace_field_15m": 1
+   },
+   "badge": "x5 valor"
+  }
+ ],
+ "item_offers": [
+  "speedup_1m",
+  "speedup_5m",
+  "speedup_1h",
+  "energy_cell",
+  "peace_field_15m",
+  "escape_jump",
+  "warp_jump",
+  "interstellar_jump",
+  "resource_crate",
+  "recruit_ticket"
+ ],
+ "bundles": [
+  {
+   "id": "b_rod",
+   "res": "roderitium",
+   "amount": 10000
+  },
+  {
+   "id": "b_klp",
+   "res": "kliptium",
+   "amount": 10000
+  },
+  {
+   "id": "b_cu",
+   "res": "copper",
+   "amount": 10000
+  },
+  {
+   "id": "b_h2o",
+   "res": "water",
+   "amount": 10000
+  },
+  {
+   "id": "b_al",
+   "res": "aluminium",
+   "amount": 10000
+  },
+  {
+   "id": "b_ore",
+   "res": "ore",
+   "amount": 10000
+  },
+  {
+   "id": "b_food",
+   "res": "food",
+   "amount": 10000
+  },
+  {
+   "id": "b_cr",
+   "res": "credits",
+   "amount": 5000
+  },
+  {
+   "id": "b_pl",
+   "res": "plasma",
+   "amount": 200
+  }
+ ],
+ "login": {
+  "_doc": "Bono de inicio de sesión: cada ciclo de 24 h el comandante recibe ~1 USD en objetos. La caja se arma con una función aleatoria sobre el pool de 'regalos de centavos' hasta completar el presupuesto.",
+  "cycle_hours": 24,
+  "days": 7,
+  "budget_usd": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   3.0
+  ],
+  "day7_guaranteed": {
+   "warp_jump": 1
+  },
+  "pool": [
+   {
+    "id": "roderitium",
+    "qty": 100
+   },
+   {
+    "id": "kliptium",
+    "qty": 100
+   },
+   {
+    "id": "copper",
+    "qty": 100
+   },
+   {
+    "id": "water",
+    "qty": 120
+   },
+   {
+    "id": "aluminium",
+    "qty": 100
+   },
+   {
+    "id": "ore",
+    "qty": 120
+   },
+   {
+    "id": "food",
+    "qty": 120
+   },
+   {
+    "id": "oxygen",
+    "qty": 120
+   },
+   {
+    "id": "credits",
+    "qty": 20
+   },
+   {
+    "id": "energy",
+    "qty": 2
+   },
+   {
+    "id": "plasma",
+    "qty": 2
+   },
+   {
+    "id": "dark_matter",
+    "qty": 1
+   },
+   {
+    "id": "speedup_1m",
+    "qty": 1
+   },
+   {
+    "id": "speedup_5m",
+    "qty": 1
+   },
+   {
+    "id": "energy_cell",
+    "qty": 1
+   }
+  ]
+ }
+}

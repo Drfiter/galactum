@@ -1,0 +1,174 @@
+{
+ "version": "mvp-1.0",
+ "story": [
+  {
+   "id": "m01",
+   "title": "Recolecta la producción",
+   "desc": "Toca el ícono sobre la Fábrica (o cualquier sala productora) para recolectar.",
+   "event": "collect",
+   "target": 1,
+   "reward": {
+    "credits": 200,
+    "speedup_1m": 2
+   }
+  },
+  {
+   "id": "m02",
+   "title": "Mejora la Fábrica a nivel 2",
+   "desc": "Abre la Fábrica y pulsa Mejorar.",
+   "event": "room_level:factory",
+   "target": 2,
+   "reward": {
+    "ore": 400,
+    "dark_matter": 30
+   }
+  },
+  {
+   "id": "m03",
+   "title": "Envía una flota a minar",
+   "desc": "Sal al mapa, toca un asteroide y pulsa Minar.",
+   "event": "gather_started",
+   "target": 1,
+   "reward": {
+    "roderitium": 300,
+    "kliptium": 300
+   }
+  },
+  {
+   "id": "m04",
+   "title": "Entrena 30 unidades",
+   "desc": "Abre el Hangar y entrena cualquier fuerza.",
+   "event": "troops_trained",
+   "target": 30,
+   "reward": {
+    "speedup_5m": 1,
+    "food": 300
+   }
+  },
+  {
+   "id": "m05",
+   "title": "Caza una Xenoforma",
+   "desc": "Toca una Xenoforma en el mapa y pulsa Cazar.",
+   "event": "xeno_hunted",
+   "target": 1,
+   "reward": {
+    "energy_cell": 1,
+    "dark_matter": 40
+   }
+  },
+  {
+   "id": "m06",
+   "title": "Trae minerales a la nave",
+   "desc": "Espera a que una flota minera regrese con su carga.",
+   "event": "resources_delivered",
+   "target": 300,
+   "reward": {
+    "credits": 400,
+    "resource_crate": 1
+   }
+  },
+  {
+   "id": "m07",
+   "title": "Espía una nave enemiga",
+   "desc": "Toca una nave enemiga y pulsa Espiar.",
+   "event": "scout_done",
+   "target": 1,
+   "reward": {
+    "speedup_5m": 1
+   }
+  },
+  {
+   "id": "m08",
+   "title": "Investiga una tecnología",
+   "desc": "Abre el Laboratorio e inicia una investigación.",
+   "event": "research_started",
+   "target": 1,
+   "reward": {
+    "kliptium": 400,
+    "water": 300
+   }
+  },
+  {
+   "id": "m09",
+   "title": "Vence a una nave enemiga",
+   "desc": "Ataca una nave enemiga más débil que tú y gana el combate.",
+   "event": "pvp_win",
+   "target": 1,
+   "reward": {
+    "dark_matter": 80,
+    "speedup_1h": 1
+   }
+  },
+  {
+   "id": "m10",
+   "title": "Abre una Cápsula de Suministro",
+   "desc": "En Alianza, abre las cápsulas que generan los miembros.",
+   "event": "capsule_opened",
+   "target": 1,
+   "reward": {
+    "credits": 500,
+    "warp_jump": 1
+   }
+  },
+  {
+   "id": "m11",
+   "title": "Puente de Mando nivel 3",
+   "desc": "Mejora el Puente de Mando: desbloquea niveles de sala y una flota extra.",
+   "event": "room_level:bridge",
+   "target": 3,
+   "reward": {
+    "dark_matter": 100,
+    "peace_field_15m": 1
+   }
+  },
+  {
+   "id": "m12",
+   "title": "Caza una Xenoforma de nivel 3",
+   "desc": "Las Xenoformas más fuertes viven hacia el centro del sistema.",
+   "event": "xeno_hunted_l3",
+   "target": 1,
+   "reward": {
+    "dark_matter": 120,
+    "speedup_1h": 1
+   }
+  }
+ ],
+ "daily_event": {
+  "id": "ordenes_del_dia",
+  "name": "Órdenes del Día",
+  "cycle_sec": 10800,
+  "points": {
+   "resources_delivered": 0.02,
+   "troops_trained": 2,
+   "xeno_hunted": 40,
+   "room_upgraded": 60,
+   "research_started": 50,
+   "pvp_win": 120,
+   "scout_done": 15
+  },
+  "tiers": [
+   {
+    "points": 150,
+    "reward": {
+     "credits": 300,
+     "speedup_5m": 1
+    }
+   },
+   {
+    "points": 500,
+    "reward": {
+     "dark_matter": 60,
+     "energy_cell": 1
+    }
+   },
+   {
+    "points": 1200,
+    "reward": {
+     "dark_matter": 150,
+     "speedup_1h": 1,
+     "resource_crate": 1
+    }
+   }
+  ]
+ }
+}
