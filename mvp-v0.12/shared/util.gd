@@ -11,6 +11,16 @@ static func t(text: String) -> String:
 	return TranslationServer.translate(text)
 
 
+## Separador de miles según el idioma activo: "1,500" en inglés, "1.500" en español.
+static func thousands_sep() -> String:
+	return "." if TranslationServer.get_locale().begins_with("es") else ","
+
+
+## Separador decimal según el idioma activo: "1.5K" en inglés, "1,5K" en español.
+static func decimal_sep() -> String:
+	return "," if TranslationServer.get_locale().begins_with("es") else "."
+
+
 static func now_ms() -> int:
 	return int(Time.get_unix_time_from_system() * 1000.0) + debug_offset_ms
 
