@@ -41,13 +41,14 @@ static func fmt_num(value: float) -> String:
 
 static func fmt_int(value: int) -> String:
 	var s: String = str(absi(value))
+	var sep: String = thousands_sep()
 	var out: String = ""
 	var count: int = 0
 	for i: int in range(s.length() - 1, -1, -1):
 		out = s[i] + out
 		count += 1
 		if count % 3 == 0 and i > 0:
-			out = "." + out
+			out = sep + out
 	return ("-" if value < 0 else "") + out
 
 
