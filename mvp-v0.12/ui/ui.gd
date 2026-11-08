@@ -157,7 +157,7 @@ static func build_theme() -> Theme:
 	_variation(th, "CardHi", "PanelContainer", sb(Color("142347"), CYAN_DIM, 12, 2, 10))
 	_variation(th, "CardGold", "PanelContainer", sb(Color("2a2210"), Color("8a6a1f"), 12, 2, 10))
 	_variation(th, "CardRed", "PanelContainer", sb(Color("2a0f1a"), Color("a3213d"), 12, 2, 10))
-	_variation(th, "Chip", "PanelContainer", sb(Color(0.03, 0.06, 0.14, 0.97), Color("1f3463"), 10, 1, 5))
+	_variation(th, "Chip", "PanelContainer", sb(Color(0.03, 0.06, 0.14, 1.0), Color("1f3463"), 10, 1, 5))
 	var bar := sb(Color(0.03, 0.05, 0.12, 0.97), Color("1f3463"), 0, 0, 6)
 	bar.border_width_bottom = 2
 	_variation(th, "TopBar", "PanelContainer", bar)
