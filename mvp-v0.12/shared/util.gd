@@ -28,14 +28,15 @@ static func now_ms() -> int:
 static func fmt_num(value: float) -> String:
 	var v: float = absf(value)
 	var sign: String = "-" if value < 0 else ""
+	var dec: String = decimal_sep()
 	if v >= 1_000_000_000.0:
-		return "%s%.1fB" % [sign, v / 1_000_000_000.0]
+		return sign + ("%.1f" % (v / 1_000_000_000.0)).replace(".", dec) + "B"
 	if v >= 1_000_000.0:
-		return "%s%.1fM" % [sign, v / 1_000_000.0]
+		return sign + ("%.1f" % (v / 1_000_000.0)).replace(".", dec) + "M"
 	if v >= 10_000.0:
 		return "%s%.0fK" % [sign, v / 1000.0]
 	if v >= 1000.0:
-		return "%s%.1fK" % [sign, v / 1000.0]
+		return sign + ("%.1f" % (v / 1000.0)).replace(".", dec) + "K"
 	return "%s%d" % [sign, int(v)]
 
 
