@@ -59,6 +59,16 @@ Para la presentación hay botones **"Demo: …"** (simular el siguiente día del
 
 ---
 
+### Correcciones v0.12.1
+
+| Problema | Arreglo |
+|---|---|
+| Los números salían con formato español en inglés ("1.500", "20.000") | `fmt_int` y `fmt_num` usan el separador del idioma activo: "1,500" / "1.5K" en inglés, "1.500" / "1,5K" en español. |
+| Los nombres 3D de salas y entidades se transparentaban sobre la cola de construcción, la tarjeta de misiones y la barra de recursos | Fondos del HUD (`Chip` y `TopBar`) opacos. |
+| Al abrir un clon limpio Godot mostraba errores al cargar `Exo2.ttf` | Se quitó la fuente global de `project.godot`; el tema de `ui/ui.gd` ya la asigna en tiempo de ejecución. |
+
+---
+
 ## 3. Guion de demo (≈5 min, para la presentación)
 
 1. **Título** → nombre y retrato → JUGAR. Comenta que el servidor autoritativo corre embebido y que el mismo juego puede conectarse a un SSS dedicado.
