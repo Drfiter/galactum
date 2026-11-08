@@ -155,7 +155,7 @@ Decisiones de la spec que se respetan:
 ## 6. Pruebas y balance
 
 ```
-godot --headless --path . res://tests/run_tests.tscn          # 18 pruebas canónicas
+godot --headless --path . res://tests/run_tests.tscn          # 24 pruebas canónicas
 godot --headless --path . res://tests/server_smoke.tscn       # bucle completo: minería, caza, PvP, galaxia, alianza, torneos, tripulación
 godot --headless --path . res://tools/balance_harness.tscn -- --n=10000
 ```
