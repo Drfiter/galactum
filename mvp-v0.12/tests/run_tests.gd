@@ -5,6 +5,7 @@ extends Node
 
 const Resolver = preload("res://server/combat/combat_resolver.gd")
 const Eco = preload("res://server/sgm/economy.gd")
+const U = preload("res://shared/util.gd")
 
 var passed: int = 0
 var failed: int = 0
@@ -21,6 +22,7 @@ func _ready() -> void:
 	test_economy_apply()
 	test_casualties_split()
 	test_production_lazy()
+	test_number_format()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -150,3 +152,16 @@ func test_production_lazy() -> void:
 	check(absf(pend - 40.0) < 0.01, "producción lazy: 1 minuto de Fábrica Nv1 = 40 Mineral")
 	Eco.settle(p, 60000 * 500, true)
 	check(float(p["rooms"]["factory"]["pending"]["ore"]) <= 40.0 * 20.0 + 0.01, "la producción se limita a su almacenamiento")
+
+
+func test_number_format() -> void:
+	var prev: String = TranslationServer.get_locale()
+	TranslationServer.set_locale("en")
+	check(U.fmt_int(1500) == "1,500", "formato en inglés: 1500 => 1,500")
+	check(U.fmt_int(-250000) == "-250,000", "formato en inglés: negativos con coma de miles")
+	check(U.fmt_num(1500) == "1.5K", "formato en inglés: 1500 => 1.5K")
+	TranslationServer.set_locale("es")
+	check(U.fmt_int(1500) == "1.500", "formato en español: 1500 => 1.500")
+	check(U.fmt_num(1500) == "1,5K", "formato en español: 1500 => 1,5K")
+	check(U.fmt_num(2_500_000) == "2,5M", "formato en español: millones con coma decimal")
+	TranslationServer.set_locale(prev)
