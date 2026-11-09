@@ -44,6 +44,9 @@ var popup_tile: Vector2i = Vector2i(-1, -1)
 var in_base: bool = true
 var _accum: float = 0.0
 var _fleet_sig: String = ""
+var _popup_refresh_pending: bool = false
+var _pointer_down: bool = false
+var _pointer_pos: Vector2 = Vector2.ZERO
 var _mission_sig: String = ""
 var _event_timers: Array = []
 
@@ -379,10 +382,34 @@ func refresh() -> void:
 	menu_badges["alliance"].visible = caps > 0 or int(me.get("guild_brief", {}).get("chests", 0)) > 0
 	(menu_badges["alliance"].get_child(0) as Label).text = str(caps + int(me.get("guild_brief", {}).get("chests", 0)))
 	if not popup_entity_id.is_empty() or popup_tile.x >= 0:
-		_refresh_popup()
+		if _pointer_on_popup():
+			# Reconstruir la tarjeta ahora destruiría el botón que el jugador
+			# está tocando y el toque se perdería: se aplaza hasta que suelte.
+			_popup_refresh_pending = true
+		else:
+			_refresh_popup()
+
+
+## ¿Hay un dedo/clic presionado sobre la tarjeta del objetivo?
+func _pointer_on_popup() -> bool:
+	return popup.visible and _pointer_down and popup.get_global_rect().has_point(_pointer_pos)
+
+
+## Sigue el primer dedo (o el clic) sin consumir el evento.
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		_pointer_down = (event as InputEventMouseButton).pressed
+		_pointer_pos = (event as InputEventMouseButton).position
+	elif event is InputEventScreenTouch and (event as InputEventScreenTouch).index == 0:
+		_pointer_down = (event as InputEventScreenTouch).pressed
+		_pointer_pos = (event as InputEventScreenTouch).position
 
 
 func _tick() -> void:
+	if _popup_refresh_pending and not _pointer_on_popup():
+		_popup_refresh_pending = false
+		if popup.visible:
+			_refresh_popup()
 	var me: Dictionary = GameClient.me
 	if me.is_empty():
 		return
