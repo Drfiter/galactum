@@ -1,5 +1,5 @@
 @echo off
-REM Suite de pruebas canonicas del resolver/economia + harness de balance (10.000 combates).
+REM Suite de pruebas canonicas, pruebas del feedback del 26/10 y harness de balance (10.000 combates).
 setlocal
 set "ROOT=%~dp0"
 set "GODOT=%ROOT%Godot\Godot_v4.6.2-stable_win64_console.exe"
@@ -10,5 +10,6 @@ if not exist "%ROOT%.godot\imported" (
   "%GODOT%" --headless --path "%ROOT%." --import >nul 2>nul
 )
 "%GODOT%" --headless --path "%ROOT%." res://tests/run_tests.tscn
+"%GODOT%" --headless --path "%ROOT%." res://tests/feedback_checks.tscn
 "%GODOT%" --headless --path "%ROOT%." res://tools/balance_harness.tscn -- --n=10000
 pause
