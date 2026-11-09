@@ -59,6 +59,20 @@ Para la presentación hay botones **"Demo: …"** (simular el siguiente día del
 
 ---
 
+### Correcciones v0.12.2 (feedback del 26/10/2026)
+
+Informe completo con evidencias: `docs/Informe_correcciones_feedback_2026-11-09.pdf` (en la raíz del repositorio).
+
+| Error reportado | Arreglo |
+|---|---|
+| El botón Cazar/Minar de la tarjeta a veces no respondía o el toque caía en "Informes" | La tarjeta ya no se reconstruye mientras el dedo está encima; la barra inferior espera 450 ms antes de reaparecer y la tarjeta respeta la barra de gestos de Android. |
+| Las coordenadas no cambiaban tras reubicar la nave | La cámara acompaña a la Astronave al llegar (viaje, Salto Warp o Salto de Emergencia). |
+| Aviso con el estado interno "(TRAVELING)" | Texto corregido en español e inglés. |
+| Etiquetas de salas tapadas por la barra de colas | La cubierta se encuadra sola entre la barra de colas, el menú inferior y la tarjeta de misiones, en cualquier formato de pantalla. |
+| El chat de alianza parecía mostrar combates de otras alianzas | Ambos bandos aparecen con su etiqueta: "[VGA] Velux fue repelido por [VOI] Kelux". |
+| Sin audio | 9 efectos y música ambiental generados por síntesis (`tools/gen_audio.py`), con interruptores de Música y Efectos en el Menú. |
+| Un bot se llamaba "Comandante Kael", como el tripulante n.º 1 | El aliado inicial ahora es "Comandante Arvel"; las partidas guardadas antiguas se corrigen al cargar. |
+
 ### Correcciones v0.12.1
 
 | Problema | Arreglo |
@@ -146,6 +160,7 @@ server/                SERVIDOR AUTORITATIVO (el cliente solo envía intenciones
   net/ws_gateway.gd      gateway WebSocket del modo dedicado
 client/                Réplica no autoritativa + enlaces (local en memoria / WebSocket)
 ui/                    Título, mapa, interior de la nave, HUD y ventanas
+  audio.gd               efectos y música del cliente (nodo creado a demanda, no Autoload)
 tests/, tools/         Pruebas canónicas, prueba de humo, harness de balance
 ```
 
@@ -167,6 +182,7 @@ Decisiones de la spec que se respetan:
 ```
 godot --headless --path . res://tests/run_tests.tscn          # 24 pruebas canónicas
 godot --headless --path . res://tests/server_smoke.tscn       # bucle completo: minería, caza, PvP, galaxia, alianza, torneos, tripulación
+godot --headless --path . res://tests/feedback_checks.tscn    # 24 comprobaciones de los errores del feedback del 26/10
 godot --headless --path . res://tools/balance_harness.tscn -- --n=10000
 ```
 
@@ -188,4 +204,4 @@ Para rebalancear, edita `data/catalog_troops.json` y vuelve a correr el harness.
 
 ---
 
-*Galactum · Proyecto de Título (APT) · Duoc UC 2026. El arte es el catálogo placeholder vectorial del proyecto. Fuentes Exo 2, Orbitron y Lilita One (SIL Open Font License, en `assets/fonts`).*
+*Galactum · Proyecto de Título (APT) · Duoc UC 2026. El arte es el catálogo placeholder vectorial del proyecto. Fuentes Exo 2, Orbitron y Lilita One (SIL Open Font License, en `assets/fonts`). El audio es síntesis propia (`tools/gen_audio.py`), sin archivos de terceros.*
