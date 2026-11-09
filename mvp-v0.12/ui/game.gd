@@ -515,7 +515,7 @@ func _request_relocate(tile: Vector2i, warp: bool) -> void:
 		send("relocate", {"x": tile.x, "y": tile.y}, func(_p: Dictionary) -> void:
 			hud.hide_popup()
 			map_view.clear_selection()
-			toast(U.t("Astronave en tránsito (TRAVELING). No produce mientras viaja."), "info"))
+			toast(U.t("Astronave en tránsito. No produce mientras viaja."), "info"))
 
 
 func relocate_cost(tile: Vector2i) -> int:

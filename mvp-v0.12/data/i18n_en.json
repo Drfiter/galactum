@@ -108,7 +108,7 @@
 "Asteroide ocupado por otra flota": "Asteroid occupied by another fleet",
 "Asteroides N4 libres hacia el centro, vayan con escudos.": "Free L4 asteroids toward the center, bring shields.",
 "Astronave Nv %d  ·  %s  ·  %s": "Starship Lv %d  ·  %s  ·  %s",
-"Astronave en tránsito (TRAVELING). No produce mientras viaja.": "Starship in transit (TRAVELING). It doesn't produce while traveling.",
+"Astronave en tránsito. No produce mientras viaja.": "Starship in transit. It doesn't produce while traveling.",
 "Astronave-base": "Starship base",
 "Ataca una nave enemiga más débil que tú y gana el combate.": "Attack an enemy ship weaker than you and win the battle.",
 "Atacar": "Attack",
