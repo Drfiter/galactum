@@ -98,9 +98,9 @@ func on_combat(att: Dictionary, def: Dictionary, attacker_won: bool) -> void:
 	var at: String = str(att.get("tag", ""))
 	var dt: String = str(def.get("tag", ""))
 	if not at.is_empty():
-		post(at, U.t("Sistema"), (U.t("%s saqueó a %s") if attacker_won else U.t("%s fue repelido por %s")) % [att["name"], srv.display_name(def["id"])], "system")
+		post(at, U.t("Sistema"), (U.t("%s saqueó a %s") if attacker_won else U.t("%s fue repelido por %s")) % [srv.display_name(att["id"]), srv.display_name(def["id"])], "system")
 	if not dt.is_empty() and dt != at:
-		post(dt, U.t("Sistema"), (U.t("%s sufrió el ataque de %s") if attacker_won else U.t("%s repelió el ataque de %s")) % [def["name"], srv.display_name(att["id"])], "system")
+		post(dt, U.t("Sistema"), (U.t("%s sufrió el ataque de %s") if attacker_won else U.t("%s repelió el ataque de %s")) % [srv.display_name(def["id"]), srv.display_name(att["id"])], "system")
 
 
 func open_capsules(p: Dictionary) -> Dictionary:
