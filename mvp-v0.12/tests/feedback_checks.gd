@@ -24,6 +24,7 @@ func _ready() -> void:
 	test_no_internal_state_names()
 	await test_deck_labels_fit()
 	await test_alliance_chat_tags()
+	test_no_commander_named_like_crew()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -162,6 +163,19 @@ func test_alliance_chat_tags() -> void:
 		print("    ej.: ", t)
 	check(combats > 0, "hubo combates de la alianza durante la simulación")
 	check(bad.is_empty(), "todos los combates del chat muestran la etiqueta de tu alianza")
+
+
+## Error 7: ningún comandante (bot o humano) se llama igual que un tripulante.
+func test_no_commander_named_like_crew() -> void:
+	var crew_names: Dictionary = {}
+	for pid: String in Catalog.portraits:
+		crew_names[U.t(str(Catalog.portraits[pid].get("name", ""))).to_lower()] = true
+		crew_names[str(Catalog.portraits[pid].get("name", "")).to_lower()] = true
+	var clash: Array = []
+	for p: Dictionary in GameClient.local_server.state["players"].values():
+		if crew_names.has(str(p.get("name", "")).to_lower()):
+			clash.append(p["name"])
+	check(clash.is_empty(), "ningún comandante se llama como un tripulante %s" % str(clash))
 
 
 func _mouse(pos: Vector2, pressed: bool) -> void:
