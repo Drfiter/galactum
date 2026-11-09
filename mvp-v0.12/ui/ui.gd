@@ -3,6 +3,7 @@ extends RefCounted
 ## Toda la interfaz se construye por código con estas piezas (consistencia visual).
 
 const U = preload("res://shared/util.gd")
+const Sfx = preload("res://ui/audio.gd")
 
 const BG := Color("060a1a")
 const PANEL := Color("13204a")
@@ -339,6 +340,7 @@ static func button(text: String, variation: String = "", icon_name: String = "",
 	b.custom_minimum_size = min_size
 	b.focus_mode = Control.FOCUS_NONE
 	b.mouse_filter = Control.MOUSE_FILTER_STOP
+	b.pressed.connect(_click_sound)
 	return b
 
 
@@ -351,7 +353,12 @@ static func icon_button(icon_name: String, size: float = 52.0, variation: String
 	b.custom_minimum_size = Vector2(size, size)
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_constant_override("icon_max_width", int(size * 0.55))
+	b.pressed.connect(_click_sound)
 	return b
+
+
+static func _click_sound() -> void:
+	Sfx.play("click")
 
 
 static func hbox(sep: int = 8, align: int = BoxContainer.ALIGNMENT_BEGIN) -> HBoxContainer:
