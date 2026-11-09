@@ -8,11 +8,13 @@ const U = preload("res://shared/util.gd")
 var game: Node
 var passed: int = 0
 var failed: int = 0
+var chat_log: Array = []
 
 
 func _ready() -> void:
 	print("== Galactum: pruebas del feedback ==")
 	GameClient.start_local("Mateo", "p05", true)
+	GameClient.chat_received.connect(func(m: Dictionary) -> void: chat_log.append(m))
 	game = load("res://ui/game.tscn").instantiate()
 	get_tree().root.add_child.call_deferred(game)
 	await _wait(1.5)
@@ -21,6 +23,7 @@ func _ready() -> void:
 	await test_coords_follow_relocation()
 	test_no_internal_state_names()
 	await test_deck_labels_fit()
+	await test_alliance_chat_tags()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -133,6 +136,32 @@ func test_deck_labels_fit() -> void:
 	check(labels.position.y >= top, "ninguna etiqueta queda bajo la barra de colas")
 	check(labels.end.y <= bottom, "ninguna etiqueta queda bajo la barra inferior")
 	check(labels.position.x >= left, "ninguna etiqueta queda bajo la tarjeta de misiones")
+
+
+## Error 5: en el chat de la alianza, cada combate entre comandantes debe
+## mostrar quién es de tu alianza (antes el aliado salía sin etiqueta y el
+## mensaje parecía una pelea entre otras alianzas).
+func test_alliance_chat_tags() -> void:
+	var my_tag: String = "[%s]" % str(GameClient.me.get("tag", ""))
+	chat_log.clear()
+	for i: int in range(120):
+		U.debug_offset_ms += 10000
+		await _wait(0.02)
+	await _wait(0.5)
+	var combats: int = 0
+	var bad: Array = []
+	for m: Dictionary in chat_log:
+		var text: String = str(m.get("text", ""))
+		if str(m.get("kind", "")) != "system" or not text.contains("["):
+			continue
+		combats += 1
+		if not text.contains(my_tag):
+			bad.append(text)
+	print("  chat: %d mensajes de sistema con comandantes, %d sin la etiqueta %s" % [combats, bad.size(), my_tag])
+	for t: String in bad.slice(0, 3):
+		print("    ej.: ", t)
+	check(combats > 0, "hubo combates de la alianza durante la simulación")
+	check(bad.is_empty(), "todos los combates del chat muestran la etiqueta de tu alianza")
 
 
 func _mouse(pos: Vector2, pressed: bool) -> void:
