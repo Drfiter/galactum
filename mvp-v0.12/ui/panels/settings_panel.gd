@@ -16,6 +16,36 @@ func window_icon() -> String:
 	return "ui_settings"
 
 
+## Interruptores de música y efectos (se guardan en settings.cfg).
+func _audio_card() -> Control:
+	var audio: Node = UI.Sfx.get_instance()
+	var card := UI.panel("Card")
+	var v := UI.vbox(6)
+	card.add_child(v)
+	var head := UI.hbox(8)
+	head.add_child(UI.icon("ui_sound", 22, UI.CYAN))
+	head.add_child(UI.label(U.t("Sonido"), 15, UI.CYAN, "bold"))
+	v.add_child(head)
+	var row := UI.hbox(8)
+	v.add_child(row)
+	for spec: Array in [["music", U.t("Música")], ["sfx", U.t("Efectos")]]:
+		var key: String = spec[0]
+		var label: String = spec[1]
+		var on: bool = audio.music_enabled if key == "music" else audio.sfx_enabled
+		var b := UI.button("%s: %s" % [label, U.t("Sí") if on else U.t("No")], "PrimaryButton" if on else "TabButton", "", Vector2(150, 46))
+		b.name = "Audio_" + key
+		b.pressed.connect(func() -> void:
+			var now_on: bool = not (audio.music_enabled if key == "music" else audio.sfx_enabled)
+			if key == "music":
+				audio.set_music_enabled(now_on)
+			else:
+				audio.set_sfx_enabled(now_on)
+			b.text = "%s: %s" % [label, U.t("Sí") if now_on else U.t("No")]
+			b.theme_type_variation = "PrimaryButton" if now_on else "TabButton")
+		row.add_child(b)
+	return card
+
+
 func build() -> void:
 	var row := UI.hbox(16)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -57,6 +87,7 @@ func build() -> void:
 		lb.add_child(b)
 	lv.add_child(lb)
 	left.add_child(lang)
+	left.add_child(_audio_card())
 	left.add_child(UI.spacer())
 	var raid := UI.button(U.t("Demo: provocar incursión enemiga"), "DangerButton", "ui_warning", Vector2(0, 52))
 	raid.pressed.connect(func() -> void:
