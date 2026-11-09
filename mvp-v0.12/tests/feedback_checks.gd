@@ -17,7 +17,9 @@ func _ready() -> void:
 	GameClient.chat_received.connect(func(m: Dictionary) -> void: chat_log.append(m))
 	game = load("res://ui/game.tscn").instantiate()
 	get_tree().root.add_child.call_deferred(game)
-	await _wait(1.5)
+	# Arranque completo (generación de la galaxia, bienvenida y encuadre de la
+	# nave) antes de simular toques.
+	await _wait(3.0)
 	await test_popup_tap_survives_refresh()
 	await test_menu_bar_waits_after_popup()
 	await test_coords_follow_relocation()
@@ -56,7 +58,12 @@ func test_popup_tap_survives_refresh() -> void:
 	GameClient.player_updated.emit()   # llega una actualización a mitad del toque
 	await get_tree().process_frame
 	await get_tree().process_frame
-	check(is_instance_valid(btn) and btn.is_inside_tree(), "el botón sigue vivo tras la actualización")
+	var alive: bool = is_instance_valid(btn) and btn.is_inside_tree()
+	check(alive, "el botón sigue vivo tras la actualización")
+	if not alive:
+		# Diagnóstico para fallos intermitentes (p. ej. la xenoforma murió a
+		# manos de un bot justo en ese instante).
+		print("    diag: tarjeta_visible=%s entidad=%s existe=%s ventanas=%d" % [str(hud.popup.visible), hud.popup_entity_id, str(GameClient.entities.has(hud.popup_entity_id)), game.modal_root.get_child_count()])
 	_mouse(at, false)
 	await _wait(0.4)
 	check(game.modal_root.get_child_count() > 0, "soltar sobre Cazar abre el envío de flota")
