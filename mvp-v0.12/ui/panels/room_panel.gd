@@ -133,7 +133,7 @@ func _upgrade_section(lvl: int) -> Control:
 	var b := UI.button(U.t("Mejorar"), "PrimaryButton", "ui_build", Vector2(220, 54))
 	b.disabled = not blocked.is_empty() or not GameClient.can_afford(cost)
 	b.pressed.connect(func() -> void:
-		send("upgrade_room", {"room": room_id}, func(_p: Dictionary) -> void: game.toast(U.t("Mejora iniciada"), "success")))
+		send("upgrade_room", {"room": room_id}, func(_p: Dictionary) -> void: UI.Sfx.play("upgrade"); game.toast(U.t("Mejora iniciada"), "success")))
 	v.add_child(b)
 	return card
 
@@ -167,7 +167,7 @@ func _unlock_section(card: PanelContainer, v: VBoxContainer, build_job: Dictiona
 	var b := UI.button(U.t("Construir"), "GoldButton", "ui_build", Vector2(240, 56))
 	b.disabled = not blocked.is_empty() or not GameClient.can_afford(cost)
 	b.pressed.connect(func() -> void:
-		send("upgrade_room", {"room": room_id}, func(_p: Dictionary) -> void: game.toast(U.t("Construcción iniciada"), "success")))
+		send("upgrade_room", {"room": room_id}, func(_p: Dictionary) -> void: UI.Sfx.play("upgrade"); game.toast(U.t("Construcción iniciada"), "success")))
 	v.add_child(b)
 	return card
 
@@ -429,7 +429,7 @@ func _hangar() -> Control:
 	plus.pressed.connect(func() -> void: slider.value = minf(batch, slider.value + 10))
 	maxb.pressed.connect(func() -> void: slider.value = _max_affordable(batch))
 	_train_btn.pressed.connect(func() -> void:
-		send("train", {"troop": _sel_troop, "qty": _qty}, func(_p: Dictionary) -> void: game.toast(U.t("Entrenando %d × %s") % [_qty, Catalog.troop_name(_sel_troop)], "success")))
+		send("train", {"troop": _sel_troop, "qty": _qty}, func(_p: Dictionary) -> void: UI.Sfx.play("upgrade"); game.toast(U.t("Entrenando %d × %s") % [_qty, Catalog.troop_name(_sel_troop)], "success")))
 	_update_train()
 	return s[0]
 
@@ -490,7 +490,7 @@ func _lab() -> Control:
 			var right := UI.vbox(2)
 			right.add_child(b)
 			right.add_child(UI.label(reason if not reason.is_empty() else U.fmt_duration_short(Catalog.tech_time(tid, target) / (1.0 + Catalog.room_effect("lab", "research_speed", lab_lvl))), 12, UI.GOLD if not reason.is_empty() else UI.TEXT_DIM))
-			b.pressed.connect(func() -> void: send("research", {"tech": tid}, func(_p: Dictionary) -> void: game.toast(U.t("Investigación iniciada: %s") % t["name"], "success")))
+			b.pressed.connect(func() -> void: send("research", {"tech": tid}, func(_p: Dictionary) -> void: UI.Sfx.play("upgrade"); game.toast(U.t("Investigación iniciada: %s") % t["name"], "success")))
 			h.add_child(tv)
 			h.add_child(right)
 		else:

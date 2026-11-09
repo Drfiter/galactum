@@ -100,6 +100,7 @@ func collect(room_id: String) -> void:
 			game.toast(str(payload.get("message", "")), "warning")
 			return
 		var at: Vector2 = deck.building_screen_pos(room_id) if deck != null else size / 2.0
+		UI.Sfx.play("collect")
 		deck.pop_bubble(room_id)
 		_float_gains(at, payload.get("gained", {})))
 

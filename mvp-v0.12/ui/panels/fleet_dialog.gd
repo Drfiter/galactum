@@ -311,6 +311,7 @@ func _send() -> void:
 	_send_btn.disabled = true
 	GameClient.intent("march", {"mission": mission, "target_id": entity["id"], "troops": stacks}, func(ok: bool, payload: Dictionary) -> void:
 		if ok:
+			UI.Sfx.play("launch")
 			game.toast(U.t("Flota en ruta: %s") % {"gather": U.t("minería"), "hunt": "caza", "attack": "ataque"}.get(mission, ""), "success")
 			game.hud.hide_popup()
 			game.map_view.clear_selection()

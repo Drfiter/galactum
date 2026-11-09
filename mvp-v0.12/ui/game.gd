@@ -440,6 +440,7 @@ func open_fleet_dialog(mission: String, entity: Dictionary) -> void:
 	if mission == "scout":
 		var cost: int = int(Catalog.cfg("scout_cost_credits", 50))
 		send("march", {"mission": "scout", "target_id": entity["id"], "troops": {}}, func(_p: Dictionary) -> void:
+			UI.Sfx.play("launch")
 			toast(U.t("Sonda de espionaje enviada (-%d Créditos)") % cost, "info")
 			hud.hide_popup())
 		return
