@@ -46,6 +46,10 @@ var _accum: float = 0.0
 var _fleet_sig: String = ""
 var _popup_refresh_pending: bool = false
 var _pointer_down: bool = false
+var _popup_hidden_ms: int = -100000
+## Tiempo que la barra inferior espera tras cerrar la tarjeta, para que el
+## mismo toque no caiga sobre "Informes" u otro botón que reaparece debajo.
+const MENU_REAPPEAR_MS: int = 450
 var _pointer_pos: Vector2 = Vector2.ZERO
 var _mission_sig: String = ""
 var _event_timers: Array = []
@@ -326,7 +330,7 @@ func _layout() -> void:
 	var mb: Vector2 = menu_bar.get_combined_minimum_size()
 	menu_bar.size = mb
 	menu_bar.position = Vector2((s.x - mb.x) / 2.0, s.y - mb.y - 10)
-	menu_bar.visible = not popup.visible
+	menu_bar.visible = not popup.visible and Time.get_ticks_msec() - _popup_hidden_ms >= MENU_REAPPEAR_MS
 	minimap.visible = not in_base
 	coords_chip.visible = not in_base
 	minimap.size = Vector2(170, 170)
@@ -347,7 +351,7 @@ func _layout() -> void:
 	if popup.visible:
 		var ps: Vector2 = popup.get_combined_minimum_size()
 		popup.size = Vector2(maxf(ps.x, 520), 0)
-		popup.position = Vector2((s.x - popup.size.x) / 2.0, s.y - popup.get_combined_minimum_size().y - 12)
+		popup.position = Vector2((s.x - popup.size.x) / 2.0, s.y - popup.get_combined_minimum_size().y - 12.0 - _bottom_inset())
 
 
 # ---------------------------------------------------------------- actualización
@@ -388,6 +392,19 @@ func refresh() -> void:
 			_popup_refresh_pending = true
 		else:
 			_refresh_popup()
+
+
+## Alto (en coordenadas del juego) de la zona inferior reservada por el sistema
+## en móviles: barra de gestos o de navegación de Android.
+func _bottom_inset() -> float:
+	if not OS.has_feature("mobile"):
+		return 0.0
+	var win: Vector2i = DisplayServer.window_get_size()
+	var safe: Rect2i = DisplayServer.get_display_safe_area()
+	if win.y <= 0 or safe.size.y <= 0:
+		return 0.0
+	var inset_px: int = maxi(0, win.y - safe.end.y)
+	return float(inset_px) * size.y / float(win.y)
 
 
 ## ¿Hay un dedo/clic presionado sobre la tarjeta del objetivo?
@@ -601,6 +618,8 @@ func show_tile(tile: Vector2i) -> void:
 
 
 func hide_popup() -> void:
+	if popup.visible:
+		_popup_hidden_ms = Time.get_ticks_msec()
 	popup.visible = false
 	popup_entity_id = ""
 	popup_tile = Vector2i(-1, -1)
