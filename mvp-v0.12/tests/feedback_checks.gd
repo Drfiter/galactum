@@ -20,6 +20,7 @@ func _ready() -> void:
 	await test_menu_bar_waits_after_popup()
 	await test_coords_follow_relocation()
 	test_no_internal_state_names()
+	await test_deck_labels_fit()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -117,6 +118,21 @@ func test_no_internal_state_names() -> void:
 		for m: RegExMatch in re.search_all(src):
 			hits.append(path + ": " + m.get_string())
 	check(hits.is_empty(), "sin nombres internos de estado en textos visibles %s" % str(hits))
+
+
+## Error 4: los nombres de las salas no deben quedar bajo la barra de colas
+## ni bajo la barra inferior.
+func test_deck_labels_fit() -> void:
+	game.show_base()
+	await _wait(0.8)
+	var labels: Rect2 = game.deck.labels_screen_rect()
+	var top: float = game.base_view.free_area_top()
+	var bottom: float = game.hud.menu_bar.get_global_rect().position.y
+	var left: float = game.hud.mission_card.get_global_rect().end.x
+	print("  cubierta: etiquetas=%s  zona libre: y %d..%d, x desde %d" % [str(labels), int(top), int(bottom), int(left)])
+	check(labels.position.y >= top, "ninguna etiqueta queda bajo la barra de colas")
+	check(labels.end.y <= bottom, "ninguna etiqueta queda bajo la barra inferior")
+	check(labels.position.x >= left, "ninguna etiqueta queda bajo la tarjeta de misiones")
 
 
 func _mouse(pos: Vector2, pressed: bool) -> void:
