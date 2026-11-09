@@ -25,6 +25,7 @@ func _ready() -> void:
 	await test_deck_labels_fit()
 	await test_alliance_chat_tags()
 	test_no_commander_named_like_crew()
+	await test_audio()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -176,6 +177,44 @@ func test_no_commander_named_like_crew() -> void:
 		if crew_names.has(str(p.get("name", "")).to_lower()):
 			clash.append(p["name"])
 	check(clash.is_empty(), "ningún comandante se llama como un tripulante %s" % str(clash))
+
+
+## Error 6: el juego no tenía sonido ni música.
+func test_audio() -> void:
+	var Sfx: GDScript = load("res://ui/audio.gd")
+	var ok_len: bool = true
+	for k: String in Sfx.SOUNDS:
+		if (Sfx.SOUNDS[k] as AudioStream).get_length() <= 0.0:
+			ok_len = false
+	check(ok_len and Sfx.SOUNDS.size() >= 9, "%d efectos de sonido cargados" % Sfx.SOUNDS.size())
+	check((Sfx.MUSIC as AudioStream).get_length() >= 30.0, "música de %.0f s cargada" % (Sfx.MUSIC as AudioStream).get_length())
+	var audio: Node = Sfx.get_instance()
+	audio.set_music_enabled(true)
+	audio.set_sfx_enabled(true)
+	check(audio.is_music_playing(), "la música suena durante la partida")
+	var clicks: int = int(audio.played.get("click", 0))
+	game.open_panel("settings")
+	await _wait(0.5)
+	var b: Button = game.modal_root.find_child("Audio_sfx", true, false) as Button
+	check(b != null, "el Menú tiene el interruptor de Efectos")
+	await _wait(0.1)
+	var btn: Button = game.modal_root.find_child("Audio_music", true, false) as Button
+	if btn != null:
+		btn.pressed.emit()
+	check(int(audio.played.get("click", 0)) > clicks, "los botones hacen clic")
+	check(not audio.is_music_playing(), "el interruptor de Música la apaga")
+	var cfg := ConfigFile.new()
+	cfg.load("user://settings.cfg")
+	check(cfg.get_value("audio", "music", true) == false, "la preferencia de Música se guarda")
+	if btn != null:
+		btn.pressed.emit()
+	check(audio.is_music_playing(), "el interruptor de Música la vuelve a encender")
+	audio.set_sfx_enabled(false)
+	var before: int = int(audio.played.get("collect", 0))
+	Sfx.play("collect")
+	check(int(audio.played.get("collect", 0)) == before, "con Efectos apagados no suena nada")
+	audio.set_sfx_enabled(true)
+	game.close_all_panels()
 
 
 func _mouse(pos: Vector2, pressed: bool) -> void:
