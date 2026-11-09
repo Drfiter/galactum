@@ -166,6 +166,19 @@ func player(pid: String) -> Dictionary:
 const ALLY_MENTOR_NAME: String = "Comandante Arvel"
 
 
+## Partidas guardadas con versiones anteriores: renombra a los bots que se
+## llamen igual que un tripulante.
+func _rename_bots_named_like_crew() -> void:
+	var crew: Dictionary = {}
+	for pid: String in Catalog.portraits:
+		var n: String = str(Catalog.portraits[pid].get("name", ""))
+		crew[n.to_lower()] = true
+		crew[U.t(n).to_lower()] = true
+	for p: Dictionary in state["players"].values():
+		if p.get("is_bot", false) and crew.has(str(p.get("name", "")).to_lower()):
+			p["name"] = U.t(ALLY_MENTOR_NAME)
+
+
 func display_name(pid: String) -> String:
 	var p: Dictionary = player(pid)
 	if p.is_empty():
@@ -779,6 +792,7 @@ func _load() -> bool:
 			break
 	use_system(first)
 	refresh_alliances()
+	_rename_bots_named_like_crew()
 	# Recovery por timestamps: las flotas y viajes vencidos se resuelven en el
 	# primer tick en orden de llegada, sin perder nada.
 	_log("Estado restaurado desde %s" % save_path)
