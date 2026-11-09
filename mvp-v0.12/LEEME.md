@@ -62,6 +62,7 @@ Para la presentación hay botones **"Demo: …"** (simular el siguiente día del
 ### Correcciones v0.12.2 (feedback del 26/10/2026)
 
 Informe completo con evidencias: `docs/Informe_correcciones_feedback_2026-11-09.pdf` (en la raíz del repositorio).
+Estado de todo el feedback (qué se hizo, qué está parcial, qué falta y de qué equipo es): `docs/Estado_feedback_2026-11-09.pdf`.
 
 | Error reportado | Arreglo |
 |---|---|
