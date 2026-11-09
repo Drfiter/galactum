@@ -46,6 +46,7 @@ var hyper_label: Label
 
 func _ready() -> void:
 	UI.apply_global_theme()
+	UI.Sfx.start_music()
 	map_view = MapView.new()
 	add_child(map_view)
 	map_view.entity_tapped.connect(_on_entity_tapped)

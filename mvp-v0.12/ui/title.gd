@@ -23,6 +23,7 @@ var _logo: Control
 
 func _ready() -> void:
 	UI.apply_global_theme()
+	UI.Sfx.start_music()
 	UI.full_rect(self)
 	var bg := ColorRect.new()
 	UI.full_rect(bg)
