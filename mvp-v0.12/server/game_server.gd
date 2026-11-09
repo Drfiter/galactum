@@ -160,6 +160,12 @@ func player(pid: String) -> Dictionary:
 	return state["players"].get(pid, {})
 
 
+## Aliado veterano que acompaña al jugador nuevo. No debe coincidir con el
+## nombre de ningún tripulante (antes se llamaba "Comandante Kael", igual que
+## el tripulante n.º 1).
+const ALLY_MENTOR_NAME: String = "Comandante Arvel"
+
+
 func display_name(pid: String) -> String:
 	var p: Dictionary = player(pid)
 	if p.is_empty():
@@ -256,7 +262,7 @@ func create_human(name: String, avatar: String) -> Dictionary:
 				bot["resources"][e] = r.randi_range(1800, 3200)
 	var ally_pos: Vector2i = world.find_free_near(Vector2(spawn), 14.0, 26.0, r, 6.0)
 	if ally_pos.x >= 0:
-		bots.spawn_bot(r, ally_pos, 0.15, "VGA", U.t("Comandante Kael"))
+		bots.spawn_bot(r, ally_pos, 0.15, "VGA", U.t(ALLY_MENTOR_NAME))
 	social.post("VGA", U.t("Sistema"), U.t("%s se unió a la Alianza. ¡Bienvenido, comandante!") % name, "system")
 	guild.refresh_member_mods("VGA")
 	return p
