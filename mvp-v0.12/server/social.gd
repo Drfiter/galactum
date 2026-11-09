@@ -82,7 +82,7 @@ func on_xeno_killed(p: Dictionary, x: Dictionary) -> void:
 	if p.get("is_bot", false) and srv.rng.randf() > 0.3:
 		return
 	var sp: Dictionary = Catalog.species_by_id.get(x["species"], {})
-	post(tag, U.t("Sistema"), U.t("%s abatió %s N%d. ¡Cápsula de Suministro para toda la Alianza!") % [p["name"], sp.get("name", U.t("Xenoforma")), int(x["level"])], "system")
+	post(tag, U.t("Sistema"), U.t("%s abatió %s N%d. ¡Cápsula de Suministro para toda la Alianza!") % [srv.display_name(p["id"]), sp.get("name", U.t("Xenoforma")), int(x["level"])], "system")
 	for m: Dictionary in members(tag):
 		if m.get("is_bot", false):
 			continue
