@@ -27,6 +27,9 @@ var active: bool = false
 var buildings: Dictionary = {}   # id -> {root, model, name, level, bubble, bubble_label, scaffold, bar, bar_mat, timer, locked}
 var _target := Vector2(-1.5, 0.5)
 var _dist: float = 62.0
+## Distancia máxima de zoom; crece si el encuadre automático necesita alejarse
+## más (pantallas bajas como las de 20:9).
+var _max_dist: float = 78.0
 const YAW_DEG: float = 32.0
 var _t: float = 0.0
 var _touches: Dictionary = {}
@@ -516,6 +519,46 @@ func building_screen_pos(room_id: String) -> Vector2:
 
 # ---------------------------------------------------------------- cámara / entrada
 
+## Rectángulo de pantalla que ocupan los nombres y niveles de todas las salas.
+func labels_screen_rect() -> Rect2:
+	var out := Rect2()
+	var first: bool = true
+	for id: String in buildings:
+		var e: Dictionary = buildings[id]
+		var anchor: Vector3 = (e["root"] as Node3D).global_position + Vector3(0, 5.2, 0)
+		if camera.is_position_behind(anchor):
+			continue
+		var p: Vector2 = camera.unproject_position(anchor)
+		var chars: int = maxi((e["name"] as Label3D).text.length(), (e["level"] as Label3D).text.length())
+		var half_w: float = 5.0 * float(chars) + 8.0
+		var r := Rect2(p.x - half_w, p.y - 34.0, half_w * 2.0, 50.0)
+		out = r if first else out.merge(r)
+		first = false
+	return out
+
+
+## Encuadra la cubierta para que todas las etiquetas queden dentro de `area`
+## (coordenadas de pantalla): entre la barra de colas y la barra inferior.
+func fit_to(area: Rect2) -> void:
+	if buildings.is_empty() or area.size.x < 80.0 or area.size.y < 80.0:
+		return
+	_max_dist = 78.0
+	for i: int in range(10):
+		_update_camera()
+		var r: Rect2 = labels_screen_rect()
+		if r.size.x <= 0.0 or r.size.y <= 0.0:
+			return
+		var k: float = maxf(r.size.x / area.size.x, r.size.y / area.size.y)
+		_dist = clampf(_dist * lerpf(1.0, k, 0.85), 30.0, 140.0)
+		_update_camera()
+		r = labels_screen_rect()
+		var g0: Vector3 = _ground_at(r.get_center())
+		var g1: Vector3 = _ground_at(area.get_center())
+		if g0 != Vector3.INF and g1 != Vector3.INF:
+			_target += Vector2(g0.x - g1.x, g0.z - g1.z)
+	_max_dist = maxf(78.0, _dist * 1.15)
+	_update_camera()
+
 func _update_camera() -> void:
 	var pitch: float = deg_to_rad(50.0)
 	var yaw: float = deg_to_rad(YAW_DEG)
@@ -567,7 +610,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			var pts2: Array = _touches.values()
 			var d: float = (pts2[0] as Vector2).distance_to(pts2[1])
 			if _pinch_dist > 0.0 and d > 0.0:
-				_dist = clampf(_pinch_cam * _pinch_dist / d, 30.0, 78.0)
+				_dist = clampf(_pinch_cam * _pinch_dist / d, 30.0, _max_dist)
 				_update_camera()
 	elif event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event
@@ -581,10 +624,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				if _tap_valid and _moved < TAP_SLOP:
 					_tap(mb.position)
 		elif mb.pressed and mb.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_dist = clampf(_dist / 1.12, 30.0, 78.0)
+			_dist = clampf(_dist / 1.12, 30.0, _max_dist)
 			_update_camera()
 		elif mb.pressed and mb.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_dist = clampf(_dist * 1.12, 30.0, 78.0)
+			_dist = clampf(_dist * 1.12, 30.0, _max_dist)
 			_update_camera()
 	elif event is InputEventMouseMotion and _mouse_down:
 		var mm: InputEventMouseMotion = event
