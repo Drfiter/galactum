@@ -384,6 +384,8 @@ func toast(text: String, kind: String = "info") -> void:
 	var colors: Dictionary = {"success": UI.GREEN, "error": UI.RED, "danger": UI.RED, "warning": UI.GOLD, "mission": UI.GOLD, "help": UI.GREEN, "info": UI.CYAN}
 	var icons: Dictionary = {"success": "ui_check", "error": "ui_warning", "danger": "ui_warning", "warning": "ui_warning", "mission": "ui_missions", "help": "ui_help", "info": "ui_info"}
 	var col: Color = colors.get(kind, UI.CYAN)
+	if kind == "error":
+		UI.Sfx.play("error")
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", UI.sb(Color(0.03, 0.05, 0.12, 0.95), col, 12, 2, 8))
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -405,6 +407,7 @@ func toast(text: String, kind: String = "info") -> void:
 
 
 func show_reward(reward: Dictionary, title: String) -> void:
+	UI.Sfx.play("reward")
 	open_panel("reward", {"reward": reward, "title": title})
 
 

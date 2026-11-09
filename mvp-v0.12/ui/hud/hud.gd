@@ -47,6 +47,7 @@ var _fleet_sig: String = ""
 var _popup_refresh_pending: bool = false
 var _pointer_down: bool = false
 var _popup_hidden_ms: int = -100000
+var _alerted_ids: Dictionary = {}
 ## Tiempo que la barra inferior espera tras cerrar la tarjeta, para que el
 ## mismo toque no caiga sobre "Informes" u otro botón que reaparece debajo.
 const MENU_REAPPEAR_MS: int = 450
@@ -590,6 +591,10 @@ func _update_incoming() -> void:
 			soonest = i
 	incoming_banner.visible = not soonest.is_empty()
 	if not soonest.is_empty():
+		var aid: String = str(soonest.get("fleet_id", soonest.get("arrive_ts", "")))
+		if not _alerted_ids.has(aid):
+			_alerted_ids[aid] = true
+			UI.Sfx.play("alert")
 		var what: String = U.t("tu flota minera") if str(soonest.get("target_kind", "")) == "asteroid" else U.t("tu nave")
 		incoming_label.text = U.t("¡ATAQUE ENTRANTE contra %s!  %s  ·  %s") % [what, str(soonest["from"]), U.fmt_time(float(int(soonest["arrive_ts"]) - now) / 1000.0)]
 		var pulse: float = 0.75 + 0.25 * sin(Time.get_ticks_msec() / 160.0)
