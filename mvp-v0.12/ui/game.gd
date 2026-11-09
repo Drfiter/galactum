@@ -38,6 +38,7 @@ var _stack: Array = []
 var relocation_mode: String = ""   # "", "plasma", "warp"
 var _welcomed: bool = false
 var _login_offered: bool = false
+var _last_base_pos: Vector2 = Vector2(-1, -1)
 var hyper_layer: CanvasLayer
 var hyper_rect: ColorRect
 var hyper_label: Label
@@ -96,6 +97,7 @@ func _ready() -> void:
 	_build_hyperspace()
 
 	GameClient.player_updated.connect(_on_first_player)
+	GameClient.player_updated.connect(_on_base_moved)
 	GameClient.toast.connect(toast)
 	GameClient.report_received.connect(_on_report)
 	GameClient.welcomed.connect(_on_welcome)
@@ -224,6 +226,18 @@ func _on_first_player() -> void:
 		await get_tree().create_timer(0.8).timeout
 		if _stack.is_empty():
 			open_panel("login")
+
+
+## Cuando la Astronave cambia de casilla (llega de un viaje, Salto Warp o Salto
+## de Emergencia) la cámara del mapa la acompaña, así el indicador de
+## coordenadas muestra la posición nueva y no la anterior.
+func _on_base_moved() -> void:
+	if GameClient.me.is_empty():
+		return
+	var bp: Vector2 = GameClient.base_pos()
+	if _last_base_pos.x >= 0.0 and bp.distance_to(_last_base_pos) > 0.5:
+		map_view.center_on_tile(bp, map_view.visible)
+	_last_base_pos = bp
 
 
 func _on_connection_changed(state: String, detail: String) -> void:
