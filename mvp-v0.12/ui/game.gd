@@ -98,6 +98,7 @@ func _ready() -> void:
 
 	GameClient.player_updated.connect(_on_first_player)
 	GameClient.player_updated.connect(_on_base_moved)
+	get_viewport().size_changed.connect(_fit_deck_later)
 	GameClient.toast.connect(toast)
 	GameClient.report_received.connect(_on_report)
 	GameClient.welcomed.connect(_on_welcome)
@@ -220,6 +221,7 @@ func _on_first_player() -> void:
 		return
 	_welcomed = true
 	map_view.center_on_tile(GameClient.base_pos(), false)
+	_fit_deck_later()
 	# Bono diario: se ofrece al entrar si hay una caja disponible.
 	if not _login_offered and bool(GameClient.me.get("shop", {}).get("login", {}).get("available", false)) and int(GameClient.me.get("story", {}).get("index", 0)) >= 1:
 		_login_offered = true
@@ -289,6 +291,26 @@ func show_base() -> void:
 	map_view.clear_selection()
 	cancel_relocation()
 	hud.set_mode(true)
+	_fit_deck_later()
+
+
+## La cubierta se encuadra cuando el HUD ya calculó su tamaño (2 cuadros).
+func _fit_deck_later() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	fit_deck()
+
+
+## Encuadra la cubierta en el espacio libre: bajo la barra de colas, sobre la
+## barra inferior y a la derecha de la tarjeta de misiones.
+func fit_deck() -> void:
+	if not base_view.visible:
+		return
+	var vp: Vector2 = get_viewport().get_visible_rect().size
+	var left: float = hud.mission_card.get_global_rect().end.x + 12.0
+	var top: float = base_view.free_area_top() + 10.0
+	var bottom: float = hud.menu_bar.get_global_rect().position.y - 10.0
+	deck.fit_to(Rect2(left, top, vp.x - 12.0 - left, bottom - top))
 
 
 func focus_tile(tile: Vector2) -> void:

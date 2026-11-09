@@ -50,6 +50,12 @@ func setup(game_node: Node) -> void:
 	GameClient.player_updated.connect(_tick)
 
 
+## Borde inferior (en pantalla) de la barra de colas: desde ahí hacia abajo la
+## cubierta 3D queda libre de paneles.
+func free_area_top() -> float:
+	return _queue_row.get_global_rect().end.y
+
+
 func _queue_chip(q: Array) -> PanelContainer:
 	var p := UI.panel("Chip")
 	p.custom_minimum_size = Vector2(170, 58)
