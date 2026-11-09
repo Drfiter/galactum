@@ -4,6 +4,7 @@ extends RefCounted
 ## Feedback de revisión: "mejorar un poquito la gráfica de combate".
 
 const Kit = preload("res://ui/world3d/mesh_kit.gd")
+const Sfx = preload("res://ui/audio.gd")
 
 static var _mats: Dictionary = {}
 
@@ -31,7 +32,16 @@ static func _smoke_mat() -> StandardMaterial3D:
 
 
 ## Rayo láser de `from` a `to` que aparece tras `delay` segundos.
+## Reproduce un efecto de sonido sincronizado con el efecto visual.
+static func _sound(host: Node, sound: String, delay: float, volume_db: float = 0.0) -> void:
+	if delay <= 0.0:
+		Sfx.play(sound, volume_db)
+	elif host.is_inside_tree():
+		host.get_tree().create_timer(delay).timeout.connect(func() -> void: Sfx.play(sound, volume_db))
+
+
 static func laser(host: Node3D, from: Vector3, to: Vector3, col: Color, delay: float = 0.0, life: float = 0.16, width: float = 0.09) -> void:
+	_sound(host, "laser", delay, -6.0)
 	var mi := MeshInstance3D.new()
 	var cm := CylinderMesh.new()
 	cm.top_radius = width
@@ -82,6 +92,7 @@ static func laser(host: Node3D, from: Vector3, to: Vector3, col: Color, delay: f
 
 ## Explosión completa. `size` escala todo (1 = nave pequeña).
 static func burst(host: Node3D, at: Vector3, col: Color, size: float = 1.0, debris: int = 12, delay: float = 0.0) -> void:
+	_sound(host, "explosion", delay, -3.0 if size >= 1.0 else -8.0)
 	var root := Node3D.new()
 	root.position = at
 	host.add_child(root)
