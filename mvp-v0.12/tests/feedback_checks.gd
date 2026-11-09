@@ -19,6 +19,7 @@ func _ready() -> void:
 	await test_popup_tap_survives_refresh()
 	await test_menu_bar_waits_after_popup()
 	await test_coords_follow_relocation()
+	test_no_internal_state_names()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -99,6 +100,23 @@ func test_coords_follow_relocation() -> void:
 	check(now_pos.distance_to(home) > 5.0, "la Astronave llegó a otra posición (%s -> %s)" % [str(home), str(now_pos)])
 	var c: Vector2 = game.map_view.center_tiles()
 	check(c.distance_to(now_pos) <= 2.0, "el indicador muestra la nueva posición (%s, nave en %s)" % [hud.coords_label.text, str(now_pos)])
+
+
+## Error 3: ningún texto visible debe mostrar nombres internos de estado
+## como "(TRAVELING)".
+func test_no_internal_state_names() -> void:
+	var re := RegEx.create_from_string("\\((TRAVELING|ANCHORED|OUTBOUND|RETURNING|WORKING)\\)")
+	var hits: Array = []
+	var f := FileAccess.open("res://data/i18n_en.json", FileAccess.READ)
+	var d: Dictionary = JSON.parse_string(f.get_as_text())
+	for k: String in d:
+		if re.search(k) != null or re.search(str(d[k])) != null:
+			hits.append(k)
+	for path: String in ["res://ui/game.gd", "res://ui/hud/hud.gd", "res://ui/base/base_view.gd"]:
+		var src: String = FileAccess.get_file_as_string(path)
+		for m: RegExMatch in re.search_all(src):
+			hits.append(path + ": " + m.get_string())
+	check(hits.is_empty(), "sin nombres internos de estado en textos visibles %s" % str(hits))
 
 
 func _mouse(pos: Vector2, pressed: bool) -> void:
