@@ -113,14 +113,14 @@ func _profile() -> void:
 	if mods.is_empty():
 		rv.add_child(UI.wrap(UI.label(U.t("Ninguno todavía. Asigna puntos en Protocolos de Mando.") if cap.is_empty() else U.t("Desactivados mientras el Comandante está capturado."), 14, UI.TEXT_MUTED)))
 	for k: String in mods:
-		rv.add_child(UI.label("+%.0f%% %s" % [float(mods[k]) * 100.0, _effect_label(k)], 15, UI.GREEN, "semibold"))
+		rv.add_child(UI.label("+%.0f%% %s" % [float(mods[k]) * 100.0, effect_label(k)], 15, UI.GREEN, "semibold"))
 	rv.add_child(UI.separator())
 	rv.add_child(UI.label(U.t("Riesgo de captura"), 15, UI.GOLD, "bold"))
 	var capcfg: Dictionary = Catalog.commander.get("capture", {})
 	rv.add_child(UI.wrap(UI.label(U.t("Si tu nave pierde un ataque y caen al menos el %d%% de tus tropas, hay un %d%% de probabilidad de que el enemigo capture a tu Comandante (menos con Protocolo de Evasión). Tú también puedes capturar Comandantes enemigos y cobrar su rescate.") % [int(float(capcfg.get("min_loss_ratio", 0.5)) * 100), int(float(capcfg.get("base_chance", 0.25)) * 100)], 13, UI.TEXT_DIM)))
 
 
-func _effect_label(effect: String) -> String:
+static func effect_label(effect: String) -> String:
 	var labels: Dictionary = {
 		"attack": U.t("ataque de fuerzas"), "defense": U.t("defensa de fuerzas"), "hp": U.t("vida de fuerzas"),
 		"pve_damage": U.t("daño contra Xenoformas"), "march_speed": U.t("velocidad de flota"), "capture_resist": U.t("resistencia a la captura"),
