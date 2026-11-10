@@ -2,14 +2,18 @@ extends Node
 ## Cliente de prueba contra el SSS dedicado (WebSocket).
 ## godot --headless --path . res://tests/ws_client_test.tscn -- --name=Lucas --pass=clave1234 [--register]
 ## Sin --pass usa la sesión guardada (token de renovación) o el modo demo.
+## --url=ws://127.0.0.1:8080/ws prueba a través del nginx de Docker.
 
 func _ready() -> void:
 	var name: String = "Tester"
 	var acc: Dictionary = {}
+	var host: String = "127.0.0.1"
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	for a: String in args:
 		if a.begins_with("--name="):
 			name = a.trim_prefix("--name=")
+		elif a.begins_with("--url="):
+			host = a.trim_prefix("--url=")
 		elif a.begins_with("--pass="):
 			acc = {"username": name, "password": a.trim_prefix("--pass="), "register": args.has("--register")}
 	if not acc.is_empty():
@@ -17,7 +21,7 @@ func _ready() -> void:
 	GameClient.connection_changed.connect(func(st: String, detail: String) -> void:
 		if st == "error":
 			print("[%s] error: %s" % [name, detail]))
-	GameClient.start_remote("127.0.0.1", 9100, name, "p03", acc)
+	GameClient.start_remote(host, 9100, name, "p03", acc)
 	var t: float = 0.0
 	while not GameClient.connected and t < 10.0:
 		await get_tree().create_timer(0.2).timeout

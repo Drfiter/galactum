@@ -17,6 +17,7 @@ Otros lanzadores:
 | Archivo | Para qué |
 |---|---|
 | `Ejecutar_Servidor_Dedicado.bat [puerto]` | SSS dedicado headless por WebSocket (por defecto, puerto 9100) |
+| `docker compose up -d --build` | SSS dedicado + versión web en http://localhost:8080 (ver sección 4.2) |
 | `Ejecutar_Demo_2_Clientes.bat` | Levanta el SSS y abre 2 clientes. En cada uno: *Servidor dedicado* → `127.0.0.1:9100` → usuario y contraseña → *Crear cuenta* (la primera vez) o *Entrar*, con usuarios distintos |
 | `Abrir_en_Editor.bat` | Abre el proyecto en el editor (también sirve para exportar a Android) |
 | `Ejecutar_Pruebas.bat` | Suite de pruebas canónicas + harness de balance de 10.000 combates |
@@ -146,6 +147,39 @@ El SSS dedicado exige una cuenta: registro e inicio de sesión con usuario y con
 - **Astronave**: cada sala es un edificio 3D propio sobre la cubierta; las obras de Fase 2 se ven como andamios. Toca un edificio para abrirlo y las burbujas verdes para recolectar.
 - **Interfaz** con tipografía *Lilita One* (OFL) y botones gruesos con relieve.
 - Renderer *Compatibility* (OpenGL ES 3) para funcionar en la mayoría de teléfonos.
+
+## 4.2 Docker (servidor dedicado + versión web)
+
+Levanta el SSS dedicado y el cliente web (HTML5/WebAssembly servido por nginx) con un solo comando. Solo necesitas **Docker Desktop**; no hace falta instalar Godot.
+
+```powershell
+cd mvp-v0.12
+copy .env.example .env          # y completa GALACTUM_JWT_SECRET (32+ caracteres)
+docker compose up -d --build
+docker compose ps               # server debe quedar "healthy"
+```
+
+Abre **http://localhost:8080** → *Servidor dedicado* (la dirección `ws://localhost:8080/ws` se completa sola) → usuario y contraseña → *Crear cuenta* la primera vez y luego *Entrar*. Los clientes de escritorio o Android pueden conectarse directo a `127.0.0.1:9100`.
+
+| Servicio | Imagen | Qué hace |
+|---|---|---|
+| `server` | `galactum-server:0.12` | Godot 4.6.2 headless: SSS autoritativo por WebSocket (9100), cuentas JWT y guardado en el volumen `galactum-data` (`/data/godot/app_userdata/Galactum/galactum_server_save.json`). Healthcheck: handshake WebSocket (`docker/healthcheck.py`). |
+| `web` | `galactum-web:0.12` | nginx sirve la exportación web y reenvía `/ws` al servidor. Arranca cuando `server` está sano. |
+
+Archivos: `compose.yaml`, `docker/Dockerfile` (etapas `base`, `server`, `webexp`, `web`), `docker/nginx.conf`, `docker/healthcheck.py`, `.env.example`. La primera construcción descarga Godot (~70 MB) y sus plantillas de exportación (~1,2 GB, de las que solo se conservan las web); las siguientes usan la caché.
+
+Operación habitual:
+
+```powershell
+docker compose logs --tail 100 server   # "Estado restaurado…", "SSS WebSocket escuchando en el puerto 9100"
+docker compose stop ; docker compose start
+docker compose down                     # borra contenedores; el volumen (y las cuentas) se conservan
+docker compose down -v                  # borra también el volumen: mundo y cuentas desde cero
+```
+
+Verificado el 10/11/2026: construcción de ambas imágenes, servidor *healthy*, registro e inicio de sesión a través de nginx (`/ws`), rechazo sin cuenta, restauración del estado y de las cuentas tras `down`/`up`, y el juego completo en Chromium (WebGL 2) desde `http://localhost:8080`. Pendiente para publicar fuera del PC: HTTPS (proxy con certificado delante de nginx; el cliente usa `wss://` automáticamente).
+
+---
 
 ## 5. Arquitectura (cómo se reparte el trabajo de los 5 equipos)
 
