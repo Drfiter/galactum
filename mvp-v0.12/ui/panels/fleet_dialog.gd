@@ -16,6 +16,7 @@ var _updating: bool = false
 var _crew_sel: Array = []
 var _crew_label: Label
 var _rally_wait: int = 60
+var _formation: String = "balanced"
 
 
 func _init() -> void:
@@ -48,6 +49,8 @@ func build() -> void:
 	left.add_child(UI.spacer())
 	if mission == "rally":
 		left.add_child(_wait_picker())
+	elif mission in ["gather", "hunt", "attack"]:
+		left.add_child(_formation_picker())
 	_send_btn = UI.button(U.t("¡Despegar!") if not mission.begins_with("rally") else (U.t("Abrir Asedio") if mission == "rally" else U.t("Sumarme")), "DangerButton" if mission in ["attack", "rally", "rally_join"] else "PrimaryButton", window_icon(), Vector2(0, 60))
 	_send_btn.pressed.connect(_send)
 	left.add_child(_send_btn)
@@ -162,6 +165,40 @@ func _capacity() -> int:
 		"rally_join":
 			return maxi(0, int(entity.get("capacity", 0)) - int(entity.get("troops", 0)))
 	return int(GameClient.me.get("caps", {}).get("march_capacity", 150))
+
+
+## Formación de combate: bonos y penalizaciones para esta flota.
+func _formation_picker() -> Control:
+	if mission == "hunt":
+		_formation = "hunter"
+	var card := UI.panel("Card")
+	var v := UI.vbox(4)
+	card.add_child(v)
+	v.add_child(UI.label(U.t("Formación"), 14, UI.CYAN, "bold"))
+	var flow := UI.flow(4, 4)
+	v.add_child(flow)
+	var desc := UI.wrap(UI.label("", 12, UI.TEXT_DIM), 270)
+	for f: Dictionary in Catalog.troops.get("formations", []):
+		var fid: String = str(f["id"])
+		var req: String = str(f.get("requires_tech", ""))
+		var locked: bool = not req.is_empty() and GameClient.tech_level(req) <= 0
+		var b := UI.button(U.t(str(f["name"])), "PrimaryButton" if fid == _formation else "TabButton", "", Vector2(0, 36))
+		b.add_theme_font_size_override("font_size", 13)
+		b.disabled = locked
+		b.name = "Formation_" + fid
+		b.tooltip_text = U.t(str(f.get("desc", ""))) + ("\n" + U.t("Requiere investigar %s") % str(Catalog.tech(req).get("name", req)) if locked else "")
+		var fdesc: String = U.t(str(f.get("desc", "")))
+		b.pressed.connect(func() -> void:
+			_formation = fid
+			desc.text = fdesc
+			for ch: Node in flow.get_children():
+				(ch as Button).theme_type_variation = "TabButton"
+			b.theme_type_variation = "PrimaryButton")
+		if fid == _formation:
+			desc.text = fdesc
+		flow.add_child(b)
+	v.add_child(desc)
+	return card
 
 
 ## Tiempo de espera del Asedio para que los aliados se sumen.
@@ -432,7 +469,7 @@ func _send() -> void:
 				game.toast(str(payload.get("message", U.t("No se pudo enviar"))), "error")
 				_send_btn.disabled = false)
 		return
-	GameClient.intent("march", {"mission": mission, "target_id": entity["id"], "troops": stacks, "crew": _crew_sel}, func(ok: bool, payload: Dictionary) -> void:
+	GameClient.intent("march", {"mission": mission, "target_id": entity["id"], "troops": stacks, "crew": _crew_sel, "formation": _formation}, func(ok: bool, payload: Dictionary) -> void:
 		if ok:
 			UI.Sfx.play("launch")
 			game.toast(U.t("Flota en ruta: %s") % {"gather": U.t("minería"), "hunt": "caza", "attack": "ataque"}.get(mission, ""), "success")
