@@ -86,7 +86,7 @@ func _effect_lines(lvl: int) -> Array:
 		var cur: float = Catalog.room_effect(room_id, eff, lvl)
 		var nxt: float = Catalog.room_effect(room_id, eff, next)
 		var pct: bool = bool(e.get("pct", false))
-		var fmt := func(x: float) -> String: return ("+%d%%" % int(round(x * 100))) if pct else U.fmt_int(int(x))
+		var fmt := func(x: float) -> String: return ("+%d%%" % int(round(x * 100))) if pct else (U.fmt_int(int(x)) if absf(x - roundf(x)) < 0.001 else ("%.2f" % x).replace(".", U.decimal_sep()))
 		if lvl == 0:
 			out.append("• %s: %s" % [e.get("label", eff), fmt.call(nxt)])
 		else:
@@ -271,7 +271,7 @@ func _trade_port() -> Control:
 	var s: Array = _section(U.t("Mercado"), "res_credits")
 	var v: VBoxContainer = s[1]
 	var rate: float = Catalog.room_effect("trade_port", "credit_rate", GameClient.room_level("trade_port"))
-	v.add_child(UI.label(U.t("Precio: %.2f Créditos por unidad") % rate, 16, UI.GOLD, "bold"))
+	v.add_child(UI.label(U.t("Precio: %s Créditos por unidad") % ("%.2f" % rate).replace(".", U.decimal_sep()), 16, UI.GOLD, "bold"))
 	var f := UI.flow(8, 6)
 	for el: String in Catalog.element_ids:
 		var have: int = GameClient.res(el)
@@ -399,11 +399,12 @@ func _hangar() -> Control:
 	grid.add_theme_constant_override("h_separation", 8)
 	grid.add_theme_constant_override("v_separation", 8)
 	v.add_child(grid)
-	var tier2: bool = GameClient.tech_level("tier2_protocol") > 0
-	for type_id: String in Catalog.troop_order:
-		for tier: int in [1, 2]:
+	var n_tiers: int = (Catalog.troops["types"][Catalog.troop_order[0]]["tiers"] as Array).size()
+	for tier: int in range(1, n_tiers + 1):
+		for type_id: String in Catalog.troop_order:
 			var key: String = Catalog.troop_key(type_id, tier)
-			var locked: bool = tier == 2 and not tier2
+			var req: String = str(Catalog.troop_tier(key).get("requires_tech", ""))
+			var locked: bool = not req.is_empty() and GameClient.tech_level(req) <= 0
 			var b := Button.new()
 			b.theme_type_variation = "PrimaryButton" if key == _sel_troop else "TabButton"
 			b.focus_mode = Control.FOCUS_NONE
