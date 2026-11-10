@@ -494,9 +494,9 @@ func goto_mission(s: Dictionary) -> void:
 		"gather_started", "resources_delivered":
 			_focus_nearest("asteroid", func(e: Dictionary) -> bool: return str(e.get("occupant_owner", "")).is_empty())
 		"xeno_hunted":
-			_focus_nearest("xenoform", func(e: Dictionary) -> bool: return int(e.get("level", 1)) <= 2)
+			_focus_nearest("xenoform", func(e: Dictionary) -> bool: return int(e.get("level", 1)) <= 2 and not bool(e.get("hive", false)))
 		"xeno_hunted_l3":
-			_focus_nearest("xenoform", func(e: Dictionary) -> bool: return int(e.get("level", 1)) == 3)
+			_focus_nearest("xenoform", func(e: Dictionary) -> bool: return int(e.get("level", 1)) == 3 and not bool(e.get("hive", false)))
 		"scout_done", "pvp_win":
 			_focus_nearest("base", func(e: Dictionary) -> bool: return GameClient.relation_of(str(e.get("owner", "")), str(e.get("tag", ""))) == "enemy" and not bool(e.get("shield", false)))
 		_:
