@@ -25,6 +25,7 @@ func _ready() -> void:
 	test_armory()
 	test_alliances()
 	test_rally_and_reinforcements()
+	test_progression()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -366,3 +367,64 @@ func test_rally_and_reinforcements() -> void:
 	check(r.get("type") == "ack" and rf["state"] == "returning", "se pueden retirar los refuerzos")
 	var v: Dictionary = srv.player_view(p).get("alliance_hq", {})
 	check(v.has("rallies") and v.has("reinforcements_here") and v.has("treasury") and v.has("permissions"), "la vista del cliente incluye Asedios, refuerzos, Tesorería y permisos")
+
+
+# ---------------------------------------------------------------- fase 5
+
+func test_progression() -> void:
+	print(" -- Fase 5: Progresión")
+	const Eco = preload("res://server/sgm/economy.gd")
+	var p: Dictionary = me()
+	check(Catalog.room_max_level() == 25, "las salas llegan a nivel 25")
+	var c10: int = int(Catalog.room_cost("bridge", 10).get("ore", 0))
+	var c25: int = int(Catalog.room_cost("bridge", 25).get("ore", 0))
+	check(c25 > c10 and c25 < c10 * 50, "el costo del Puente sigue creciendo hasta el 25 con curva suave (%d → %d)" % [c10, c25])
+	check(int(Catalog.room_effect("bridge", "march_slots", 25)) <= 6, "las flotas simultáneas tienen tope (6)")
+	check((Catalog.rooms_data.get("rooms", []) as Array).size() == 24 and (Catalog.rooms_data.get("locked", []) as Array).is_empty(), "24 salas construibles y ninguna de relleno")
+	for rid: String in ["dock", "airlock", "cargo_bay", "trade_port", "containment", "cloak", "incubator", "foundry"]:
+		check(not Catalog.room(rid).get("unlock", {}).is_empty(), "la sala %s se puede construir" % str(Catalog.room(rid)["name"]))
+	var cap0: int = srv.rally.reinforce_capacity(p)
+	p["rooms"]["dock"] = {"level": 3}
+	check(srv.rally.reinforce_capacity(p) > cap0, "el Muelle de Atraque aumenta la capacidad de refuerzos")
+	var vp0: int = Eco.vault_protect(p)
+	p["rooms"]["cargo_bay"] = {"level": 3}
+	check(Eco.vault_protect(p) > vp0, "la Bahía de Carga protege más recursos en la Bóveda")
+	p["rooms"].erase("trade_port")
+	var r: Dictionary = intent("trade_sell", {"res": "ore", "amount": 1000})
+	check(r.get("code", "") == "ROOM_REQUIRED", "vender requiere el Puerto de Comercio")
+	p["rooms"]["trade_port"] = {"level": 2}
+	p["resources"]["ore"] = 5000
+	var cr0: int = int(p["resources"].get("credits", 0))
+	r = intent("trade_sell", {"res": "ore", "amount": 1000})
+	check(r.get("type") == "ack" and int(p["resources"]["credits"]) > cr0, "el Puerto de Comercio vende elementos por Créditos")
+	var tiers_ok: bool = true
+	for k: String in Catalog.troops["types"]:
+		if (Catalog.troops["types"][k]["tiers"] as Array).size() != 5:
+			tiers_ok = false
+	check(tiers_ok, "las 5 fuerzas tienen niveles N1 a N5")
+	p["tech"] = {}
+	r = intent("train", {"troop": "infantry_3", "qty": 1})
+	check(r.get("code", "") == "TECH_REQUIRED", "entrenar N3 requiere el Protocolo de Fuerzas N3")
+	check((Catalog.research.get("techs", []) as Array).size() == 30 and (Catalog.research.get("branches", []) as Array).size() == 5, "árbol de investigación de 5 ramas y 30 tecnologías")
+	p["rooms"]["lab"] = {"level": 10}
+	p["resources"]["credits"] = 900000
+	for k2: String in ["ore", "kliptium", "water"]:
+		p["resources"][k2] = 900000
+	r = intent("research", {"tech": "nanomedicine"})
+	check(r.get("code", "") == "TECH_REQUIRED", "Nanomedicina exige Blindaje Ablativo Nv 2 (prerrequisito)")
+	p["tech"] = {"ablative_armor": 2}
+	r = intent("research", {"tech": "nanomedicine"})
+	check(r.get("type") == "ack", "con el prerrequisito se puede investigar")
+	p["queues"].erase("research")
+	var prod0: float = float(Eco.production_rates(p).get("ore", 0.0))
+	p["tech"]["industrial_automation"] = 2
+	check(float(Eco.production_rates(p).get("ore", 0.0)) > prod0, "Automatización Industrial aumenta la producción")
+	var x: Dictionary = nearest("xenoform")
+	p["troops"]["infantry_1"] = 200
+	p["resources"]["energy"] = 100
+	r = intent("march", {"mission": "hunt", "target_id": x["id"], "troops": {"infantry_1": 20}, "formation": "assault"})
+	check(r.get("code", "") == "TECH_REQUIRED", "la formación Asalto se desbloquea investigando")
+	r = intent("march", {"mission": "hunt", "target_id": x["id"], "troops": {"infantry_1": 20}, "formation": "hunter"})
+	var f: Dictionary = srv.fleets.fleets().get(str(r.get("fleet_id", "")), {})
+	var base_pve: float = float(Eco.combat_mods(p, false)["pve_damage"])
+	check(r.get("type") == "ack" and f.get("formation", "") == "hunter" and absf(float(f["mods"]["pve_damage"]) - base_pve - 0.15) < 0.0001, "la formación Cacería suma +15%% de daño contra Xenoformas a la flota")
