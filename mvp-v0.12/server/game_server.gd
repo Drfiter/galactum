@@ -24,6 +24,7 @@ const GuildMod = preload("res://server/sgm/guild.gd")
 const EventsMod = preload("res://server/sgm/events.gd")
 const CrewMod = preload("res://server/sgm/crew.gd")
 const CommanderMod = preload("res://server/sgm/commander.gd")
+const ArmoryMod = preload("res://server/sgm/armory.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -46,6 +47,7 @@ var guild: RefCounted
 var events: RefCounted
 var crew: RefCounted
 var commander: RefCounted
+var armory: RefCounted
 ## Sistema Solar activo (contexto SSS): entidades, flotas, terreno y respawns.
 var cur: Dictionary = {}
 var current_system: String = ""
@@ -75,6 +77,7 @@ func _init() -> void:
 	events = EventsMod.new(self)
 	crew = CrewMod.new(self)
 	commander = CommanderMod.new(self)
+	armory = ArmoryMod.new(self)
 
 
 func start(options: Dictionary = {}) -> void:
@@ -591,6 +594,16 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return commander.reset(p)
 		"pay_ransom":
 			return commander.pay_ransom(p)
+		"armory_forge":
+			return armory.forge(p, str(msg.get("equipment", "")))
+		"armory_upgrade":
+			return armory.upgrade(p, str(msg.get("equipment", "")))
+		"armory_equip":
+			return armory.equip(p, str(msg.get("equipment", "")))
+		"armory_unequip":
+			return armory.unequip(p, str(msg.get("slot", "")))
+		"armory_refine":
+			return armory.refine(p, str(msg.get("material", "")), int(msg.get("times", 1)))
 		"exchange":
 			return progression.exchange(p, str(msg.get("from", "")), str(msg.get("to", "")), int(msg.get("amount", 0)))
 		"debug_guild_cycle":
@@ -738,6 +751,7 @@ func player_view(p: Dictionary) -> Dictionary:
 		"shop": shop.view(p),
 		"crew": crew.view(p),
 		"commander": commander.view(p),
+		"gear": armory.view(p),
 		"guild_brief": _guild_brief(p),
 		"event_brief": _event_brief(p),
 	}

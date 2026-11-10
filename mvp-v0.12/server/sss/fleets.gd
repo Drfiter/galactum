@@ -396,6 +396,8 @@ func _collect_from_asteroid(f: Dictionary, ast: Dictionary, amount: int) -> void
 func _finish_mining(f: Dictionary, now: int) -> void:
 	var ast: Dictionary = srv.world.get_entity(f["target_id"])
 	_collect_from_asteroid(f, ast, int(f["work_amount"]))
+	if not ast.is_empty():
+		U.add_into(f["cargo"], srv.armory.mining_drop(str(ast["id"]), int(ast.get("level", 1))))
 	_crew_exp(f, int(Catalog.crew.get("exp_rewards", {}).get("gather", 20)))
 	var owner: Dictionary = srv.player(f["owner"])
 	if not owner.is_empty():
@@ -456,6 +458,8 @@ func _arrive_hunt(f: Dictionary, now: int) -> void:
 		srv.missions.on_event(p, "xeno_hunted", 1)
 		if lvl >= 3:
 			srv.missions.on_event(p, "xeno_hunted_l3", 1)
+	# Materiales de equipamiento de la especie (Armería).
+	U.add_into(rewards, srv.armory.hunt_drop(str(x["species"]), lvl, bool(res["killed"])))
 	srv.progression.grant(p, rewards, "hunt", "fleet:%s:hunt" % f["id"])
 	var xr: Dictionary = Catalog.crew.get("exp_rewards", {})
 	var hunt_exp: int = int(float(xr.get("hunt_per_level", 40)) * lvl * (1.0 if res["killed"] else float(xr.get("hunt_partial_mult", 0.5))))
