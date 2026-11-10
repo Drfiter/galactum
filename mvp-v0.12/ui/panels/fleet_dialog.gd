@@ -2,7 +2,8 @@ extends "res://ui/panels/window.gd"
 ## Composición de flota antes de despegar (el snapshot de combate se congela al enviar).
 
 const Resolver = preload("res://server/combat/combat_resolver.gd")
-const MISSION_TITLES: Dictionary = {"gather": "Enviar flota minera", "hunt": "Enviar flota de caza", "attack": "Enviar flota de ataque"}
+const MISSION_TITLES: Dictionary = {"gather": "Enviar flota minera", "hunt": "Enviar flota de caza", "attack": "Enviar flota de ataque",
+	"reinforce": "Enviar refuerzos", "rally": "Abrir Asedio", "rally_join": "Sumarse al Asedio"}
 
 var mission: String = "gather"
 var entity: Dictionary = {}
@@ -14,6 +15,7 @@ var _send_btn: Button
 var _updating: bool = false
 var _crew_sel: Array = []
 var _crew_label: Label
+var _rally_wait: int = 60
 
 
 func _init() -> void:
@@ -26,7 +28,7 @@ func window_title() -> String:
 
 
 func window_icon() -> String:
-	return {"gather": "ui_mine", "hunt": "ui_hunt", "attack": "ui_attack"}.get(str(args.get("mission", "")), "ui_ship")
+	return {"gather": "ui_mine", "hunt": "ui_hunt", "attack": "ui_attack", "reinforce": "ui_shield", "rally": "ui_rally", "rally_join": "ui_rally"}.get(str(args.get("mission", "")), "ui_ship")
 
 
 func build() -> void:
@@ -44,7 +46,9 @@ func build() -> void:
 	var sum_card := UI.panel("Card", _summary)
 	left.add_child(sum_card)
 	left.add_child(UI.spacer())
-	_send_btn = UI.button(U.t("¡Despegar!"), "DangerButton" if mission == "attack" else "PrimaryButton", window_icon(), Vector2(0, 60))
+	if mission == "rally":
+		left.add_child(_wait_picker())
+	_send_btn = UI.button(U.t("¡Despegar!") if not mission.begins_with("rally") else (U.t("Abrir Asedio") if mission == "rally" else U.t("Sumarme")), "DangerButton" if mission in ["attack", "rally", "rally_join"] else "PrimaryButton", window_icon(), Vector2(0, 60))
 	_send_btn.pressed.connect(_send)
 	left.add_child(_send_btn)
 
@@ -58,7 +62,8 @@ func build() -> void:
 		var key: String = p[1]
 		b.pressed.connect(func() -> void: _apply_preset(key))
 		presets.add_child(b)
-	right.add_child(_crew_card())
+	if not mission.begins_with("rally") and mission != "reinforce":
+		right.add_child(_crew_card())
 	var list := UI.vbox(8)
 	right.add_child(scroll_body(list))
 	var home: Dictionary = GameClient.troops_home()
@@ -78,6 +83,10 @@ func _target_card() -> Control:
 	var card := UI.panel("CardHi")
 	var v := UI.vbox(6)
 	card.add_child(v)
+	if mission == "rally_join":
+		v.add_child(UI.label(U.t("Asedio de %s") % str(entity.get("leader", "")), 17, UI.TEXT, "bold"))
+		v.add_child(UI.wrap(UI.label(U.t("Objetivo: %s · %d/%d tropas") % [str(entity.get("target", "")), int(entity.get("troops", 0)), int(entity.get("capacity", 0))], 13, UI.TEXT_DIM)))
+		return card
 	var kind: String = str(entity.get("kind", ""))
 	var h := UI.hbox(10)
 	v.add_child(h)
@@ -146,7 +155,34 @@ func _troop_row(key: String, have: int) -> Control:
 
 
 func _capacity() -> int:
+	var hq: Dictionary = GameClient.me.get("alliance_hq", {})
+	match mission:
+		"rally":
+			return int(hq.get("rally_capacity", 450))
+		"rally_join":
+			return maxi(0, int(entity.get("capacity", 0)) - int(entity.get("troops", 0)))
 	return int(GameClient.me.get("caps", {}).get("march_capacity", 150))
+
+
+## Tiempo de espera del Asedio para que los aliados se sumen.
+func _wait_picker() -> Control:
+	var card := UI.panel("Card")
+	var v := UI.vbox(6)
+	card.add_child(v)
+	v.add_child(UI.label(U.t("Espera para que se sumen los aliados"), 14, UI.CYAN, "bold"))
+	var h := UI.hbox(6)
+	v.add_child(h)
+	for w: Variant in GameClient.me.get("alliance_hq", {}).get("waits", [30, 60, 120]):
+		var secs: int = int(w)
+		var b := UI.button("%d s" % secs, "PrimaryButton" if secs == _rally_wait else "TabButton", "", Vector2(80, 42))
+		b.pressed.connect(func() -> void:
+			_rally_wait = secs
+			for ch: Node in h.get_children():
+				(ch as Button).theme_type_variation = "TabButton"
+			b.theme_type_variation = "PrimaryButton")
+		h.add_child(b)
+	v.add_child(UI.wrap(UI.label(U.t("La flota conjunta usa tus bonos (herencia de boosts). Bajas y botín se reparten según lo que aporte cada uno."), 12, UI.TEXT_MUTED), 270))
+	return card
 
 
 func _total(exclude: String = "") -> int:
@@ -379,6 +415,23 @@ func _send() -> void:
 		if int(_sel[k]) > 0:
 			stacks[k] = int(_sel[k])
 	_send_btn.disabled = true
+	if mission.begins_with("rally"):
+		var action: String = "rally_start" if mission == "rally" else "rally_join"
+		var params: Dictionary = {"troops": stacks, "wait": _rally_wait}
+		if mission == "rally":
+			params["target_id"] = entity["id"]
+		else:
+			params["rally_id"] = entity["id"]
+		GameClient.intent(action, params, func(ok: bool, payload: Dictionary) -> void:
+			if ok:
+				UI.Sfx.play("alert")
+				game.toast(U.t("Asedio abierto: tus aliados tienen %d s para sumarse") % _rally_wait if mission == "rally" else U.t("Te sumaste al Asedio"), "success")
+				game.hud.hide_popup()
+				close_window()
+			else:
+				game.toast(str(payload.get("message", U.t("No se pudo enviar"))), "error")
+				_send_btn.disabled = false)
+		return
 	GameClient.intent("march", {"mission": mission, "target_id": entity["id"], "troops": stacks, "crew": _crew_sel}, func(ok: bool, payload: Dictionary) -> void:
 		if ok:
 			UI.Sfx.play("launch")
