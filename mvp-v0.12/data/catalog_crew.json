@@ -293,5 +293,67 @@
   "p41",
   "p10",
   "p12"
- ]
+ ],
+ "fleet": {
+  "_doc": "Hasta 5 tripulantes viajan en cada flota. Un tripulante tiene un solo empleo: en una sala (pasiva global) o en una flota (bono solo para esa flota, ×fleet_mult).",
+  "max_per_fleet": 5,
+  "fleet_mult": 1.5
+ },
+ "levels": {
+  "_doc": "EXP para pasar del nivel n al n+1 = exp_base × exp_growth^(n-1). Cada nivel suma bonus_per_level a la pasiva.",
+  "max": 50,
+  "exp_base": 100,
+  "exp_growth": 1.12,
+  "bonus_per_level": 0.02
+ },
+ "ranks": [
+  {
+   "min_level": 1,
+   "name": "Recluta",
+   "bonus": 0.0
+  },
+  {
+   "min_level": 10,
+   "name": "Cabo",
+   "bonus": 0.05
+  },
+  {
+   "min_level": 20,
+   "name": "Sargento",
+   "bonus": 0.1
+  },
+  {
+   "min_level": 30,
+   "name": "Teniente",
+   "bonus": 0.15
+  },
+  {
+   "min_level": 40,
+   "name": "Capitán",
+   "bonus": 0.2
+  }
+ ],
+ "grades": {
+  "_doc": "El grado se sube con Insignias de Mando; cada grado suma bonus_per_grade a la pasiva. insignia_cost[g] = costo para llegar al grado g+1.",
+  "max": 5,
+  "insignia_cost": [
+   20,
+   50,
+   120,
+   250
+  ],
+  "bonus_per_grade": 0.25
+ },
+ "exp_rewards": {
+  "hunt_per_level": 40,
+  "hunt_partial_mult": 0.5,
+  "attack_win": 80,
+  "attack_loss": 25,
+  "gather": 20
+ },
+ "insignia_drop": {
+  "_doc": "Las cazas de nivel >= min_level sueltan per_level Insignias por nivel de la xenoforma abatida.",
+  "min_level": 2,
+  "per_level": 1
+ }
 }

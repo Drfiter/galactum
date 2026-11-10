@@ -76,6 +76,13 @@
    "kind": "recruit",
    "icon": "crew",
    "desc": "Recluta a un tripulante al azar en la Cantina."
+  },
+  {
+   "id": "insignia",
+   "name": "Insignia de Mando",
+   "kind": "badge",
+   "icon": "insignia",
+   "desc": "Sube el grado de un tripulante en Tripulación → Colección."
   }
  ]
 }
