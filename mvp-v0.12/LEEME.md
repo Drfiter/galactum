@@ -17,7 +17,7 @@ Otros lanzadores:
 | Archivo | Para qué |
 |---|---|
 | `Ejecutar_Servidor_Dedicado.bat [puerto]` | SSS dedicado headless por WebSocket (por defecto, puerto 9100) |
-| `Ejecutar_Demo_2_Clientes.bat` | Levanta el SSS y abre 2 clientes. En cada uno: *Servidor dedicado* → `127.0.0.1:9100` → *Conectar al SSS*, con nombres distintos |
+| `Ejecutar_Demo_2_Clientes.bat` | Levanta el SSS y abre 2 clientes. En cada uno: *Servidor dedicado* → `127.0.0.1:9100` → usuario y contraseña → *Crear cuenta* (la primera vez) o *Entrar*, con usuarios distintos |
 | `Abrir_en_Editor.bat` | Abre el proyecto en el editor (también sirve para exportar a Android) |
 | `Ejecutar_Pruebas.bat` | Suite de pruebas canónicas + harness de balance de 10.000 combates |
 
@@ -128,7 +128,15 @@ Para exportar:
 
 Para publicar en la tienda, crea un keystore de release y configúralo en el preset (*Keystore → Release*).
 
-Con el teléfono y el PC en la misma red Wi-Fi puedes conectar el APK al servidor dedicado: *Servidor dedicado* → IP del PC → puerto 9100.
+Con el teléfono y el PC en la misma red Wi-Fi puedes conectar el APK al servidor dedicado: *Servidor dedicado* → IP del PC → puerto 9100 → usuario y contraseña.
+
+### Cuentas en el servidor dedicado
+
+El SSS dedicado exige una cuenta: registro e inicio de sesión con usuario y contraseña, token de acceso **JWT HS256** (15 min) que el `hello` debe presentar, y token de renovación de un solo uso (30 días, rotación y revocación al cerrar sesión). Las contraseñas se guardan con **PBKDF2-HMAC-SHA256** y sal por cuenta; tras 5 intentos fallidos la cuenta se bloquea 5 minutos.
+
+- Define `GALACTUM_JWT_SECRET` (32 caracteres o más) en el entorno del servidor. Si falta, se usa un secreto aleatorio por proceso y los tokens de acceso dejan de valer al reiniciar (los de renovación siguen sirviendo). **Nunca** lo guardes en el repositorio.
+- `-- --server --no-auth` vuelve al modo demo por nombre. La partida local (JUGAR) no usa cuentas.
+- Alcance MVP: no hay NestJS/PostgreSQL ni recuperación de contraseña; las iteraciones de PBKDF2 son pocas porque corre en GDScript (en producción iría Argon2/bcrypt en el backend del Equipo 1).
 
 ---
 
@@ -159,6 +167,7 @@ server/                SERVIDOR AUTORITATIVO (el cliente solo envía intenciones
   sss/bots.gd            comandantes IA (y bots para el soak test)
   combat/combat_resolver.gd  resolver DETERMINISTA, PURO y VERSIONADO (Equipo 3 §7)
   net/ws_gateway.gd      gateway WebSocket del modo dedicado
+  net/auth.gd            cuentas: registro, login, JWT HS256 y renovación
 client/                Réplica no autoritativa + enlaces (local en memoria / WebSocket)
 ui/                    Título, mapa, interior de la nave, HUD y ventanas
   audio.gd               efectos y música del cliente (nodo creado a demanda, no Autoload)

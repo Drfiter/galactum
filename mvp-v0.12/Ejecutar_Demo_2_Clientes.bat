@@ -1,7 +1,8 @@
 @echo off
 REM Demo multijugador: levanta el SSS dedicado y abre dos clientes.
-REM En cada cliente: "Servidor dedicado" > 127.0.0.1 : 9100 > "Conectar al SSS"
-REM (usa nombres distintos en cada ventana; apareceran como vecinos en el mapa).
+REM En cada cliente: "Servidor dedicado" > 127.0.0.1 : 9100 > usuario y contrasena
+REM > "Crear cuenta" la primera vez y luego "Entrar" (usa usuarios distintos en
+REM cada ventana; apareceran como vecinos en el mapa).
 setlocal
 set "ROOT=%~dp0"
 set "GODOT=%ROOT%Godot\Godot_v4.6.2-stable_win64.exe"

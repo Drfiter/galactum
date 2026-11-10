@@ -2,6 +2,9 @@
 REM Galactum - Servidor de Sistema Solar (SSS) dedicado por WebSocket.
 REM Uso: Ejecutar_Servidor_Dedicado.bat [puerto]   (por defecto 9100)
 REM Agrega --fresh al final del comando de abajo para generar un sistema nuevo.
+REM Cuentas: el SSS exige iniciar sesion (JWT). Define GALACTUM_JWT_SECRET (32+
+REM caracteres) antes de ejecutar para que los tokens sobrevivan a un reinicio;
+REM nunca lo guardes en el repositorio. Con --no-auth vuelve el modo demo por nombre.
 setlocal
 set "ROOT=%~dp0"
 set "PORT=%~1"
