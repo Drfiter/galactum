@@ -193,10 +193,11 @@ Decisiones de la spec que se respetan:
 godot --headless --path . res://tests/run_tests.tscn          # 24 pruebas canónicas
 godot --headless --path . res://tests/server_smoke.tscn       # bucle completo: minería, caza, PvP, galaxia, alianza, torneos, tripulación
 godot --headless --path . res://tests/feedback_checks.tscn    # 24 comprobaciones de los errores del feedback del 26/10
+godot --headless --path . res://tests/features_checks.tscn    # 204 comprobaciones de las funcionalidades agregadas (fases 1-9)
 godot --headless --path . res://tools/balance_harness.tscn -- --n=10000
 ```
 
-Resultado actual del harness (10.000 combates por matchup, «espejo + ventaja»): **Infantería > Drones 68,5%**, **Drones > Pilotos 67,0%**, **Pilotos > Infantería 62,6%**. Los tres quedan dentro del rango 60–75% que exige la spec. El CSV se guarda en `user://balance_report.csv`.
+Resultado actual del harness (10.000 combates por matchup, «espejo + ventaja», escalones N1 a N5): **Infantería > Drones 68,1–70,2%**, **Drones > Pilotos 63,8–68,1%**, **Pilotos > Infantería 61,9–65,7%**. Los 15 matchups quedan dentro del rango 60–75% que exige la spec. Para lograrlo se rebalanceó el escalón N2 (antes Pilotos > Infantería quedaba en 51%): todos los escalones derivan de N1 con multiplicadores enteros y defensa constante. El CSV se guarda en `user://balance_report.csv`.
 
 Para rebalancear, edita `data/catalog_troops.json` y vuelve a correr el harness.
 
@@ -204,11 +205,13 @@ Para rebalancear, edita `data/catalog_troops.json` y vuelve a correr el harness.
 
 ## 7. Alcance del MVP y lo que viene
 
-**Incluido:** las 12 salas funcionales con niveles, los 10 elementos + 4 monedas, las 5 fuerzas (N1/N2), 8 tecnologías, minería, caza PvE de 24 especies × 5 niveles, PvP contra naves y flotas, espionaje, viaje y Salto Warp, Bahía Médica, Criosantuario 80/20, Bóveda, Escudo Perimetral, alianza con ayuda, chat y cápsulas, misiones, Órdenes del Día, inventario, informes, guardado y servidor dedicado.
+**Incluido:** 24 salas (Puente hasta Nv 25), los 10 elementos + 4 monedas y los Bonos de Alianza, las 5 fuerzas (N1-N5) con 5 formaciones, árbol de investigación de 5 ramas y 30 tecnologías, minería, caza PvE de 24 especies × 5 niveles, PvP contra naves y flotas, espionaje, viaje y Salto Warp, Bahía Médica, Criosantuario 80/20, Bóveda, Escudo Perimetral, alianza con ayuda, chat y cápsulas, misiones, Órdenes del Día, inventario, informes, guardado y servidor dedicado.
 
 **Ya incluido de la Fase 2:** galaxia multisistema con salto interestelar, tienda con moneda opaca, bono diario, dinámicas de alianza (metas, cofre, objetivo marcado, ranking), eventos y torneos con métricas de rentabilidad, Cantina y los 45 Tripulantes, Gestión de Tripulación, Armería, Taller (canje), visor de batallas 3D, inglés/español.
 
-**Pendiente (visible en la nave como salas bloqueadas o en el roadmap):** equipos de Armería (los 90 ítems), Muelle de Atraque (refuerzos reales), Bahía de Ocultación, Cámara de Incubación, Fundición Estelar, asedios/rallies con marcha conjunta, pagos reales (Google Play Billing), backoffice y bots como fuente de ingresos. Las piezas de backend de los Equipos 1, 2, 4 y 5 en NestJS siguen en sus carpetas de documentación. Este MVP implementa sus reglas dentro del servidor embebido para poder mostrarlas jugando.
+**Agregado tras el feedback del 26/10 (noviembre 2026):** Tripulantes en las flotas (hasta 5, Insignias, grados, rangos y doble empleo); Comandante (nivel, Protocolos de Mando y captura); Armería con 150 materiales y 90 equipos × 5 niveles; Alianzas completas (crear, buscar, unirse, R1-R5, Tesorería, Tienda, Bonos), Asedio (rally) y refuerzos; Pase de Expedición, Licencia de Comandante, Eventos de Singularidad y Festival de la Flota; Expediciones (6 capítulos × 8 etapas, Élite y barrido); Colmenas Xeno, Plataformas Orbitales, títulos y Operación de Rescate (30%); cuentas con JWT en el servidor dedicado. Detalle y evidencias: `docs/Informe_funcionalidades_feedback_2026-11-10.pdf`.
+
+**Pendiente:** pagos reales (Google Play Billing requiere una cuenta de Play Console; hoy las compras son simuladas con Materia Oscura), el SGM en NestJS + PostgreSQL del Equipo 1, recuperación de contraseña, backoffice y Guerra de Sistemas entre servidores. Las piezas de backend de los Equipos 1, 2, 4 y 5 en NestJS siguen en sus carpetas de documentación. Este MVP implementa sus reglas dentro del servidor embebido para poder mostrarlas jugando.
 
 > Nota de demo: los tiempos están acelerados (viajes de segundos, mejoras de 15 s a minutos) para mostrar el bucle completo en una presentación. Todos esos valores están en `data/*.json`.
 
