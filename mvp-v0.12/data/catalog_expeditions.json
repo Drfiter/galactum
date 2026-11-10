@@ -1,0 +1,2662 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Expediciones: campaña PvE por capítulos con equipos de tripulantes. Generado por tools/gen_expeditions_catalog.py.",
+ "fuel": {
+  "name": "Combustible de Expedición",
+  "max": 120,
+  "regen_minutes": 6,
+  "cost_normal": 6,
+  "cost_elite": 12,
+  "refill_amount": 60,
+  "refill_mo": 50,
+  "refills_per_day": 3
+ },
+ "team_max": 5,
+ "elite": {
+  "daily_attempts": 3,
+  "power_mult": 1.6,
+  "reward_mult": 2,
+  "_doc": "Élite: enemigos ×power_mult, premios ×reward_mult."
+ },
+ "sweep_times": [
+  1,
+  5
+ ],
+ "unit": {
+  "_doc": "Fuerza de un tripulante: base × rareza × (1+per_level·(nivel-1)) × (1+per_grade·(grado-1)) × (1+per_star·(estrellas-1)) × rol.",
+  "hp_base": 900,
+  "atk_base": 95,
+  "per_level": 0.08,
+  "per_grade": 0.2,
+  "per_star": 0.12,
+  "rarity": {
+   "common": 1.0,
+   "rare": 1.25,
+   "epic": 1.55,
+   "legendary": 1.9
+  },
+  "roles": {
+   "vanguardia": {
+    "hp": 1.6,
+    "atk": 0.7
+   },
+   "asalto": {
+    "hp": 0.8,
+    "atk": 1.45
+   },
+   "especialista": {
+    "hp": 1.0,
+    "atk": 0.85,
+    "heal": 0.5
+   }
+  },
+  "role_by_stat": {
+   "attack": "asalto",
+   "pve_damage": "asalto",
+   "defense": "vanguardia",
+   "hp": "vanguardia",
+   "gather_speed": "especialista",
+   "load": "especialista",
+   "march_speed": "especialista"
+  }
+ },
+ "battle": {
+  "max_rounds": 15,
+  "crit_chance": 0.15,
+  "crit_mult": 1.5,
+  "spread": 0.1,
+  "stars": {
+   "_doc": "3★ sin bajas, 2★ con max_deaths_2 bajas o menos, 1★ si se gana con más.",
+   "max_deaths_2": 2
+  }
+ },
+ "chapters": [
+  {
+   "id": "c1",
+   "name": "Cinturón de Kliptium",
+   "desc": "Los primeros nidos xeno acechan entre los asteroides de la frontera.",
+   "requires_bridge": 1,
+   "stages": [
+    {
+     "id": "1-1",
+     "name": "Patrulla",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "asalto",
+       "hp": 520,
+       "atk": 62
+      },
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 520,
+       "atk": 62
+      },
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "especialista",
+       "hp": 520,
+       "atk": 62
+      }
+     ],
+     "crew_exp": 50,
+     "cmd_exp": 30,
+     "first": {
+      "credits": 600,
+      "insignia": 3,
+      "mat_x_x07_1": 2
+     },
+     "repeat": {
+      "credits": 220,
+      "insignia": 1,
+      "mat_x_x07_1": 1
+     }
+    },
+    {
+     "id": "1-2",
+     "name": "Emboscada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "asalto",
+       "hp": 556,
+       "atk": 66
+      },
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 556,
+       "atk": 66
+      },
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "especialista",
+       "hp": 556,
+       "atk": 66
+      }
+     ],
+     "crew_exp": 54,
+     "cmd_exp": 32,
+     "first": {
+      "credits": 654,
+      "insignia": 3,
+      "mat_x_x11_1": 2
+     },
+     "repeat": {
+      "credits": 240,
+      "insignia": 1,
+      "mat_x_x11_1": 1
+     }
+    },
+    {
+     "id": "1-3",
+     "name": "Nido menor",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "asalto",
+       "hp": 595,
+       "atk": 71
+      },
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 595,
+       "atk": 71
+      },
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "especialista",
+       "hp": 595,
+       "atk": 71
+      }
+     ],
+     "crew_exp": 58,
+     "cmd_exp": 35,
+     "first": {
+      "credits": 713,
+      "insignia": 3,
+      "mat_x_x01_1": 2
+     },
+     "repeat": {
+      "credits": 261,
+      "insignia": 1,
+      "mat_x_x01_1": 1
+     }
+    },
+    {
+     "id": "1-4",
+     "name": "Rastro",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "asalto",
+       "hp": 637,
+       "atk": 76
+      },
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 637,
+       "atk": 76
+      },
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "especialista",
+       "hp": 637,
+       "atk": 76
+      }
+     ],
+     "crew_exp": 63,
+     "cmd_exp": 38,
+     "first": {
+      "credits": 777,
+      "insignia": 3,
+      "mat_x_x07_1": 2
+     },
+     "repeat": {
+      "credits": 285,
+      "insignia": 1,
+      "mat_x_x07_1": 1
+     }
+    },
+    {
+     "id": "1-5",
+     "name": "Avanzada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "asalto",
+       "hp": 682,
+       "atk": 81
+      },
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 682,
+       "atk": 81
+      },
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "especialista",
+       "hp": 682,
+       "atk": 81
+      }
+     ],
+     "crew_exp": 68,
+     "cmd_exp": 41,
+     "first": {
+      "credits": 847,
+      "insignia": 4,
+      "mat_x_x11_1": 2
+     },
+     "repeat": {
+      "credits": 311,
+      "insignia": 1,
+      "mat_x_x11_1": 1
+     }
+    },
+    {
+     "id": "1-6",
+     "name": "Cerco",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "asalto",
+       "hp": 729,
+       "atk": 87
+      },
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 729,
+       "atk": 87
+      },
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "especialista",
+       "hp": 729,
+       "atk": 87
+      }
+     ],
+     "crew_exp": 73,
+     "cmd_exp": 44,
+     "first": {
+      "credits": 923,
+      "insignia": 4,
+      "mat_x_x01_1": 2
+     },
+     "repeat": {
+      "credits": 338,
+      "insignia": 1,
+      "mat_x_x01_1": 1
+     }
+    },
+    {
+     "id": "1-7",
+     "name": "Guarida",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x07",
+       "level": 1,
+       "role": "asalto",
+       "hp": 780,
+       "atk": 93
+      },
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 780,
+       "atk": 93
+      },
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "especialista",
+       "hp": 780,
+       "atk": 93
+      }
+     ],
+     "crew_exp": 79,
+     "cmd_exp": 48,
+     "first": {
+      "credits": 1006,
+      "insignia": 4,
+      "mat_x_x07_1": 2
+     },
+     "repeat": {
+      "credits": 369,
+      "insignia": 1,
+      "mat_x_x07_1": 1
+     }
+    },
+    {
+     "id": "1-8",
+     "name": "Jefe",
+     "boss": true,
+     "enemies": [
+      {
+       "species": "x07",
+       "level": 2,
+       "role": "vanguardia",
+       "boss": true,
+       "hp": 3340,
+       "atk": 179
+      },
+      {
+       "species": "x11",
+       "level": 1,
+       "role": "asalto",
+       "hp": 835,
+       "atk": 100
+      },
+      {
+       "species": "x01",
+       "level": 1,
+       "role": "vanguardia",
+       "hp": 835,
+       "atk": 100
+      }
+     ],
+     "crew_exp": 86,
+     "cmd_exp": 51,
+     "first": {
+      "credits": 1097,
+      "insignia": 4,
+      "mat_x_x11_2": 4,
+      "dark_matter": 20
+     },
+     "repeat": {
+      "credits": 402,
+      "insignia": 1,
+      "mat_x_x11_2": 1
+     }
+    }
+   ],
+   "chests": [
+    {
+     "stars": 8,
+     "reward": {
+      "credits": 3000,
+      "insignia": 10
+     }
+    },
+    {
+     "stars": 16,
+     "reward": {
+      "dark_matter": 40,
+      "speedup_1h": 1
+     }
+    },
+    {
+     "stars": 24,
+     "reward": {
+      "recruit_ticket": 1,
+      "insignia": 25
+     }
+    }
+   ]
+  },
+  {
+   "id": "c2",
+   "name": "Nebulosa Carmesí",
+   "desc": "Una nebulosa ionizada esconde enjambres que ciegan los sensores.",
+   "requires_bridge": 5,
+   "stages": [
+    {
+     "id": "2-1",
+     "name": "Patrulla",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "asalto",
+       "hp": 893,
+       "atk": 107
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 893,
+       "atk": 107
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "especialista",
+       "hp": 893,
+       "atk": 107
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "asalto",
+       "hp": 893,
+       "atk": 107
+      }
+     ],
+     "crew_exp": 93,
+     "cmd_exp": 56,
+     "first": {
+      "credits": 1196,
+      "insignia": 5,
+      "mat_x_x02_1": 2
+     },
+     "repeat": {
+      "credits": 438,
+      "insignia": 1,
+      "mat_x_x02_1": 1
+     }
+    },
+    {
+     "id": "2-2",
+     "name": "Emboscada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "asalto",
+       "hp": 956,
+       "atk": 114
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 956,
+       "atk": 114
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "especialista",
+       "hp": 956,
+       "atk": 114
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "asalto",
+       "hp": 956,
+       "atk": 114
+      }
+     ],
+     "crew_exp": 100,
+     "cmd_exp": 60,
+     "first": {
+      "credits": 1303,
+      "insignia": 5,
+      "mat_x_x12_1": 2
+     },
+     "repeat": {
+      "credits": 478,
+      "insignia": 1,
+      "mat_x_x12_1": 1
+     }
+    },
+    {
+     "id": "2-3",
+     "name": "Nido menor",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1023,
+       "atk": 122
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 1023,
+       "atk": 122
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "especialista",
+       "hp": 1023,
+       "atk": 122
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1023,
+       "atk": 122
+      }
+     ],
+     "crew_exp": 108,
+     "cmd_exp": 65,
+     "first": {
+      "credits": 1420,
+      "insignia": 5,
+      "mat_x_x06_1": 2
+     },
+     "repeat": {
+      "credits": 521,
+      "insignia": 1,
+      "mat_x_x06_1": 1
+     }
+    },
+    {
+     "id": "2-4",
+     "name": "Rastro",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1095,
+       "atk": 131
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 1095,
+       "atk": 131
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "especialista",
+       "hp": 1095,
+       "atk": 131
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1095,
+       "atk": 131
+      }
+     ],
+     "crew_exp": 117,
+     "cmd_exp": 70,
+     "first": {
+      "credits": 1548,
+      "insignia": 5,
+      "mat_x_x02_1": 2
+     },
+     "repeat": {
+      "credits": 568,
+      "insignia": 1,
+      "mat_x_x02_1": 1
+     }
+    },
+    {
+     "id": "2-5",
+     "name": "Avanzada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1171,
+       "atk": 140
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 1171,
+       "atk": 140
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "especialista",
+       "hp": 1171,
+       "atk": 140
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1171,
+       "atk": 140
+      }
+     ],
+     "crew_exp": 126,
+     "cmd_exp": 76,
+     "first": {
+      "credits": 1688,
+      "insignia": 6,
+      "mat_x_x12_1": 2
+     },
+     "repeat": {
+      "credits": 619,
+      "insignia": 2,
+      "mat_x_x12_1": 1
+     }
+    },
+    {
+     "id": "2-6",
+     "name": "Cerco",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1253,
+       "atk": 149
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 1253,
+       "atk": 149
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "especialista",
+       "hp": 1253,
+       "atk": 149
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1253,
+       "atk": 149
+      }
+     ],
+     "crew_exp": 136,
+     "cmd_exp": 82,
+     "first": {
+      "credits": 1839,
+      "insignia": 6,
+      "mat_x_x06_1": 2
+     },
+     "repeat": {
+      "credits": 674,
+      "insignia": 2,
+      "mat_x_x06_1": 1
+     }
+    },
+    {
+     "id": "2-7",
+     "name": "Guarida",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1341,
+       "atk": 160
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 1341,
+       "atk": 160
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "especialista",
+       "hp": 1341,
+       "atk": 160
+      },
+      {
+       "species": "x02",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1341,
+       "atk": 160
+      }
+     ],
+     "crew_exp": 147,
+     "cmd_exp": 88,
+     "first": {
+      "credits": 2005,
+      "insignia": 6,
+      "mat_x_x02_1": 2
+     },
+     "repeat": {
+      "credits": 735,
+      "insignia": 2,
+      "mat_x_x02_1": 1
+     }
+    },
+    {
+     "id": "2-8",
+     "name": "Jefe",
+     "boss": true,
+     "enemies": [
+      {
+       "species": "x02",
+       "level": 3,
+       "role": "vanguardia",
+       "boss": true,
+       "hp": 5739,
+       "atk": 308
+      },
+      {
+       "species": "x12",
+       "level": 2,
+       "role": "asalto",
+       "hp": 1435,
+       "atk": 171
+      },
+      {
+       "species": "x06",
+       "level": 2,
+       "role": "vanguardia",
+       "hp": 1435,
+       "atk": 171
+      }
+     ],
+     "crew_exp": 159,
+     "cmd_exp": 95,
+     "first": {
+      "credits": 2185,
+      "insignia": 6,
+      "mat_x_x12_2": 4,
+      "dark_matter": 30
+     },
+     "repeat": {
+      "credits": 801,
+      "insignia": 2,
+      "mat_x_x12_2": 1
+     }
+    }
+   ],
+   "chests": [
+    {
+     "stars": 8,
+     "reward": {
+      "credits": 6000,
+      "insignia": 15
+     }
+    },
+    {
+     "stars": 16,
+     "reward": {
+      "dark_matter": 60,
+      "speedup_1h": 1
+     }
+    },
+    {
+     "stars": 24,
+     "reward": {
+      "recruit_ticket": 1,
+      "insignia": 35
+     }
+    }
+   ]
+  },
+  {
+   "id": "c3",
+   "name": "Fosa de Plasma",
+   "desc": "Corrientes de plasma alimentan a los devoradores más voraces.",
+   "requires_bridge": 9,
+   "stages": [
+    {
+     "id": "3-1",
+     "name": "Patrulla",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1535,
+       "atk": 183
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1535,
+       "atk": 183
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "especialista",
+       "hp": 1535,
+       "atk": 183
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1535,
+       "atk": 183
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1535,
+       "atk": 183
+      }
+     ],
+     "crew_exp": 171,
+     "cmd_exp": 103,
+     "first": {
+      "credits": 2382,
+      "insignia": 7,
+      "mat_x_x03_2": 2
+     },
+     "repeat": {
+      "credits": 873,
+      "insignia": 2,
+      "mat_x_x03_2": 1
+     }
+    },
+    {
+     "id": "3-2",
+     "name": "Emboscada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1643,
+       "atk": 196
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1643,
+       "atk": 196
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "especialista",
+       "hp": 1643,
+       "atk": 196
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1643,
+       "atk": 196
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1643,
+       "atk": 196
+      }
+     ],
+     "crew_exp": 185,
+     "cmd_exp": 111,
+     "first": {
+      "credits": 2597,
+      "insignia": 7,
+      "mat_x_x05_2": 2
+     },
+     "repeat": {
+      "credits": 952,
+      "insignia": 2,
+      "mat_x_x05_2": 1
+     }
+    },
+    {
+     "id": "3-3",
+     "name": "Nido menor",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1758,
+       "atk": 210
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1758,
+       "atk": 210
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "especialista",
+       "hp": 1758,
+       "atk": 210
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1758,
+       "atk": 210
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1758,
+       "atk": 210
+      }
+     ],
+     "crew_exp": 200,
+     "cmd_exp": 120,
+     "first": {
+      "credits": 2830,
+      "insignia": 7,
+      "mat_x_x13_2": 2
+     },
+     "repeat": {
+      "credits": 1038,
+      "insignia": 2,
+      "mat_x_x13_2": 1
+     }
+    },
+    {
+     "id": "3-4",
+     "name": "Rastro",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1881,
+       "atk": 224
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1881,
+       "atk": 224
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "especialista",
+       "hp": 1881,
+       "atk": 224
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "asalto",
+       "hp": 1881,
+       "atk": 224
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 1881,
+       "atk": 224
+      }
+     ],
+     "crew_exp": 216,
+     "cmd_exp": 129,
+     "first": {
+      "credits": 3085,
+      "insignia": 7,
+      "mat_x_x03_2": 2
+     },
+     "repeat": {
+      "credits": 1131,
+      "insignia": 2,
+      "mat_x_x03_2": 1
+     }
+    },
+    {
+     "id": "3-5",
+     "name": "Avanzada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2012,
+       "atk": 240
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2012,
+       "atk": 240
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "especialista",
+       "hp": 2012,
+       "atk": 240
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2012,
+       "atk": 240
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2012,
+       "atk": 240
+      }
+     ],
+     "crew_exp": 233,
+     "cmd_exp": 140,
+     "first": {
+      "credits": 3363,
+      "insignia": 8,
+      "mat_x_x05_2": 2
+     },
+     "repeat": {
+      "credits": 1233,
+      "insignia": 2,
+      "mat_x_x05_2": 1
+     }
+    },
+    {
+     "id": "3-6",
+     "name": "Cerco",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2153,
+       "atk": 257
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2153,
+       "atk": 257
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "especialista",
+       "hp": 2153,
+       "atk": 257
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2153,
+       "atk": 257
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2153,
+       "atk": 257
+      }
+     ],
+     "crew_exp": 252,
+     "cmd_exp": 151,
+     "first": {
+      "credits": 3665,
+      "insignia": 8,
+      "mat_x_x13_2": 2
+     },
+     "repeat": {
+      "credits": 1344,
+      "insignia": 2,
+      "mat_x_x13_2": 1
+     }
+    },
+    {
+     "id": "3-7",
+     "name": "Guarida",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2304,
+       "atk": 275
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2304,
+       "atk": 275
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "especialista",
+       "hp": 2304,
+       "atk": 275
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2304,
+       "atk": 275
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2304,
+       "atk": 275
+      }
+     ],
+     "crew_exp": 272,
+     "cmd_exp": 163,
+     "first": {
+      "credits": 3995,
+      "insignia": 8,
+      "mat_x_x03_2": 2
+     },
+     "repeat": {
+      "credits": 1465,
+      "insignia": 2,
+      "mat_x_x03_2": 1
+     }
+    },
+    {
+     "id": "3-8",
+     "name": "Jefe",
+     "boss": true,
+     "enemies": [
+      {
+       "species": "x03",
+       "level": 4,
+       "role": "vanguardia",
+       "boss": true,
+       "hp": 9860,
+       "atk": 529
+      },
+      {
+       "species": "x05",
+       "level": 3,
+       "role": "asalto",
+       "hp": 2465,
+       "atk": 294
+      },
+      {
+       "species": "x13",
+       "level": 3,
+       "role": "vanguardia",
+       "hp": 2465,
+       "atk": 294
+      },
+      {
+       "species": "x03",
+       "level": 3,
+       "role": "especialista",
+       "hp": 2465,
+       "atk": 294
+      }
+     ],
+     "crew_exp": 294,
+     "cmd_exp": 176,
+     "first": {
+      "credits": 4355,
+      "insignia": 8,
+      "mat_x_x05_3": 4,
+      "dark_matter": 40
+     },
+     "repeat": {
+      "credits": 1597,
+      "insignia": 2,
+      "mat_x_x05_3": 1
+     }
+    }
+   ],
+   "chests": [
+    {
+     "stars": 8,
+     "reward": {
+      "credits": 9000,
+      "insignia": 20
+     }
+    },
+    {
+     "stars": 16,
+     "reward": {
+      "dark_matter": 80,
+      "speedup_1h": 2
+     }
+    },
+    {
+     "stars": 24,
+     "reward": {
+      "recruit_ticket": 1,
+      "insignia": 45
+     }
+    }
+   ]
+  },
+  {
+   "id": "c4",
+   "name": "Velo Umbrío",
+   "desc": "Sin luz estelar, los acechadores cazan por el calor de las naves.",
+   "requires_bridge": 13,
+   "stages": [
+    {
+     "id": "4-1",
+     "name": "Patrulla",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "asalto",
+       "hp": 2638,
+       "atk": 314
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 2638,
+       "atk": 314
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "especialista",
+       "hp": 2638,
+       "atk": 314
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "asalto",
+       "hp": 2638,
+       "atk": 314
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 2638,
+       "atk": 314
+      }
+     ],
+     "crew_exp": 317,
+     "cmd_exp": 190,
+     "first": {
+      "credits": 4747,
+      "insignia": 9,
+      "mat_x_x04_2": 2
+     },
+     "repeat": {
+      "credits": 1740,
+      "insignia": 3,
+      "mat_x_x04_2": 1
+     }
+    },
+    {
+     "id": "4-2",
+     "name": "Emboscada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "asalto",
+       "hp": 2822,
+       "atk": 337
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 2822,
+       "atk": 337
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "especialista",
+       "hp": 2822,
+       "atk": 337
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "asalto",
+       "hp": 2822,
+       "atk": 337
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 2822,
+       "atk": 337
+      }
+     ],
+     "crew_exp": 342,
+     "cmd_exp": 205,
+     "first": {
+      "credits": 5174,
+      "insignia": 9,
+      "mat_x_x08_2": 2
+     },
+     "repeat": {
+      "credits": 1897,
+      "insignia": 3,
+      "mat_x_x08_2": 1
+     }
+    },
+    {
+     "id": "4-3",
+     "name": "Nido menor",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3020,
+       "atk": 360
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3020,
+       "atk": 360
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "especialista",
+       "hp": 3020,
+       "atk": 360
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3020,
+       "atk": 360
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3020,
+       "atk": 360
+      }
+     ],
+     "crew_exp": 370,
+     "cmd_exp": 222,
+     "first": {
+      "credits": 5639,
+      "insignia": 9,
+      "mat_x_x10_2": 2
+     },
+     "repeat": {
+      "credits": 2068,
+      "insignia": 3,
+      "mat_x_x10_2": 1
+     }
+    },
+    {
+     "id": "4-4",
+     "name": "Rastro",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3231,
+       "atk": 385
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3231,
+       "atk": 385
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "especialista",
+       "hp": 3231,
+       "atk": 385
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3231,
+       "atk": 385
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3231,
+       "atk": 385
+      }
+     ],
+     "crew_exp": 399,
+     "cmd_exp": 240,
+     "first": {
+      "credits": 6147,
+      "insignia": 9,
+      "mat_x_x04_2": 2
+     },
+     "repeat": {
+      "credits": 2254,
+      "insignia": 3,
+      "mat_x_x04_2": 1
+     }
+    },
+    {
+     "id": "4-5",
+     "name": "Avanzada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3457,
+       "atk": 412
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3457,
+       "atk": 412
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "especialista",
+       "hp": 3457,
+       "atk": 412
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3457,
+       "atk": 412
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3457,
+       "atk": 412
+      }
+     ],
+     "crew_exp": 431,
+     "cmd_exp": 259,
+     "first": {
+      "credits": 6700,
+      "insignia": 10,
+      "mat_x_x08_2": 2
+     },
+     "repeat": {
+      "credits": 2457,
+      "insignia": 3,
+      "mat_x_x08_2": 1
+     }
+    },
+    {
+     "id": "4-6",
+     "name": "Cerco",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3699,
+       "atk": 441
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3699,
+       "atk": 441
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "especialista",
+       "hp": 3699,
+       "atk": 441
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3699,
+       "atk": 441
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3699,
+       "atk": 441
+      }
+     ],
+     "crew_exp": 466,
+     "cmd_exp": 280,
+     "first": {
+      "credits": 7303,
+      "insignia": 10,
+      "mat_x_x10_2": 2
+     },
+     "repeat": {
+      "credits": 2678,
+      "insignia": 3,
+      "mat_x_x10_2": 1
+     }
+    },
+    {
+     "id": "4-7",
+     "name": "Guarida",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3958,
+       "atk": 472
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3958,
+       "atk": 472
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "especialista",
+       "hp": 3958,
+       "atk": 472
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "asalto",
+       "hp": 3958,
+       "atk": 472
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 3958,
+       "atk": 472
+      }
+     ],
+     "crew_exp": 503,
+     "cmd_exp": 302,
+     "first": {
+      "credits": 7961,
+      "insignia": 10,
+      "mat_x_x04_2": 2
+     },
+     "repeat": {
+      "credits": 2919,
+      "insignia": 3,
+      "mat_x_x04_2": 1
+     }
+    },
+    {
+     "id": "4-8",
+     "name": "Jefe",
+     "boss": true,
+     "enemies": [
+      {
+       "species": "x04",
+       "level": 5,
+       "role": "vanguardia",
+       "boss": true,
+       "hp": 16942,
+       "atk": 909
+      },
+      {
+       "species": "x08",
+       "level": 4,
+       "role": "asalto",
+       "hp": 4235,
+       "atk": 505
+      },
+      {
+       "species": "x10",
+       "level": 4,
+       "role": "vanguardia",
+       "hp": 4235,
+       "atk": 505
+      },
+      {
+       "species": "x04",
+       "level": 4,
+       "role": "especialista",
+       "hp": 4235,
+       "atk": 505
+      }
+     ],
+     "crew_exp": 543,
+     "cmd_exp": 326,
+     "first": {
+      "credits": 8677,
+      "insignia": 10,
+      "mat_x_x08_3": 4,
+      "dark_matter": 50
+     },
+     "repeat": {
+      "credits": 3182,
+      "insignia": 3,
+      "mat_x_x08_3": 1
+     }
+    }
+   ],
+   "chests": [
+    {
+     "stars": 8,
+     "reward": {
+      "credits": 12000,
+      "insignia": 25
+     }
+    },
+    {
+     "stars": 16,
+     "reward": {
+      "dark_matter": 100,
+      "speedup_1h": 2
+     }
+    },
+    {
+     "stars": 24,
+     "reward": {
+      "recruit_ticket": 1,
+      "insignia": 55
+     }
+    }
+   ]
+  },
+  {
+   "id": "c5",
+   "name": "Anillos de Quimera",
+   "desc": "Restos de una luna rota donde anidan quimeras y colosos.",
+   "requires_bridge": 17,
+   "stages": [
+    {
+     "id": "5-1",
+     "name": "Patrulla",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "asalto",
+       "hp": 4532,
+       "atk": 540
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 4532,
+       "atk": 540
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "especialista",
+       "hp": 4532,
+       "atk": 540
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "asalto",
+       "hp": 4532,
+       "atk": 540
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 4532,
+       "atk": 540
+      }
+     ],
+     "crew_exp": 587,
+     "cmd_exp": 352,
+     "first": {
+      "credits": 9458,
+      "insignia": 11,
+      "mat_x_x09_3": 2
+     },
+     "repeat": {
+      "credits": 3468,
+      "insignia": 3,
+      "mat_x_x09_3": 1
+     }
+    },
+    {
+     "id": "5-2",
+     "name": "Emboscada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "asalto",
+       "hp": 4849,
+       "atk": 578
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 4849,
+       "atk": 578
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "especialista",
+       "hp": 4849,
+       "atk": 578
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "asalto",
+       "hp": 4849,
+       "atk": 578
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 4849,
+       "atk": 578
+      }
+     ],
+     "crew_exp": 634,
+     "cmd_exp": 380,
+     "first": {
+      "credits": 10309,
+      "insignia": 11,
+      "mat_x_x14_3": 2
+     },
+     "repeat": {
+      "credits": 3780,
+      "insignia": 3,
+      "mat_x_x14_3": 1
+     }
+    },
+    {
+     "id": "5-3",
+     "name": "Nido menor",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "asalto",
+       "hp": 5189,
+       "atk": 619
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 5189,
+       "atk": 619
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "especialista",
+       "hp": 5189,
+       "atk": 619
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "asalto",
+       "hp": 5189,
+       "atk": 619
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 5189,
+       "atk": 619
+      }
+     ],
+     "crew_exp": 685,
+     "cmd_exp": 411,
+     "first": {
+      "credits": 11237,
+      "insignia": 11,
+      "mat_x_x15_3": 2
+     },
+     "repeat": {
+      "credits": 4120,
+      "insignia": 3,
+      "mat_x_x15_3": 1
+     }
+    },
+    {
+     "id": "5-4",
+     "name": "Rastro",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "asalto",
+       "hp": 5552,
+       "atk": 662
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 5552,
+       "atk": 662
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "especialista",
+       "hp": 5552,
+       "atk": 662
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "asalto",
+       "hp": 5552,
+       "atk": 662
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 5552,
+       "atk": 662
+      }
+     ],
+     "crew_exp": 739,
+     "cmd_exp": 444,
+     "first": {
+      "credits": 12248,
+      "insignia": 11,
+      "mat_x_x09_3": 2
+     },
+     "repeat": {
+      "credits": 4491,
+      "insignia": 3,
+      "mat_x_x09_3": 1
+     }
+    },
+    {
+     "id": "5-5",
+     "name": "Avanzada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "asalto",
+       "hp": 5940,
+       "atk": 708
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 5940,
+       "atk": 708
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "especialista",
+       "hp": 5940,
+       "atk": 708
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "asalto",
+       "hp": 5940,
+       "atk": 708
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 5940,
+       "atk": 708
+      }
+     ],
+     "crew_exp": 798,
+     "cmd_exp": 479,
+     "first": {
+      "credits": 13351,
+      "insignia": 12,
+      "mat_x_x14_3": 2
+     },
+     "repeat": {
+      "credits": 4895,
+      "insignia": 4,
+      "mat_x_x14_3": 1
+     }
+    },
+    {
+     "id": "5-6",
+     "name": "Cerco",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "asalto",
+       "hp": 6356,
+       "atk": 758
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 6356,
+       "atk": 758
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "especialista",
+       "hp": 6356,
+       "atk": 758
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "asalto",
+       "hp": 6356,
+       "atk": 758
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 6356,
+       "atk": 758
+      }
+     ],
+     "crew_exp": 862,
+     "cmd_exp": 517,
+     "first": {
+      "credits": 14552,
+      "insignia": 12,
+      "mat_x_x15_3": 2
+     },
+     "repeat": {
+      "credits": 5336,
+      "insignia": 4,
+      "mat_x_x15_3": 1
+     }
+    },
+    {
+     "id": "5-7",
+     "name": "Guarida",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "asalto",
+       "hp": 6801,
+       "atk": 811
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 6801,
+       "atk": 811
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "especialista",
+       "hp": 6801,
+       "atk": 811
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "asalto",
+       "hp": 6801,
+       "atk": 811
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 6801,
+       "atk": 811
+      }
+     ],
+     "crew_exp": 931,
+     "cmd_exp": 559,
+     "first": {
+      "credits": 15862,
+      "insignia": 12,
+      "mat_x_x09_3": 2
+     },
+     "repeat": {
+      "credits": 5816,
+      "insignia": 4,
+      "mat_x_x09_3": 1
+     }
+    },
+    {
+     "id": "5-8",
+     "name": "Jefe",
+     "boss": true,
+     "enemies": [
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "vanguardia",
+       "boss": true,
+       "hp": 29109,
+       "atk": 1562
+      },
+      {
+       "species": "x14",
+       "level": 5,
+       "role": "asalto",
+       "hp": 7277,
+       "atk": 868
+      },
+      {
+       "species": "x15",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 7277,
+       "atk": 868
+      },
+      {
+       "species": "x09",
+       "level": 5,
+       "role": "especialista",
+       "hp": 7277,
+       "atk": 868
+      }
+     ],
+     "crew_exp": 1006,
+     "cmd_exp": 603,
+     "first": {
+      "credits": 17290,
+      "insignia": 12,
+      "mat_x_x14_4": 4,
+      "dark_matter": 60
+     },
+     "repeat": {
+      "credits": 6340,
+      "insignia": 4,
+      "mat_x_x14_4": 1
+     }
+    }
+   ],
+   "chests": [
+    {
+     "stars": 8,
+     "reward": {
+      "credits": 15000,
+      "insignia": 30
+     }
+    },
+    {
+     "stars": 16,
+     "reward": {
+      "dark_matter": 120,
+      "speedup_1h": 3
+     }
+    },
+    {
+     "stars": 24,
+     "reward": {
+      "recruit_ticket": 1,
+      "insignia": 65
+     }
+    }
+   ]
+  },
+  {
+   "id": "c6",
+   "name": "Corazón de la Colmena",
+   "desc": "El origen de la plaga: la Reina Colmena y su guardia.",
+   "requires_bridge": 21,
+   "stages": [
+    {
+     "id": "6-1",
+     "name": "Patrulla",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "asalto",
+       "hp": 7787,
+       "atk": 928
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 7787,
+       "atk": 928
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "especialista",
+       "hp": 7787,
+       "atk": 928
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "asalto",
+       "hp": 7787,
+       "atk": 928
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 7787,
+       "atk": 928
+      }
+     ],
+     "crew_exp": 1086,
+     "cmd_exp": 652,
+     "first": {
+      "credits": 18846,
+      "insignia": 13,
+      "mat_x_x16_3": 2
+     },
+     "repeat": {
+      "credits": 6910,
+      "insignia": 4,
+      "mat_x_x16_3": 1
+     }
+    },
+    {
+     "id": "6-2",
+     "name": "Emboscada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "asalto",
+       "hp": 8332,
+       "atk": 993
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 8332,
+       "atk": 993
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "especialista",
+       "hp": 8332,
+       "atk": 993
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "asalto",
+       "hp": 8332,
+       "atk": 993
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 8332,
+       "atk": 993
+      }
+     ],
+     "crew_exp": 1173,
+     "cmd_exp": 704,
+     "first": {
+      "credits": 20542,
+      "insignia": 13,
+      "mat_x_x18_3": 2
+     },
+     "repeat": {
+      "credits": 7532,
+      "insignia": 4,
+      "mat_x_x18_3": 1
+     }
+    },
+    {
+     "id": "6-3",
+     "name": "Nido menor",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "asalto",
+       "hp": 8915,
+       "atk": 1063
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 8915,
+       "atk": 1063
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "especialista",
+       "hp": 8915,
+       "atk": 1063
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "asalto",
+       "hp": 8915,
+       "atk": 1063
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 8915,
+       "atk": 1063
+      }
+     ],
+     "crew_exp": 1267,
+     "cmd_exp": 760,
+     "first": {
+      "credits": 22391,
+      "insignia": 13,
+      "mat_x_x20_3": 2
+     },
+     "repeat": {
+      "credits": 8210,
+      "insignia": 4,
+      "mat_x_x20_3": 1
+     }
+    },
+    {
+     "id": "6-4",
+     "name": "Rastro",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "asalto",
+       "hp": 9539,
+       "atk": 1137
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 9539,
+       "atk": 1137
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "especialista",
+       "hp": 9539,
+       "atk": 1137
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "asalto",
+       "hp": 9539,
+       "atk": 1137
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 9539,
+       "atk": 1137
+      }
+     ],
+     "crew_exp": 1368,
+     "cmd_exp": 821,
+     "first": {
+      "credits": 24406,
+      "insignia": 13,
+      "mat_x_x16_3": 2
+     },
+     "repeat": {
+      "credits": 8949,
+      "insignia": 4,
+      "mat_x_x16_3": 1
+     }
+    },
+    {
+     "id": "6-5",
+     "name": "Avanzada",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "asalto",
+       "hp": 10207,
+       "atk": 1217
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 10207,
+       "atk": 1217
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "especialista",
+       "hp": 10207,
+       "atk": 1217
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "asalto",
+       "hp": 10207,
+       "atk": 1217
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 10207,
+       "atk": 1217
+      }
+     ],
+     "crew_exp": 1478,
+     "cmd_exp": 887,
+     "first": {
+      "credits": 26602,
+      "insignia": 14,
+      "mat_x_x18_3": 2
+     },
+     "repeat": {
+      "credits": 9754,
+      "insignia": 4,
+      "mat_x_x18_3": 1
+     }
+    },
+    {
+     "id": "6-6",
+     "name": "Cerco",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "asalto",
+       "hp": 10921,
+       "atk": 1302
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 10921,
+       "atk": 1302
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "especialista",
+       "hp": 10921,
+       "atk": 1302
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "asalto",
+       "hp": 10921,
+       "atk": 1302
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 10921,
+       "atk": 1302
+      }
+     ],
+     "crew_exp": 1596,
+     "cmd_exp": 958,
+     "first": {
+      "credits": 28996,
+      "insignia": 14,
+      "mat_x_x20_3": 2
+     },
+     "repeat": {
+      "credits": 10632,
+      "insignia": 4,
+      "mat_x_x20_3": 1
+     }
+    },
+    {
+     "id": "6-7",
+     "name": "Guarida",
+     "boss": false,
+     "enemies": [
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "asalto",
+       "hp": 11686,
+       "atk": 1393
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 11686,
+       "atk": 1393
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "especialista",
+       "hp": 11686,
+       "atk": 1393
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "asalto",
+       "hp": 11686,
+       "atk": 1393
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 11686,
+       "atk": 1393
+      }
+     ],
+     "crew_exp": 1724,
+     "cmd_exp": 1034,
+     "first": {
+      "credits": 31606,
+      "insignia": 14,
+      "mat_x_x16_3": 2
+     },
+     "repeat": {
+      "credits": 11589,
+      "insignia": 4,
+      "mat_x_x16_3": 1
+     }
+    },
+    {
+     "id": "6-8",
+     "name": "Jefe",
+     "boss": true,
+     "enemies": [
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "vanguardia",
+       "boss": true,
+       "hp": 50015,
+       "atk": 2684
+      },
+      {
+       "species": "x18",
+       "level": 5,
+       "role": "asalto",
+       "hp": 12504,
+       "atk": 1491
+      },
+      {
+       "species": "x20",
+       "level": 5,
+       "role": "vanguardia",
+       "hp": 12504,
+       "atk": 1491
+      },
+      {
+       "species": "x16",
+       "level": 5,
+       "role": "especialista",
+       "hp": 12504,
+       "atk": 1491
+      }
+     ],
+     "crew_exp": 1862,
+     "cmd_exp": 1117,
+     "first": {
+      "credits": 34451,
+      "insignia": 14,
+      "mat_x_x18_4": 4,
+      "dark_matter": 70
+     },
+     "repeat": {
+      "credits": 12632,
+      "insignia": 4,
+      "mat_x_x18_4": 1
+     }
+    }
+   ],
+   "chests": [
+    {
+     "stars": 8,
+     "reward": {
+      "credits": 18000,
+      "insignia": 35
+     }
+    },
+    {
+     "stars": 16,
+     "reward": {
+      "dark_matter": 140,
+      "speedup_1h": 3
+     }
+    },
+    {
+     "stars": 24,
+     "reward": {
+      "recruit_ticket": 1,
+      "insignia": 75
+     }
+    }
+   ]
+  }
+ ]
+}
