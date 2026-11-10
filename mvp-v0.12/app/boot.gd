@@ -26,7 +26,12 @@ func _start_dedicated(args: PackedStringArray) -> void:
 	var server: Node = GameServerScript.new()
 	server.name = "GameServer"
 	add_child(server)
-	server.start({"save_path": "user://galactum_server_save.json", "fresh": fresh})
+	# Cuentas: el SSS dedicado exige iniciar sesión (JWT). `--no-auth` vuelve al
+	# modo demo por nombre. El secreto se lee de GALACTUM_JWT_SECRET.
+	var require_auth: bool = not args.has("--no-auth")
+	server.start({"save_path": "user://galactum_server_save.json", "fresh": fresh, "require_auth": require_auth})
+	if require_auth and OS.get_environment("GALACTUM_JWT_SECRET").length() < 32:
+		push_warning("GALACTUM_JWT_SECRET no definido (>= 32 caracteres): se usa un secreto aleatorio por proceso.")
 	var gw: Node = Gateway.new()
 	gw.name = "Gateway"
 	add_child(gw)

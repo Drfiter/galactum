@@ -30,6 +30,7 @@ const RallyMod = preload("res://server/sss/rally.gd")
 const LiveOpsMod = preload("res://server/sgm/liveops.gd")
 const ExpeditionsMod = preload("res://server/sgm/expeditions.gd")
 const EndgameMod = preload("res://server/sgm/endgame.gd")
+const AuthMod = preload("res://server/net/auth.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -71,6 +72,8 @@ var _tick_timer: Timer
 var _last_save: int = 0
 var _dirty_players: Dictionary = {}  # pid -> true
 var verbose: bool = false
+var require_auth: bool = false   # SSS dedicado: el hello exige un JWT válido
+var auth: RefCounted
 
 
 func _init() -> void:
@@ -99,12 +102,14 @@ func start(options: Dictionary = {}) -> void:
 	save_path = str(options.get("save_path", save_path))
 	persist = bool(options.get("persist", true))
 	verbose = bool(options.get("verbose", false))
+	require_auth = bool(options.get("require_auth", false))
 	var loaded: bool = false
 	if persist and not bool(options.get("fresh", false)):
 		loaded = _load()
 	if not loaded:
 		_new_world(int(options.get("seed", int(Time.get_unix_time_from_system()) & 0xffffff)))
 	rng.seed = int(state.get("seed", 1)) ^ (U.now_ms() & 0xffff)
+	auth = AuthMod.new(self)
 	_tick_timer = Timer.new()
 	_tick_timer.wait_time = 1.0 / float(Catalog.cfg("tick_hz", 2))
 	_tick_timer.autostart = true
@@ -447,6 +452,9 @@ func handle_message(sid: int, msg: Dictionary) -> void:
 	if t == "hello":
 		_on_hello(s, msg)
 		return
+	if t in ["register", "login", "refresh", "logout"]:
+		_on_auth(s, t, msg)
+		return
 	if not bool(s["authenticated"]):
 		_send(s, {"type": "error", "code": "NOT_AUTHENTICATED", "message": U.t("Envía hello primero")})
 		return
@@ -468,13 +476,23 @@ func _on_hello(s: Dictionary, msg: Dictionary) -> void:
 	if str(msg.get("protocol", "")) != PROTOCOL_VERSION:
 		_send(s, {"type": "error", "code": "PROTOCOL_MISMATCH", "message": U.t("Versión de protocolo incompatible")})
 		return
-	var name: String = str(msg.get("name", U.t("Comandante"))).strip_edges().substr(0, 18)
-	if name.is_empty():
-		name = U.t("Comandante")
-	var p: Dictionary = find_human_by_name(name)
-	if p.is_empty():
-		p = create_human(name, str(msg.get("avatar", "p01")))
-	elif msg.has("avatar"):
+	var p: Dictionary = {}
+	var token: String = str(msg.get("token", ""))
+	var pid: String = auth.player_from_token(token) if token.count(".") == 2 else ""
+	if not pid.is_empty():
+		p = player(pid)
+	elif require_auth:
+		_send(s, {"type": "error", "code": "AUTH_REQUIRED", "message": U.t("Inicia sesión: el servidor exige una cuenta")})
+		return
+	else:
+		# Modo local / demo: el comandante se identifica por su nombre.
+		var name: String = str(msg.get("name", U.t("Comandante"))).strip_edges().substr(0, 18)
+		if name.is_empty():
+			name = U.t("Comandante")
+		p = find_human_by_name(name)
+		if p.is_empty():
+			p = create_human(name, str(msg.get("avatar", "p01")))
+	if msg.has("avatar"):
 		p["avatar"] = str(msg["avatar"])
 	missions.ensure(p)
 	s["player_id"] = p["id"]
@@ -486,6 +504,25 @@ func _on_hello(s: Dictionary, msg: Dictionary) -> void:
 	_send(s, {"type": "chat_history", "list": chat.slice(maxi(0, chat.size() - 40))})
 	mark_player_dirty(p["id"])
 	_flush(s)
+
+
+## Mensajes de cuenta (antes del hello): registro, login, renovación y cierre.
+func _on_auth(s: Dictionary, t: String, msg: Dictionary) -> void:
+	var res: Dictionary = {}
+	match t:
+		"register":
+			res = auth.register(str(msg.get("username", "")), str(msg.get("password", "")), str(msg.get("avatar", "p01")))
+			if bool(res.get("ok", false)):
+				save()
+		"login":
+			res = auth.login(str(msg.get("username", "")), str(msg.get("password", "")))
+		"refresh":
+			res = auth.refresh(str(msg.get("refresh_token", "")))
+		"logout":
+			res = auth.logout(str(msg.get("refresh_token", "")))
+	var out: Dictionary = {"type": "auth", "action": t, "request_id": msg.get("request_id", "")}
+	out.merge(res, true)
+	_send(s, out)
 
 
 func _send_welcome(s: Dictionary, p: Dictionary) -> void:
