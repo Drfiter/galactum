@@ -41,6 +41,8 @@ static func icon_tex(name: String) -> Texture2D:
 
 
 static func res_icon_name(id: String) -> String:
+	if Catalog.materials_by_id.has(id):
+		return "ui_material"
 	if Catalog.items_by_id.has(id):
 		var ic: String = str(Catalog.item(id).get("icon", "gift"))
 		if ResourceLoader.exists("res://assets/icons/ui_%s.svg" % ic):
@@ -447,8 +449,12 @@ static func reward_row(reward: Dictionary, size: int = 17) -> HFlowContainer:
 	for k: String in reward:
 		var h := hbox(4)
 		h.add_child(icon(res_icon_name(k), size + 8))
-		var txt: String = ("×%d" % int(reward[k])) if Catalog.items_by_id.has(k) else "+" + U.fmt_num(int(reward[k]))
-		h.add_child(label(txt, size, GREEN if not Catalog.items_by_id.has(k) else GOLD, "semibold"))
+		var counted: bool = Catalog.items_by_id.has(k) or Catalog.materials_by_id.has(k)
+		var txt: String = ("×%d" % int(reward[k])) if counted else "+" + U.fmt_num(int(reward[k]))
+		var lbl := label(txt, size, GREEN if not counted else GOLD, "semibold")
+		if Catalog.materials_by_id.has(k):
+			h.tooltip_text = Catalog.res_name(k)
+		h.add_child(lbl)
 		f.add_child(h)
 	return f
 
