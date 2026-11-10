@@ -207,7 +207,7 @@ func _build_bottom() -> void:
 func _build_features() -> void:
 	feature_bar = UI.vbox(8)
 	add_child(feature_bar)
-	for entry: Array in [["login", U.t("Bono"), "ui_calendar", Color("43b83a")], ["events", U.t("Eventos"), "ui_event", Color("f2a81d")], ["crew", U.t("Tripul."), "ui_crew", Color("b06be0")]]:
+	for entry: Array in [["login", U.t("Bono"), "ui_calendar", Color("43b83a")], ["events", U.t("Eventos"), "ui_event", Color("f2a81d")], ["liveops", U.t("Pase"), "ui_trophy", Color("e0567a")], ["crew", U.t("Tripul."), "ui_crew", Color("b06be0")]]:
 		add_feature(entry[0], entry[1], entry[2], entry[3])
 
 
@@ -392,6 +392,7 @@ func refresh() -> void:
 	(menu_badges["alliance"].get_child(0) as Label).text = str(caps)
 	menu_badges["lab"].visible = false
 	feature_badges["login"].visible = bool(me.get("shop", {}).get("login", {}).get("available", false))
+	feature_badges["liveops"].visible = preload("res://ui/panels/liveops_panel.gd").claimable(me.get("liveops", {})) > 0
 	menu_badges["alliance"].visible = caps > 0 or int(me.get("guild_brief", {}).get("chests", 0)) > 0
 	(menu_badges["alliance"].get_child(0) as Label).text = str(caps + int(me.get("guild_brief", {}).get("chests", 0)))
 	if not popup_entity_id.is_empty() or popup_tile.x >= 0:
