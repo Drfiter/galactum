@@ -210,7 +210,7 @@ func _build_features() -> void:
 	feature_bar.add_theme_constant_override("h_separation", 8)
 	feature_bar.add_theme_constant_override("v_separation", 8)
 	add_child(feature_bar)
-	for entry: Array in [["login", U.t("Bono"), "ui_calendar", Color("43b83a")], ["events", U.t("Eventos"), "ui_event", Color("f2a81d")], ["liveops", U.t("Pase"), "ui_trophy", Color("e0567a")], ["expedition", U.t("Expedición"), "ui_target", Color("2bb3a3")], ["crew", U.t("Tripul."), "ui_crew", Color("b06be0")]]:
+	for entry: Array in [["login", U.t("Bono"), "ui_calendar", Color("43b83a")], ["events", U.t("Eventos"), "ui_event", Color("f2a81d")], ["liveops", U.t("Pase"), "ui_trophy", Color("e0567a")], ["expedition", U.t("Expedición"), "ui_target", Color("2bb3a3")], ["endgame", U.t("Guerra"), "ui_flag", Color("d9534f")], ["crew", U.t("Tripul."), "ui_crew", Color("b06be0")]]:
 		add_feature(entry[0], entry[1], entry[2], entry[3])
 
 
