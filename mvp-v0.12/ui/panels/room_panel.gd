@@ -29,7 +29,7 @@ func window_icon() -> String:
 
 func _signature() -> String:
 	var me: Dictionary = GameClient.me
-	return "%d|%s|%s|%s|%s|%s|%s|%s" % [GameClient.room_level(room_id), str(GameClient.queue("build").get("end", "")), str(GameClient.queue(_room_queue()).get("end", "")), str(me.get("tech", {})), str(me.get("wounded", {})), str(me.get("cryo", {})), str(me.get("troops", {}).size()), str(me.get("items", {}))]
+	return "%d|%s|%s|%s|%s|%s|%s|%s" % [GameClient.room_level(room_id), str(GameClient.queue("build").get("end", "")), str(GameClient.queue(_room_queue()).get("end", "")), str(me.get("tech", {})), str(me.get("wounded", {})), str(me.get("cryo", {})) + str(GameClient.queue("rescue").get("end", "")), str(me.get("troops", {}).size()), str(me.get("items", {}))]
 
 
 func on_player_updated() -> void:
@@ -202,7 +202,7 @@ func _queue_controls(q: String) -> Control:
 		var ib := UI.button(U.t("Usar %s (×%d)") % [Catalog.item(item_id)["name"], GameClient.res(item_id)], "GhostButton", "ui_speedup", Vector2(0, 48))
 		ib.pressed.connect(func() -> void: send("use_item", {"item": item_id, "queue": q}))
 		h.add_child(ib)
-	if not bool(job.get("help_requested", false)) and q in ["build", "research", "heal"]:
+	if not bool(job.get("help_requested", false)) and q in ["build", "research", "heal", "rescue"]:
 		var hb := UI.button(U.t("Ayuda"), "GreenButton", "ui_help", Vector2(120, 48))
 		hb.pressed.connect(func() -> void: send("help", {"queue": q}, func(_p: Dictionary) -> void: game.toast(U.t("Ayuda solicitada a la Alianza"), "help")))
 		h.add_child(hb)
@@ -546,6 +546,7 @@ func _cryo() -> Control:
 	if not GameClient.queue("revive").is_empty():
 		v.add_child(_queue_controls("revive"))
 	var c: Dictionary = GameClient.me.get("cryo", {})
+	v.add_child(_rescue_box(c))
 	if c.is_empty():
 		v.add_child(UI.label(U.t("No hay fuerzas en criostasis."), 15, UI.TEXT_DIM))
 		return s[0]
@@ -560,6 +561,28 @@ func _cryo() -> Control:
 	b.pressed.connect(func() -> void: send("revive", {}, func(_p: Dictionary) -> void: game.toast(U.t("Reanimación iniciada"), "success")))
 	v.add_child(b)
 	return s[0]
+
+
+## Operación de Rescate: gratis, recupera el 30% de la criostasis al terminar.
+func _rescue_box(cryo: Dictionary) -> Control:
+	var rc: Dictionary = Catalog.endgame.get("rescue", {})
+	var card := UI.panel("CardGold")
+	var v := UI.vbox(6)
+	card.add_child(v)
+	v.add_child(UI.label(U.t("Operación de Rescate"), 17, UI.GOLD, "bold"))
+	v.add_child(UI.wrap(UI.label(U.t("Un equipo de rescate recupera gratis el %d%% de las fuerzas en criostasis al terminar (%s). Pide ayuda a tu alianza para acelerarla.") % [int(round(float(rc.get("ratio", 0.3)) * 100.0)), U.fmt_time(float(rc.get("minutes", 120)) * 60.0)], 13, UI.TEXT_DIM)))
+	if not GameClient.queue("rescue").is_empty():
+		v.add_child(_queue_controls("rescue"))
+	else:
+		var total: int = 0
+		for k: String in cryo:
+			total += int(cryo[k])
+		var b := UI.button(U.t("Iniciar rescate (≈%d fuerzas)") % int(floor(total * float(rc.get("ratio", 0.3)))), "GoldButton", "ui_cryo", Vector2(0, 50))
+		b.name = "RescueStart"
+		b.disabled = total <= 0
+		b.pressed.connect(func() -> void: send("rescue_start", {}, func(_p: Dictionary) -> void: game.toast(U.t("Operación de Rescate en marcha"), "success")))
+		v.add_child(b)
+	return card
 
 
 func _production() -> Control:
