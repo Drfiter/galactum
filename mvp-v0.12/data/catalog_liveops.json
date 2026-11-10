@@ -1,0 +1,964 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "LiveOps (Equipo 5 en la descripción del proyecto): Pase de Expedición, Licencia de Comandante, Eventos de Singularidad y Festival de la Flota. Las compras con dinero son SIMULADAS (no hay pasarela de pago).",
+ "points": {
+  "_doc": "Puntos por actividad (los usan el Pase y la Singularidad activa).",
+  "xeno_kill_per_level": 40,
+  "resources_per_1000": 8,
+  "pvp_win": 120,
+  "mo_spent_per_10": 5,
+  "room_upgraded": 80,
+  "research_done": 100,
+  "troops_trained_per_10": 4,
+  "power_destroyed_per_100": 2
+ },
+ "pass": {
+  "name": "Pase de Expedición",
+  "season_days": 30,
+  "levels": 50,
+  "points_per_level": 300,
+  "premium_usd": 9.99,
+  "premium_mo": 1000,
+  "free": [
+   {
+    "level": 1,
+    "reward": {
+     "credits": 240
+    }
+   },
+   {
+    "level": 2,
+    "reward": {
+     "credits": 280
+    }
+   },
+   {
+    "level": 3,
+    "reward": {
+     "credits": 320
+    }
+   },
+   {
+    "level": 4,
+    "reward": {
+     "credits": 360
+    }
+   },
+   {
+    "level": 5,
+    "reward": {
+     "speedup_5m": 2,
+     "insignia": 6
+    }
+   },
+   {
+    "level": 6,
+    "reward": {
+     "credits": 440
+    }
+   },
+   {
+    "level": 7,
+    "reward": {
+     "credits": 480
+    }
+   },
+   {
+    "level": 8,
+    "reward": {
+     "credits": 520
+    }
+   },
+   {
+    "level": 9,
+    "reward": {
+     "credits": 560
+    }
+   },
+   {
+    "level": 10,
+    "reward": {
+     "recruit_ticket": 1,
+     "credits": 4000
+    }
+   },
+   {
+    "level": 11,
+    "reward": {
+     "credits": 640
+    }
+   },
+   {
+    "level": 12,
+    "reward": {
+     "credits": 680
+    }
+   },
+   {
+    "level": 13,
+    "reward": {
+     "credits": 720
+    }
+   },
+   {
+    "level": 14,
+    "reward": {
+     "credits": 760
+    }
+   },
+   {
+    "level": 15,
+    "reward": {
+     "speedup_5m": 2,
+     "insignia": 8
+    }
+   },
+   {
+    "level": 16,
+    "reward": {
+     "credits": 840
+    }
+   },
+   {
+    "level": 17,
+    "reward": {
+     "credits": 880
+    }
+   },
+   {
+    "level": 18,
+    "reward": {
+     "credits": 920
+    }
+   },
+   {
+    "level": 19,
+    "reward": {
+     "credits": 960
+    }
+   },
+   {
+    "level": 20,
+    "reward": {
+     "recruit_ticket": 1,
+     "credits": 5000
+    }
+   },
+   {
+    "level": 21,
+    "reward": {
+     "credits": 1040
+    }
+   },
+   {
+    "level": 22,
+    "reward": {
+     "credits": 1080
+    }
+   },
+   {
+    "level": 23,
+    "reward": {
+     "credits": 1120
+    }
+   },
+   {
+    "level": 24,
+    "reward": {
+     "credits": 1160
+    }
+   },
+   {
+    "level": 25,
+    "reward": {
+     "speedup_5m": 2,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 26,
+    "reward": {
+     "credits": 1240
+    }
+   },
+   {
+    "level": 27,
+    "reward": {
+     "credits": 1280
+    }
+   },
+   {
+    "level": 28,
+    "reward": {
+     "credits": 1320
+    }
+   },
+   {
+    "level": 29,
+    "reward": {
+     "credits": 1360
+    }
+   },
+   {
+    "level": 30,
+    "reward": {
+     "recruit_ticket": 1,
+     "credits": 6000
+    }
+   },
+   {
+    "level": 31,
+    "reward": {
+     "credits": 1440
+    }
+   },
+   {
+    "level": 32,
+    "reward": {
+     "credits": 1480
+    }
+   },
+   {
+    "level": 33,
+    "reward": {
+     "credits": 1520
+    }
+   },
+   {
+    "level": 34,
+    "reward": {
+     "credits": 1560
+    }
+   },
+   {
+    "level": 35,
+    "reward": {
+     "speedup_5m": 2,
+     "insignia": 12
+    }
+   },
+   {
+    "level": 36,
+    "reward": {
+     "credits": 1640
+    }
+   },
+   {
+    "level": 37,
+    "reward": {
+     "credits": 1680
+    }
+   },
+   {
+    "level": 38,
+    "reward": {
+     "credits": 1720
+    }
+   },
+   {
+    "level": 39,
+    "reward": {
+     "credits": 1760
+    }
+   },
+   {
+    "level": 40,
+    "reward": {
+     "recruit_ticket": 1,
+     "credits": 7000
+    }
+   },
+   {
+    "level": 41,
+    "reward": {
+     "credits": 1840
+    }
+   },
+   {
+    "level": 42,
+    "reward": {
+     "credits": 1880
+    }
+   },
+   {
+    "level": 43,
+    "reward": {
+     "credits": 1920
+    }
+   },
+   {
+    "level": 44,
+    "reward": {
+     "credits": 1960
+    }
+   },
+   {
+    "level": 45,
+    "reward": {
+     "speedup_5m": 2,
+     "insignia": 14
+    }
+   },
+   {
+    "level": 46,
+    "reward": {
+     "credits": 2040
+    }
+   },
+   {
+    "level": 47,
+    "reward": {
+     "credits": 2080
+    }
+   },
+   {
+    "level": 48,
+    "reward": {
+     "credits": 2120
+    }
+   },
+   {
+    "level": 49,
+    "reward": {
+     "credits": 2160
+    }
+   },
+   {
+    "level": 50,
+    "reward": {
+     "recruit_ticket": 1,
+     "credits": 8000
+    }
+   }
+  ],
+  "premium": [
+   {
+    "level": 1,
+    "reward": {
+     "dark_matter": 12
+    }
+   },
+   {
+    "level": 2,
+    "reward": {
+     "dark_matter": 14
+    }
+   },
+   {
+    "level": 3,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 4,
+    "reward": {
+     "dark_matter": 18
+    }
+   },
+   {
+    "level": 5,
+    "reward": {
+     "dark_matter": 120,
+     "mat_f_alloy_2": 4
+    }
+   },
+   {
+    "level": 6,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 7,
+    "reward": {
+     "dark_matter": 24
+    }
+   },
+   {
+    "level": 8,
+    "reward": {
+     "dark_matter": 26
+    }
+   },
+   {
+    "level": 9,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 10,
+    "reward": {
+     "recruit_ticket": 3,
+     "warp_jump": 1,
+     "mat_f_quantum_3": 4
+    }
+   },
+   {
+    "level": 11,
+    "reward": {
+     "dark_matter": 32
+    }
+   },
+   {
+    "level": 12,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 13,
+    "reward": {
+     "dark_matter": 36
+    }
+   },
+   {
+    "level": 14,
+    "reward": {
+     "dark_matter": 38
+    }
+   },
+   {
+    "level": 15,
+    "reward": {
+     "dark_matter": 120,
+     "mat_f_alloy_2": 4
+    }
+   },
+   {
+    "level": 16,
+    "reward": {
+     "dark_matter": 42
+    }
+   },
+   {
+    "level": 17,
+    "reward": {
+     "dark_matter": 44
+    }
+   },
+   {
+    "level": 18,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 19,
+    "reward": {
+     "dark_matter": 48
+    }
+   },
+   {
+    "level": 20,
+    "reward": {
+     "recruit_ticket": 3,
+     "warp_jump": 1,
+     "mat_f_quantum_3": 4
+    }
+   },
+   {
+    "level": 21,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 22,
+    "reward": {
+     "dark_matter": 54
+    }
+   },
+   {
+    "level": 23,
+    "reward": {
+     "dark_matter": 56
+    }
+   },
+   {
+    "level": 24,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 25,
+    "reward": {
+     "dark_matter": 120,
+     "mat_f_alloy_2": 4
+    }
+   },
+   {
+    "level": 26,
+    "reward": {
+     "dark_matter": 62
+    }
+   },
+   {
+    "level": 27,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 28,
+    "reward": {
+     "dark_matter": 66
+    }
+   },
+   {
+    "level": 29,
+    "reward": {
+     "dark_matter": 68
+    }
+   },
+   {
+    "level": 30,
+    "reward": {
+     "recruit_ticket": 3,
+     "warp_jump": 1,
+     "mat_f_quantum_3": 4
+    }
+   },
+   {
+    "level": 31,
+    "reward": {
+     "dark_matter": 72
+    }
+   },
+   {
+    "level": 32,
+    "reward": {
+     "dark_matter": 74
+    }
+   },
+   {
+    "level": 33,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 34,
+    "reward": {
+     "dark_matter": 78
+    }
+   },
+   {
+    "level": 35,
+    "reward": {
+     "dark_matter": 120,
+     "mat_f_alloy_2": 4
+    }
+   },
+   {
+    "level": 36,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 37,
+    "reward": {
+     "dark_matter": 84
+    }
+   },
+   {
+    "level": 38,
+    "reward": {
+     "dark_matter": 86
+    }
+   },
+   {
+    "level": 39,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 40,
+    "reward": {
+     "recruit_ticket": 3,
+     "warp_jump": 1,
+     "mat_f_quantum_3": 4
+    }
+   },
+   {
+    "level": 41,
+    "reward": {
+     "dark_matter": 92
+    }
+   },
+   {
+    "level": 42,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 43,
+    "reward": {
+     "dark_matter": 96
+    }
+   },
+   {
+    "level": 44,
+    "reward": {
+     "dark_matter": 98
+    }
+   },
+   {
+    "level": 45,
+    "reward": {
+     "dark_matter": 120,
+     "mat_f_alloy_2": 4
+    }
+   },
+   {
+    "level": 46,
+    "reward": {
+     "dark_matter": 102
+    }
+   },
+   {
+    "level": 47,
+    "reward": {
+     "dark_matter": 104
+    }
+   },
+   {
+    "level": 48,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "level": 49,
+    "reward": {
+     "dark_matter": 108
+    }
+   },
+   {
+    "level": 50,
+    "reward": {
+     "recruit_ticket": 5,
+     "interstellar_jump": 1,
+     "dark_matter": 1000
+    }
+   }
+  ]
+ },
+ "license": {
+  "name": "Licencia de Comandante",
+  "levels": 15,
+  "points": [
+   0,
+   100,
+   300,
+   600,
+   1000,
+   1600,
+   2400,
+   3400,
+   4600,
+   6000,
+   8000,
+   10500,
+   13500,
+   17000,
+   21000
+  ],
+  "daily_points": 60,
+  "points_per_mo": 1,
+  "auto_battle_level": 6,
+  "perks": [
+   {},
+   {
+    "production": 0.02,
+    "research_speed": 0.02,
+    "train_speed": 0.02,
+    "march_capacity": 0.01,
+    "gather_speed": 0.015
+   },
+   {
+    "production": 0.04,
+    "research_speed": 0.04,
+    "train_speed": 0.04,
+    "march_capacity": 0.02,
+    "gather_speed": 0.03
+   },
+   {
+    "production": 0.06,
+    "research_speed": 0.06,
+    "train_speed": 0.06,
+    "march_capacity": 0.03,
+    "gather_speed": 0.045
+   },
+   {
+    "production": 0.08,
+    "research_speed": 0.08,
+    "train_speed": 0.08,
+    "march_capacity": 0.04,
+    "gather_speed": 0.06
+   },
+   {
+    "production": 0.1,
+    "research_speed": 0.1,
+    "train_speed": 0.1,
+    "march_capacity": 0.05,
+    "gather_speed": 0.075
+   },
+   {
+    "production": 0.12,
+    "research_speed": 0.12,
+    "train_speed": 0.12,
+    "march_capacity": 0.06,
+    "gather_speed": 0.09
+   },
+   {
+    "production": 0.14,
+    "research_speed": 0.14,
+    "train_speed": 0.14,
+    "march_capacity": 0.07,
+    "gather_speed": 0.105
+   },
+   {
+    "production": 0.16,
+    "research_speed": 0.16,
+    "train_speed": 0.16,
+    "march_capacity": 0.08,
+    "gather_speed": 0.12
+   },
+   {
+    "production": 0.18,
+    "research_speed": 0.18,
+    "train_speed": 0.18,
+    "march_capacity": 0.09,
+    "gather_speed": 0.135
+   },
+   {
+    "production": 0.2,
+    "research_speed": 0.2,
+    "train_speed": 0.2,
+    "march_capacity": 0.1,
+    "gather_speed": 0.15
+   },
+   {
+    "production": 0.22,
+    "research_speed": 0.22,
+    "train_speed": 0.22,
+    "march_capacity": 0.11,
+    "gather_speed": 0.165
+   },
+   {
+    "production": 0.24,
+    "research_speed": 0.24,
+    "train_speed": 0.24,
+    "march_capacity": 0.12,
+    "gather_speed": 0.18
+   },
+   {
+    "production": 0.26,
+    "research_speed": 0.26,
+    "train_speed": 0.26,
+    "march_capacity": 0.13,
+    "gather_speed": 0.195
+   },
+   {
+    "production": 0.28,
+    "research_speed": 0.28,
+    "train_speed": 0.28,
+    "march_capacity": 0.14,
+    "gather_speed": 0.21
+   },
+   {
+    "production": 0.3,
+    "research_speed": 0.3,
+    "train_speed": 0.3,
+    "march_capacity": 0.15,
+    "gather_speed": 0.225
+   }
+  ]
+ },
+ "singularity": {
+  "_doc": "Eventos de Singularidad: en el juego real son de fin de semana; en la demo se abren cada period_hours y duran duration_hours.",
+  "period_hours": 8,
+  "duration_hours": 3,
+  "events": [
+   {
+    "id": "sing_xeno",
+    "name": "Singularidad: Marea Xeno",
+    "desc": "Las Xenoformas se agitan: cada caza vale el triple.",
+    "scoring": {
+     "xeno_kill_per_level": 120
+    },
+    "milestones": [
+     {
+      "points": 600,
+      "reward": {
+       "credits": 3000
+      }
+     },
+     {
+      "points": 1800,
+      "reward": {
+       "insignia": 15,
+       "speedup_1h": 1
+      }
+     },
+     {
+      "points": 4000,
+      "reward": {
+       "dark_matter": 150,
+       "recruit_ticket": 1
+      }
+     }
+    ]
+   },
+   {
+    "id": "sing_forge",
+    "name": "Singularidad: Forja Estelar",
+    "desc": "Entregar recursos y mejorar salas da puntos extra.",
+    "scoring": {
+     "resources_per_1000": 40,
+     "room_upgraded": 300
+    },
+    "milestones": [
+     {
+      "points": 600,
+      "reward": {
+       "mat_f_alloy_2": 6
+      }
+     },
+     {
+      "points": 1800,
+      "reward": {
+       "mat_f_quantum_2": 6,
+       "credits": 4000
+      }
+     },
+     {
+      "points": 4000,
+      "reward": {
+       "dark_matter": 150,
+       "mat_f_lens_3": 5
+      }
+     }
+    ]
+   },
+   {
+    "id": "sing_war",
+    "name": "Singularidad: Choque de Flotas",
+    "desc": "Las victorias PvP y el poder destruido valen más.",
+    "scoring": {
+     "pvp_win": 500,
+     "power_destroyed_per_100": 10
+    },
+    "milestones": [
+     {
+      "points": 600,
+      "reward": {
+       "credits": 3000
+      }
+     },
+     {
+      "points": 1800,
+      "reward": {
+       "peace_field_15m": 1,
+       "insignia": 15
+      }
+     },
+     {
+      "points": 4000,
+      "reward": {
+       "dark_matter": 150,
+       "warp_jump": 1
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "festival": {
+  "name": "Festival de la Flota",
+  "_doc": "Evento cooperativo semanal de la alianza: todos suman al marcador colectivo y los hitos premian a cada miembro.",
+  "cycle_days": 7,
+  "missions": [
+   {
+    "id": "f_hunt",
+    "name": "Cacería colectiva",
+    "desc": "Cazar Xenoformas",
+    "kind": "xeno_kill",
+    "target": 120,
+    "points": 400
+   },
+   {
+    "id": "f_mine",
+    "name": "Gran cosecha",
+    "desc": "Entregar recursos (miles)",
+    "kind": "resources_k",
+    "target": 600,
+    "points": 400
+   },
+   {
+    "id": "f_build",
+    "name": "Astilleros activos",
+    "desc": "Mejorar salas",
+    "kind": "room_upgraded",
+    "target": 40,
+    "points": 300
+   },
+   {
+    "id": "f_war",
+    "name": "Frente unido",
+    "desc": "Ganar combates PvP",
+    "kind": "pvp_win",
+    "target": 30,
+    "points": 500
+   }
+  ],
+  "milestones": [
+   {
+    "points": 400,
+    "reward": {
+     "credits": 2500
+    }
+   },
+   {
+    "points": 900,
+    "reward": {
+     "speedup_1h": 1,
+     "insignia": 10
+    }
+   },
+   {
+    "points": 1600,
+    "reward": {
+     "dark_matter": 100
+    }
+   },
+   {
+    "points": 2500,
+    "reward": {
+     "recruit_ticket": 1,
+     "mat_f_alloy_3": 4
+    }
+   }
+  ],
+  "bot_rate_per_hour": 45
+ }
+}
