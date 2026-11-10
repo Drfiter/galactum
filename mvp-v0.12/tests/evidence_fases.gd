@@ -29,6 +29,8 @@ func _ready() -> void:
 		await fase5()
 	if only == 0 or only == 6:
 		await fase6()
+	if only == 0 or only == 7:
+		await fase7()
 	get_tree().quit()
 
 
@@ -296,6 +298,63 @@ func fase6() -> void:
 	game.open_panel("liveops", {"tab": "festival"})
 	await _wait(1.0)
 	await shot("f6_04_festival")
+	game.close_all_panels()
+
+
+func fase7() -> void:
+	var p: Dictionary = me_srv()
+	var s: Node = srv()
+	var c: Dictionary = s.crew.ensure(p)
+	var lv: Array = [9, 8, 8, 7, 7, 5, 4]
+	var ids: Array = ["p01", "p07", "p16", "p23", "p30", "p38", "p12"]
+	for i: int in range(ids.size()):
+		var o: Dictionary = c["owned"].get(ids[i], {"stars": 2, "ts": 0, "exp": 0, "grade": 2})
+		o["level"] = lv[i]
+		c["owned"][ids[i]] = o
+	s.crew.refresh_mods(p)
+	var X: RefCounted = s.expeditions
+	for sid: String in ["1-1", "1-2", "1-3", "1-4"]:
+		X.ensure(p)["stars"][sid] = 3
+	X.ensure(p)["stars"]["1-5"] = 2
+	s.mark_player_dirty(p["id"])
+	game.close_all_panels()
+	game.show_base()
+	await _wait(1.5)
+	await shot("f7_00_hud_expedicion")
+	game.open_panel("expedition")
+	await _wait(1.2)
+	await shot("f7_01_campana")
+	var dlg: Node = game.modal_root
+	var fight: Button = dlg.find_child("Fight", true, false) as Button
+	if fight != null:
+		fight.pressed.emit()
+	await _wait(2.2)
+	await shot("f7_02_combate")
+	await _wait(12.0)
+	var skip: Button = dlg.find_child("Skip", true, false) as Button
+	if skip != null:
+		skip.pressed.emit()
+	await _wait(1.0)
+	await shot("f7_03_resultado")
+	game.close_all_panels()
+	for st: Dictionary in Catalog.expeditions["chapters"][0]["stages"]:
+		X.ensure(p)["stars"][st["id"]] = 3
+	X.ensure(p)["elite"]["1-1"] = 3
+	X.ensure(p)["elite"]["1-2"] = 1
+	s.liveops.add_license_points(p, 2400)
+	s.mark_player_dirty(p["id"])
+	await _wait(0.8)
+	game.open_panel("expedition")
+	await _wait(1.0)
+	var eb: Button = dlg.find_child("Mode_elite", true, false) as Button
+	if eb != null:
+		eb.pressed.emit()
+	await _wait(0.6)
+	var s2: Button = dlg.find_child("Stage_1-1", true, false) as Button
+	if s2 != null:
+		s2.pressed.emit()
+	await _wait(0.8)
+	await shot("f7_04_elite_barrido")
 	game.close_all_panels()
 
 
