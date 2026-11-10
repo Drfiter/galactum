@@ -29,6 +29,7 @@ const PANELS: Dictionary = {
 	"alliance_hq": preload("res://ui/panels/alliance_hq_panel.gd"),
 	"research": preload("res://ui/panels/research_panel.gd"),
 	"battle": preload("res://ui/panels/battle_panel.gd"),
+	"liveops": preload("res://ui/panels/liveops_panel.gd"),
 }
 
 var map_view: Node3D
