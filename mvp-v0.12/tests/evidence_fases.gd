@@ -1,0 +1,84 @@
+extends Node
+## Capturas de evidencia de las funcionalidades nuevas (una sección por fase).
+## Uso: GALACTUM_SHOTS_DIR=/ruta/ godot --path . --resolution 1600x720 res://tests/evidence_fases.tscn [-- --fase=N]
+
+const U = preload("res://shared/util.gd")
+var game: Node
+var out_dir: String = OS.get_environment("GALACTUM_SHOTS_DIR") if not OS.get_environment("GALACTUM_SHOTS_DIR").is_empty() else "user://"
+var only: int = 0
+
+
+func _ready() -> void:
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--fase="):
+			only = int(a.substr(7))
+	preload("res://shared/i18n.gd").set_locale("es")
+	GameClient.start_local("Mateo", "p05", true)
+	game = load("res://ui/game.tscn").instantiate()
+	get_tree().root.add_child.call_deferred(game)
+	await _wait(3.0)
+	if only == 0 or only == 1:
+		await fase1()
+	get_tree().quit()
+
+
+func srv() -> Node:
+	return GameClient.local_server
+
+
+func me_srv() -> Dictionary:
+	return srv().player(GameClient.player_id)
+
+
+func fase1() -> void:
+	var p: Dictionary = me_srv()
+	var c: Dictionary = srv().crew.ensure(p)
+	for cid: String in ["p01", "p07", "p16", "p23", "p30", "p38"]:
+		c["owned"][cid] = {"stars": 2, "ts": 0, "level": 1 + randi() % 15, "exp": 40, "grade": 1 + randi() % 3}
+	p["items"]["insignia"] = 75
+	srv().crew.refresh_mods(p)
+	srv().mark_player_dirty(p["id"])
+	await _wait(1.0)
+	game.open_panel("crew", {"tab": "collection"})
+	await _wait(1.0)
+	await shot("f1_01_coleccion")
+	game.close_all_panels()
+	game.show_map()
+	await _wait(1.2)
+	game.goto_mission({"event": "xeno_hunted"})
+	await _wait(0.8)
+	var xid: String = game.map_view.selected_id
+	game.open_fleet_dialog("hunt", GameClient.entities.get(xid, {}))
+	await _wait(1.0)
+	var dlg: Node = game.modal_root
+	for cid: String in ["p01", "p07", "p16"]:
+		var b: Button = dlg.find_child("Crew_" + cid, true, false) as Button
+		if b != null:
+			b.button_pressed = true
+	await _wait(0.5)
+	await shot("f1_02_flota_con_tripulantes")
+	var send: Button = null
+	for ch: Node in dlg.find_children("*", "Button", true, false):
+		if (ch as Button).text.contains("Despegar"):
+			send = ch
+	if send != null:
+		send.pressed.emit()
+	await _wait(1.0)
+	for i: int in range(60):
+		U.debug_offset_ms += 1000
+		await _wait(0.04)
+	await _wait(1.0)
+	game.open_panel("reports")
+	await _wait(1.0)
+	await shot("f1_03_informe_exp")
+	game.close_all_panels()
+
+
+func _wait(s: float) -> void:
+	await get_tree().create_timer(s).timeout
+
+
+func shot(name: String) -> void:
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(out_dir + name + ".png")
+	print("shot ", name)
