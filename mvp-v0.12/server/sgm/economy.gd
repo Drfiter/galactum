@@ -104,6 +104,20 @@ static func tech_level(p: Dictionary, tech_id: String) -> int:
 	return int(p.get("tech", {}).get(tech_id, 0))
 
 
+## Fuentes de bonificación que se suman al sistema único de modificadores:
+## Alianza, tripulación activa, Protocolos de Mando, equipamiento, Licencia de
+## Comandante y títulos. Cada una es un Dictionary efecto -> valor en el jugador.
+const MOD_SOURCES: Array = ["ally_mods", "crew_mods", "cmd_mods", "gear_mods", "vip_mods", "title_mods"]
+
+
+## Suma de un efecto en todas las fuentes de bonificación del jugador.
+static func extra(p: Dictionary, key: String) -> float:
+	var total: float = 0.0
+	for src: String in MOD_SOURCES:
+		total += float(p.get(src, {}).get(key, 0.0))
+	return total
+
+
 ## Sistema único de modificadores (contrato con el combate: el snapshot de
 ## combate de una flota se congela al despegar).
 static func modifiers(p: Dictionary) -> Dictionary:
@@ -117,15 +131,11 @@ static func modifiers(p: Dictionary) -> Dictionary:
 		if m.has(eff):
 			m[eff] = float(m[eff]) + float(t.get("per_level", 0.0)) * int(p["tech"][tech_id])
 	m["defense_base"] = effect(p, "perimeter", "defense_bonus")
-	# Bonificaciones del nivel de Alianza y del evento activo.
-	for k: String in p.get("ally_mods", {}):
-		if m.has(k):
-			m[k] = float(m[k]) + float(p["ally_mods"][k])
+	# Alianza, tripulación, Protocolos, equipamiento, Licencia y títulos.
+	for k: String in m.keys():
+		if k != "defense_base":
+			m[k] = float(m[k]) + extra(p, k)
 	m["gather_speed"] = float(m["gather_speed"]) + event_factor("gather_speed")
-	# Tripulación activa y Armería (Fase 2).
-	for k2: String in p.get("crew_mods", {}):
-		if m.has(k2):
-			m[k2] = float(m[k2]) + float(p["crew_mods"][k2])
 	m["attack"] = float(m["attack"]) + effect(p, "armory", "attack_bonus")
 	m["pve_damage"] = float(m["pve_damage"]) + effect(p, "armory", "pve_bonus")
 	return m
@@ -144,7 +154,7 @@ static func march_slots(p: Dictionary) -> int:
 
 
 static func march_capacity(p: Dictionary) -> int:
-	return int(effect(p, "fleet_hq", "march_capacity"))
+	return int(effect(p, "fleet_hq", "march_capacity") * (1.0 + extra(p, "march_capacity")))
 
 
 static func vault_protect(p: Dictionary) -> int:
@@ -190,7 +200,7 @@ static func settle(p: Dictionary, now: int, producing: bool = true) -> void:
 			continue
 		var minutes: float = float(now - last) / 60000.0
 		var rates: Dictionary = Catalog.room_production(room_id, int(r["level"]))
-		var boost: float = 1.0 + event_factor("production")
+		var boost: float = 1.0 + event_factor("production") + extra(p, "production")
 		for k: String in rates:
 			rates[k] = float(rates[k]) * boost
 		var cap_minutes: float = float(room_def.get("storage_minutes", 20))
@@ -237,7 +247,7 @@ static func production_rates(p: Dictionary) -> Dictionary:
 			continue
 		var rates: Dictionary = Catalog.room_production(room_id, int(p["rooms"][room_id]["level"]))
 		for k: String in rates:
-			out[k] = float(out.get(k, 0.0)) + float(rates[k]) * (1.0 + event_factor("production"))
+			out[k] = float(out.get(k, 0.0)) + float(rates[k]) * (1.0 + event_factor("production") + extra(p, "production"))
 	return out
 
 

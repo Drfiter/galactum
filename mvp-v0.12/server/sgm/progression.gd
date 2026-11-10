@@ -107,7 +107,7 @@ func start_research(p: Dictionary, tech_id: String) -> Dictionary:
 	var cost: Dictionary = Catalog.tech_cost(tech_id, target)
 	if not Eco.apply(p, Eco.negate(cost), "research:%s:%d" % [tech_id, target]):
 		return _err("INSUFFICIENT_RESOURCES", U.t("Recursos insuficientes"))
-	var speed: float = 1.0 + Eco.effect(p, "lab", "research_speed")
+	var speed: float = 1.0 + Eco.effect(p, "lab", "research_speed") + Eco.extra(p, "research_speed")
 	_start_queue(p, "research", Catalog.tech_time(tech_id, target) / speed, {"tech": tech_id, "target": target, "label": U.t("%s Nv %d") % [t["name"], target]})
 	return _ok()
 
@@ -131,7 +131,7 @@ func train(p: Dictionary, key: String, qty: int) -> Dictionary:
 	var recipe: Dictionary = tier.get("recipe", {})
 	if not Eco.apply(p, Eco.negate(recipe, qty), "train:%s:%d" % [key, qty]):
 		return _err("INSUFFICIENT_RESOURCES", U.t("Recursos insuficientes"))
-	var speed: float = 1.0 + Eco.effect(p, "hangar", "train_speed")
+	var speed: float = 1.0 + Eco.effect(p, "hangar", "train_speed") + Eco.extra(p, "train_speed")
 	var secs: float = float(tier.get("train_sec", 1.0)) * qty / speed
 	_start_queue(p, "train", secs, {"troop": key, "qty": qty, "label": "%d × %s" % [qty, Catalog.troop_name(key)]})
 	return _ok()
