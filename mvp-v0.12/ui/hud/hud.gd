@@ -87,13 +87,15 @@ func _build_top() -> void:
 	avatar_rect = UI.image(null, Vector2(54, 54))
 	UI.full_rect(avatar_rect)
 	av_btn.add_child(avatar_rect)
-	av_btn.pressed.connect(func() -> void: game.open_panel("settings"))
+	av_btn.pressed.connect(func() -> void: game.open_panel("commander"))
+	av_btn.tooltip_text = U.t("Comandante: nivel, Protocolos de Mando y prisioneros")
 	h.add_child(av_btn)
 	var nv := UI.vbox(0)
-	nv.custom_minimum_size.x = 150
+	nv.custom_minimum_size.x = 170
 	name_label = UI.label("", 16, UI.TEXT, "bold")
 	name_label.clip_text = true
 	power_label = UI.label("", 15, UI.GOLD, "bold")
+	power_label.clip_text = true
 	nv.add_child(name_label)
 	nv.add_child(power_label)
 	h.add_child(nv)
@@ -372,7 +374,13 @@ func refresh() -> void:
 	avatar_rect.texture = UI.portrait_tex(str(me.get("avatar", "p01")))
 	var tag: String = str(me.get("tag", ""))
 	name_label.text = ("[%s] " % tag if not tag.is_empty() else "") + str(me.get("name", ""))
-	power_label.text = U.t("Poder") + " " + U.fmt_int(int(me.get("power", 0)))
+	# Nivel del Comandante: rojo si está capturado, verde si tiene puntos sin asignar.
+	var cmd: Dictionary = me.get("commander", {})
+	var captured: bool = not (cmd.get("captured", {}) as Dictionary).is_empty()
+	power_label.text = (U.t("CAPTURADO") if captured else U.t("Poder") + " " + U.fmt_num(int(me.get("power", 0)))) + " · " + U.t("Nv %d") % int(cmd.get("level", 1))
+	if not captured and int(cmd.get("points", 0)) > 0:
+		power_label.text += " (+%d)" % int(cmd.get("points", 0))
+	power_label.add_theme_color_override("font_color", UI.RED if captured else (UI.GREEN if int(cmd.get("points", 0)) > 0 else UI.GOLD))
 	var sys: Dictionary = me.get("system", {})
 	system_chip.text = "S%d · %s" % [int(sys.get("index", 0)), str(sys.get("name", ""))]
 	_tick()
