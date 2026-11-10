@@ -16,6 +16,8 @@ var _port: SpinBox
 var _avatar: String = "p01"
 var _avatar_btns: Dictionary = {}
 var _remote_box: VBoxContainer
+var _user: LineEdit
+var _pass: LineEdit
 var _status: Label
 var _t: float = 0.0
 var _logo: Control
@@ -152,9 +154,32 @@ func _ready() -> void:
 	_port.custom_minimum_size = Vector2(130, 48)
 	rh.add_child(_port)
 	_remote_box.add_child(rh)
-	var connect := UI.button(U.t("Conectar al SSS"), "Button", "ui_sensors", Vector2(0, 50))
-	connect.pressed.connect(func() -> void: _play(true))
-	_remote_box.add_child(connect)
+	var ah := UI.hbox(8)
+	_user = LineEdit.new()
+	_user.placeholder_text = U.t("Usuario")
+	_user.text = str(cfg.get_value("net", "user", ""))
+	_user.max_length = 18
+	_user.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_user.custom_minimum_size.y = 48
+	ah.add_child(_user)
+	_pass = LineEdit.new()
+	_pass.placeholder_text = U.t("Contraseña")
+	_pass.secret = true
+	_pass.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pass.custom_minimum_size.y = 48
+	ah.add_child(_pass)
+	_remote_box.add_child(ah)
+	var bh := UI.hbox(8)
+	var connect := UI.button(U.t("Entrar"), "Button", "ui_sensors", Vector2(0, 50))
+	connect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	connect.pressed.connect(func() -> void: _play_account(false))
+	bh.add_child(connect)
+	var reg := UI.button(U.t("Crear cuenta"), "GhostButton", "ui_plus", Vector2(0, 50))
+	reg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	reg.pressed.connect(func() -> void: _play_account(true))
+	bh.add_child(reg)
+	_remote_box.add_child(bh)
+	_remote_box.add_child(UI.wrap(UI.label(U.t("Cuenta obligatoria (JWT). Sin datos se reanuda tu última sesión."), 13, UI.TEXT_MUTED)))
 	_remote_box.add_child(UI.wrap(UI.label(U.t("Inicia el servidor con Ejecutar_Servidor_Dedicado.bat (o godot --headless -- --server) y conecta varios clientes al mismo sistema."), 13, UI.TEXT_MUTED)))
 	v.add_child(_remote_box)
 	_status = UI.label("", 14, UI.GOLD)
@@ -204,6 +229,8 @@ func _save_settings() -> void:
 	cfg.set_value("player", "avatar", _avatar)
 	cfg.set_value("net", "host", _host.text.strip_edges())
 	cfg.set_value("net", "port", int(_port.value))
+	if _user != null:
+		cfg.set_value("net", "user", _user.text.strip_edges())
 	cfg.save(SETTINGS_PATH)
 
 
@@ -220,6 +247,21 @@ func _play(remote: bool, fresh: bool = false) -> void:
 		_status.text = U.t("Generando el Sistema Solar…") if fresh else U.t("Cargando partida…")
 		await get_tree().process_frame
 		GameClient.start_local(_player_name(), _avatar, fresh)
+	get_tree().change_scene_to_file("res://ui/game.tscn")
+
+
+func _play_account(register: bool) -> void:
+	var u: String = _user.text.strip_edges()
+	var pw: String = _pass.text
+	if register and (u.length() < 3 or pw.length() < 8):
+		_status.text = U.t("Para crear la cuenta: usuario de 3 a 18 caracteres y contraseña de al menos 8.")
+		return
+	_save_settings()
+	var acc: Dictionary = {}
+	if not u.is_empty() and not pw.is_empty():
+		acc = {"username": u, "password": pw, "register": register}
+	_pass.text = ""
+	GameClient.start_remote(_host.text.strip_edges(), int(_port.value), u if not u.is_empty() else _player_name(), _avatar, acc)
 	get_tree().change_scene_to_file("res://ui/game.tscn")
 
 

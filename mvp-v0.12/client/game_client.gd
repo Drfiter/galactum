@@ -26,6 +26,12 @@ var mode: String = ""
 var connected: bool = false
 var commander_name: String = U.t("Comandante")
 var avatar: String = "p01"
+## Cuenta del servidor dedicado: {username, password, register} o {} para
+## reanudar la sesión guardada (token de renovación) o el modo demo.
+var account: Dictionary = {}
+var access_token: String = ""
+var _host_key: String = ""
+const SESSION_PATH: String = "user://session.cfg"
 
 var player_id: String = ""
 var map_size: int = 600
@@ -72,10 +78,12 @@ func start_local(name: String, avatar_id: String, fresh: bool = false) -> void:
 	l.open(local_server)
 
 
-func start_remote(host: String, port: int, name: String, avatar_id: String) -> void:
+func start_remote(host: String, port: int, name: String, avatar_id: String, account_info: Dictionary = {}) -> void:
 	disconnect_all()
 	commander_name = name
 	avatar = avatar_id
+	account = account_info
+	_host_key = "%s_%d" % [host.replace(".", "_"), port]
 	mode = "remote"
 	var l := WsLink.new()
 	_wire(l)
@@ -109,7 +117,60 @@ func disconnect_all() -> void:
 
 
 func _on_open() -> void:
-	link.send({"type": "hello", "protocol": PROTOCOL, "name": commander_name, "avatar": avatar, "token": "demo-%s" % commander_name})
+	if mode == "remote":
+		if not account.is_empty():
+			var action: String = "register" if bool(account.get("register", false)) else "login"
+			link.send({"type": action, "username": str(account.get("username", "")), "password": str(account.get("password", "")), "avatar": avatar})
+			account.erase("password")   # la contraseña no queda en memoria
+			return
+		var saved: String = saved_refresh_token()
+		if not saved.is_empty():
+			link.send({"type": "refresh", "refresh_token": saved})
+			return
+	_send_hello()
+
+
+func _send_hello() -> void:
+	link.send({"type": "hello", "protocol": PROTOCOL, "name": commander_name, "avatar": avatar, "token": access_token if not access_token.is_empty() else "demo-%s" % commander_name})
+
+
+func saved_refresh_token() -> String:
+	var cfg := ConfigFile.new()
+	if cfg.load(SESSION_PATH) != OK:
+		return ""
+	return str(cfg.get_value("refresh", _host_key, ""))
+
+
+func _store_refresh_token(token: String) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(SESSION_PATH)
+	if token.is_empty():
+		if cfg.has_section_key("refresh", _host_key):
+			cfg.erase_section_key("refresh", _host_key)
+	else:
+		cfg.set_value("refresh", _host_key, token)
+	cfg.save(SESSION_PATH)
+
+
+## Cierra la sesión de la cuenta en este servidor (revoca el token de renovación).
+func logout() -> void:
+	var saved: String = saved_refresh_token()
+	if link != null and not saved.is_empty():
+		link.send({"type": "logout", "refresh_token": saved})
+	_store_refresh_token("")
+	access_token = ""
+
+
+func _on_auth(msg: Dictionary) -> void:
+	if bool(msg.get("ok", false)) and str(msg.get("action", "")) != "logout":
+		access_token = str(msg.get("access_token", ""))
+		_store_refresh_token(str(msg.get("refresh_token", "")))
+		commander_name = str(msg.get("username", commander_name))
+		_send_hello()
+	elif not bool(msg.get("ok", false)):
+		if str(msg.get("action", "")) == "refresh":
+			_store_refresh_token("")
+		connection_changed.emit("error", str(msg.get("message", U.t("No se pudo iniciar sesión"))))
 
 
 func _on_closed(reason: String) -> void:
@@ -226,11 +287,13 @@ func _on_message(msg: Dictionary) -> void:
 			fx.emit(str(msg.get("kind", "")), U.v2(msg.get("pos", [0, 0])), bool(msg.get("own", false)))
 		"ack":
 			_resolve(str(msg.get("request_id", "")), true, msg)
+		"auth":
+			_on_auth(msg)
 		"error":
 			var rid: String = str(msg.get("request_id", ""))
 			if rid.is_empty():
 				toast.emit(str(msg.get("message", "Error")), "error")
-				if str(msg.get("code", "")) == "PROTOCOL_MISMATCH":
+				if str(msg.get("code", "")) in ["PROTOCOL_MISMATCH", "AUTH_REQUIRED"]:
 					connection_changed.emit("error", str(msg.get("message", "")))
 			_resolve(rid, false, msg)
 		"pong":
