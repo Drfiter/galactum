@@ -257,7 +257,24 @@ func _special_section() -> Control:
 			return _crew_hub()
 		"workshop":
 			return _workshop()
+		"armory":
+			return _armory()
 	return null
+
+
+func _armory() -> Control:
+	if GameClient.room_level("armory") <= 0:
+		return null
+	var s: Array = _section(U.t("Equipamiento"), "ui_attack")
+	var v: VBoxContainer = s[1]
+	var g: Dictionary = GameClient.me.get("gear", {})
+	v.add_child(UI.label(U.t("Equipos forjados: %d de %d · materiales: %d tipos") % [(g.get("owned", {}) as Dictionary).size(), Catalog.equipment_by_id.size(), (g.get("materials", {}) as Dictionary).size()], 16, UI.TEXT, "semibold"))
+	var b := UI.button(U.t("Abrir Armería"), "PrimaryButton", "ui_attack", Vector2(260, 54))
+	b.pressed.connect(func() -> void:
+		close_window()
+		game.open_panel("armory"))
+	v.add_child(b)
+	return s[0]
 
 
 func _crew_hub() -> Control:

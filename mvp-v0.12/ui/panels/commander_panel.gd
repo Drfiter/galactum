@@ -83,6 +83,11 @@ func _profile() -> void:
 	lv.add_child(UI.label(U.t("EXP %s / %s") % [U.fmt_int(int(c.get("exp", 0))), U.fmt_int(nxt)] if nxt > 0 else U.t("Nivel máximo"), 14, UI.TEXT_DIM))
 	lv.add_child(UI.progress(float(c.get("exp", 0)), float(maxi(1, nxt)), UI.GOLD, 12))
 	lv.add_child(UI.wrap(UI.label(U.t("Gana EXP cazando xenoformas, atacando, defendiendo tu nave y minando. Cada nivel da un punto de Protocolo de Mando."), 13, UI.TEXT_MUTED)))
+	var gb := UI.button(U.t("Equipo del Comandante (%d/6)") % (GameClient.me.get("gear", {}).get("equipped", {}) as Dictionary).size(), "GhostButton", "ui_attack", Vector2(0, 44))
+	gb.pressed.connect(func() -> void:
+		close_window()
+		game.open_panel("armory"))
+	lv.add_child(gb)
 	var cap: Dictionary = c.get("captured", {})
 	if not cap.is_empty():
 		var cc := UI.panel("CardRed")
