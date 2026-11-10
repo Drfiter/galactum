@@ -23,6 +23,8 @@ func _ready() -> void:
 	test_crew_in_fleets()
 	test_commander()
 	test_armory()
+	test_alliances()
+	test_rally_and_reinforcements()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -235,3 +237,132 @@ func test_armory() -> void:
 	check(r.get("type") == "ack" and int(p["resources"]["mat_x_x01_1"]) == 1 and int(p["resources"].get("mat_x_x01_2", 0)) >= 2, "refinar: 8 de calidad I dan 2 de calidad II")
 	var v: Dictionary = srv.armory.view(p)
 	check(v.has("owned") and v.has("equipped") and v.has("materials") and int(v["tier_max"]) >= 1, "la vista del cliente incluye equipo, materiales y escalón máximo")
+
+
+# ---------------------------------------------------------------- fase 4
+
+func _bot_of(tag: String) -> Dictionary:
+	for q: Dictionary in srv.state["players"].values():
+		if q.get("is_bot", false) and str(q.get("tag", "")) == tag and str(q.get("rank", "")) != "R5":
+			return q
+	return {}
+
+
+func test_alliances() -> void:
+	print(" -- Fase 4: Alianzas")
+	var p: Dictionary = me()
+	var all_lead: bool = true
+	for tag: String in srv.social.alliances():
+		if not srv.social.members(tag).is_empty() and not srv.social.members(tag).any(func(m: Dictionary) -> bool: return str(m.get("rank", "")) == "R5"):
+			all_lead = false
+	check(all_lead, "cada alianza tiene un líder R5")
+	var r: Dictionary = intent("alliance_search", {"query": "vga"})
+	check(r.get("type") == "ack" and (r.get("results", []) as Array).size() >= 1, "buscar alianzas por etiqueta o nombre")
+	p["resources"]["credits"] = 100
+	r = intent("alliance_create", {"tag": "TST", "name": "Escuadrón de Prueba", "mode": "request"})
+	check(r.get("code", "") == "INSUFFICIENT_RESOURCES", "crear una alianza cuesta Créditos y Materia Oscura")
+	p["resources"]["credits"] = 900000
+	p["resources"]["dark_matter"] = 5000
+	r = intent("alliance_create", {"tag": "VGA", "name": "Otra", "mode": "open"})
+	check(r.get("code", "") == "TAG_TAKEN", "no se puede repetir una etiqueta")
+	r = intent("alliance_create", {"tag": "TST", "name": "Escuadrón de Prueba", "mode": "request"})
+	check(r.get("type") == "ack" and p["tag"] == "TST" and p["rank"] == "R5", "crear la alianza [TST]: quedas como líder R5")
+	var bot: Dictionary = _bot_of("XEN")
+	srv.alliance.join(bot, "TST")
+	check(srv.alliance._a("TST")["requests"].has(bot["id"]), "en modo solicitud, unirse deja una solicitud pendiente")
+	r = intent("alliance_accept", {"player": bot["id"]})
+	check(r.get("type") == "ack" and bot["tag"] == "TST" and bot["rank"] == "R1", "el líder acepta la solicitud y entra como R1")
+	r = intent("alliance_rank", {"player": bot["id"], "rank": "R3"})
+	check(r.get("type") == "ack" and bot["rank"] == "R3", "el líder asciende a R3")
+	r = intent("alliance_rank", {"player": bot["id"], "rank": "R5"})
+	check(r.get("code", "") == "RANK_LIMIT", "no se puede asignar un rango igual o mayor al propio")
+	check(not srv.alliance.can(bot, "kick") and srv.alliance.can(bot, "rally"), "permisos por rango: R3 abre Asedios pero no expulsa")
+	r = intent("alliance_leave", {})
+	check(r.get("code", "") == "LEADER_MUST_TRANSFER", "el líder debe transferir el liderazgo antes de salir")
+	r = intent("treasury_donate", {"res": "credits", "amount": 5000})
+	check(r.get("type") == "ack" and int(srv.alliance._a("TST")["treasury"]["credits"]) == 5000 and int(p["resources"].get("bonds", 0)) >= 500, "donar a la Tesorería da Bonos de Alianza")
+	check(not srv.alliance.withdraw(bot, "credits", 100).get("ok", false), "un R3 no puede retirar de la Tesorería")
+	r = intent("treasury_withdraw", {"res": "credits", "amount": 2000})
+	check(r.get("type") == "ack" and (srv.alliance._a("TST")["treasury_log"] as Array).size() == 2, "el líder retira y queda en el registro de auditoría")
+	p["resources"]["bonds"] = 1500
+	r = intent("ally_shop_buy", {"item": "insignia"})
+	check(r.get("type") == "ack" and int(p["items"].get("insignia", 0)) >= 1, "la Tienda de Alianza vende con Bonos")
+	r = intent("alliance_kick", {"player": bot["id"]})
+	check(r.get("type") == "ack" and bot["tag"] == "", "el líder expulsa a un miembro")
+	srv.alliance.join(bot, "XEN")
+	r = intent("alliance_leave", {})
+	check(r.get("type") == "ack" and p["tag"] == "" and not srv.social.alliances().has("TST"), "al salir el último miembro la alianza se disuelve")
+	r = intent("alliance_join", {"tag": "VGA"})
+	check(p["tag"] == "VGA", "volver a unirse a [VGA] (el líder bot acepta la solicitud)")
+	srv.state["next_bot_help_req"] = 0
+	advance(1.0)
+	var b0: int = int(p["resources"].get("bonds", 0))
+	r = intent("help_all", {})
+	check(r.get("type") == "ack" and int(p["resources"].get("bonds", 0)) > b0, "Ayuda Mutua: ayudar a los aliados da Bonos")
+
+
+func test_rally_and_reinforcements() -> void:
+	print(" -- Fase 4: Asedio y refuerzos")
+	var p: Dictionary = me()
+	p["rank"] = "R1"
+	var enemy: Dictionary = {}
+	var home: Vector2 = U.v2(srv.world.get_entity(p["base_id"])["pos"])
+	var best: float = 1e9
+	for q: Dictionary in srv.state["players"].values():
+		if q.get("is_bot", false) and str(q.get("tag", "")) != "VGA" and str(q.get("system", "")) == str(p.get("system", "")):
+			var e: Dictionary = srv.world.get_entity(q["base_id"])
+			if not e.is_empty() and e["state"] == "ANCHORED" and U.v2(e["pos"]).distance_to(home) < best:
+				best = U.v2(e["pos"]).distance_to(home)
+				enemy = q
+	enemy["protected_until"] = 0
+	enemy["shield_until"] = 0
+	p["troops"]["infantry_1"] = 400
+	p["troops"]["pilots_1"] = 300
+	var r: Dictionary = intent("rally_start", {"target_id": enemy["base_id"], "troops": {"infantry_1": 100}, "wait": 30})
+	check(r.get("code", "") == "NO_PERMISSION", "un R1 no puede abrir un Asedio")
+	p["rank"] = "R4"
+	r = intent("rally_start", {"target_id": enemy["base_id"], "troops": {"infantry_1": 150, "pilots_1": 100}, "wait": 30})
+	check(r.get("type") == "ack", "un R4 abre un Asedio contra %s" % srv.display_name(enemy["id"]))
+	var rid: String = str(r.get("rally_id", ""))
+	var ally: Dictionary = _bot_of("VGA")
+	ally["troops"]["infantry_1"] = int(ally["troops"].get("infantry_1", 0)) + 200
+	var jr: Dictionary = srv.rally.join(ally, rid, {"infantry_1": 120})
+	check(bool(jr.get("ok", false)) and (srv.rally.rallies()[rid]["shares"] as Dictionary).size() >= 2, "un aliado se suma al Asedio con sus tropas")
+	advance(5.0)
+	var parts: int = (srv.rally.rallies()[rid]["shares"] as Dictionary).size()
+	advance(30.0)
+	var rr: Dictionary = srv.rally.rallies()[rid]
+	var f: Dictionary = srv.fleets.fleets().get(str(rr.get("fleet_id", "")), {})
+	check(rr["state"] == "marching" and not f.is_empty(), "al terminar la espera sale la flota conjunta (%d participantes)" % parts)
+	var lead_atk: float = float(preload("res://server/sgm/economy.gd").combat_mods(p, false)["attack"])
+	check(absf(float(f.get("mods", {}).get("attack", -1.0)) - lead_atk) < 0.0001, "la flota del Asedio usa los bonos del líder (herencia de boosts)")
+	var inf_before: int = int(ally["troops"].get("infantry_1", 0))
+	var bonds_before: int = int(p["resources"].get("bonds", 0))
+	for i: int in range(200):
+		advance(1.0)
+		if not srv.fleets.fleets().has(str(rr["fleet_id"])):
+			break
+	check(not srv.fleets.fleets().has(str(rr["fleet_id"])), "la flota del Asedio combate y vuelve")
+	var rep: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return bool(x.get("rally", false)))
+	check(not rep.is_empty() and (rep[0].get("participants", []) as Array).size() >= 2, "el informe del Asedio lista a los participantes (los humanos reciben copia)")
+	check(int(ally["troops"].get("infantry_1", 0)) >= inf_before, "los supervivientes vuelven a cada participante")
+	check(int(p["resources"].get("bonds", 0)) > bonds_before, "participar en el Asedio da Bonos")
+	var split: Dictionary = srv.rally.split_by_shares({"infantry_1": 100}, {"a": {"infantry_1": 30}, "b": {"infantry_1": 70}})
+	check(int(split["a"]["infantry_1"]) == 30 and int(split["b"]["infantry_1"]) == 70, "bajas y botín se reparten según el aporte (30/70)")
+	var host: Dictionary = _bot_of("VGA")
+	var hb: Dictionary = srv.world.get_entity(host["base_id"])
+	p["troops"]["infantry_1"] = 300
+	r = intent("march", {"mission": "reinforce", "target_id": hb["id"], "troops": {"infantry_1": 80}})
+	check(r.get("type") == "ack", "enviar refuerzos a la nave de un aliado")
+	var rf: Dictionary = srv.fleets.fleets().get(str(r.get("fleet_id", "")), {})
+	for i: int in range(600):
+		advance(1.0)
+		if rf.get("state", "") == "stationed":
+			break
+	check(rf.get("state", "") == "stationed" and srv.rally.stationed_total(host["id"]) >= 80, "los refuerzos quedan estacionados en la nave aliada")
+	var ds: Dictionary = srv.rally.defense_stacks(host)
+	check(ds.has(rf["id"]), "los refuerzos defienden junto a las tropas del aliado")
+	r = intent("recall", {"fleet_id": rf["id"]})
+	check(r.get("type") == "ack" and rf["state"] == "returning", "se pueden retirar los refuerzos")
+	var v: Dictionary = srv.player_view(p).get("alliance_hq", {})
+	check(v.has("rallies") and v.has("reinforcements_here") and v.has("treasury") and v.has("permissions"), "la vista del cliente incluye Asedios, refuerzos, Tesorería y permisos")
