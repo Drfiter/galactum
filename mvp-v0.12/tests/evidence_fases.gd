@@ -27,6 +27,8 @@ func _ready() -> void:
 		await fase4()
 	if only == 0 or only == 5:
 		await fase5()
+	if only == 0 or only == 6:
+		await fase6()
 	get_tree().quit()
 
 
@@ -244,6 +246,56 @@ func fase5() -> void:
 	game.open_fleet_dialog("attack", GameClient.entities.get(game.map_view.selected_id, {}))
 	await _wait(1.0)
 	await shot("f5_05_formaciones")
+	game.close_all_panels()
+
+
+func fase6() -> void:
+	var p: Dictionary = me_srv()
+	var s: Node = srv()
+	var lo: RefCounted = s.liveops
+	p["resources"]["dark_matter"] = int(p["resources"].get("dark_matter", 0)) + 3000
+	for kind: String in ["xeno_kill", "room_upgraded", "research_done", "pvp_win"]:
+		s.on_activity(p, kind, 12.0)
+	lo.buy_pass(p)
+	lo.claim_pass(p, 1, "free")
+	lo.claim_pass(p, 1, "premium")
+	lo.claim_pass(p, 2, "free")
+	lo.add_license_points(p, 2600)
+	s.mark_player_dirty(p["id"])
+	await _wait(0.8)
+	game.close_all_panels()
+	game.show_base()
+	await _wait(4.5)
+	game.open_panel("liveops", {"tab": "pass"})
+	await _wait(1.2)
+	await shot("f6_01_pase_expedicion")
+	game.close_all_panels()
+	game.open_panel("liveops", {"tab": "license"})
+	await _wait(1.0)
+	await shot("f6_02_licencia")
+	game.close_all_panels()
+	# Avanzar el reloj hasta la próxima Singularidad.
+	var ev: Dictionary = lo.singularity_now()
+	if not bool(ev.get("active", false)):
+		U.debug_offset_ms += int(ev["next_start"]) - U.now_ms() + 60000
+	for kind: String in ["xeno_kill", "room_upgraded"]:
+		s.on_activity(p, kind, 15.0)
+	lo.claim_singularity(p, 0)
+	s.mark_player_dirty(p["id"])
+	await _wait(1.0)
+	game.open_panel("liveops", {"tab": "singularity"})
+	await _wait(1.0)
+	await shot("f6_03_singularidad")
+	game.close_all_panels()
+	var fe: Dictionary = lo.festival(str(p["tag"]))
+	fe["progress"] = {"f_hunt": 95.0, "f_mine": 310.0, "f_build": 22.0, "f_war": 8.0}
+	fe["contrib"][p["id"]] = 46.0
+	lo.claim_festival(p, 0)
+	s.mark_player_dirty(p["id"])
+	await _wait(0.8)
+	game.open_panel("liveops", {"tab": "festival"})
+	await _wait(1.0)
+	await shot("f6_04_festival")
 	game.close_all_panels()
 
 
