@@ -14,6 +14,16 @@ func _init() -> void:
 	desired_size = Vector2(1180, 650)
 
 
+func extra_header(h: HBoxContainer) -> void:
+	var hq: Dictionary = GameClient.me.get("alliance_hq", {})
+	var n: int = (hq.get("rallies", []) as Array).size()
+	var b := UI.button(U.t("Cuartel") + (" · %s" % U.t("¡Asedio!") if n > 0 else ""), "DangerButton" if n > 0 else "GoldButton", "ui_rally", Vector2(0, 46))
+	b.pressed.connect(func() -> void:
+		close_window()
+		game.open_panel("alliance_hq"))
+	h.add_child(b)
+
+
 func window_title() -> String:
 	var a: Dictionary = GameClient.me.get("alliance", {})
 	return U.t("[%s] %s  ·  Nv %d") % [a.get("tag", ""), U.t(str(a.get("name", "Sin alianza"))), int(guild.get("level", a.get("level", 1)))]
