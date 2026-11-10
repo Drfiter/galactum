@@ -1959,5 +1959,20 @@
 "Científico Jefe": "Chief Scientist",
 "Desertor": "Deserter",
 "Saboteador": "Saboteur",
-"Errante": "Drifter"
+"Errante": "Drifter",
+"Inicia sesión: el servidor exige una cuenta": "Sign in: this server requires an account",
+"El usuario debe tener de 3 a 18 letras, números o guion bajo": "The username must be 3 to 18 letters, numbers or underscores",
+"La contraseña debe tener al menos 8 caracteres": "The password must be at least 8 characters",
+"Ese nombre de usuario ya existe": "That username already exists",
+"Usuario o contraseña incorrectos": "Wrong username or password",
+"Demasiados intentos fallidos. Prueba en %s": "Too many failed attempts. Try again in %s",
+"La sesión expiró: inicia sesión de nuevo": "Your session expired: sign in again",
+"Sesión no válida: inicia sesión de nuevo": "Invalid session: sign in again",
+"Usuario": "Username",
+"Contraseña": "Password",
+"Entrar": "Sign in",
+"Crear cuenta": "Create account",
+"Cuenta obligatoria (JWT). Sin datos se reanuda tu última sesión.": "Account required (JWT). Leave empty to resume your last session.",
+"Para crear la cuenta: usuario de 3 a 18 caracteres y contraseña de al menos 8.": "To create the account: a username of 3 to 18 characters and a password of at least 8.",
+"No se pudo iniciar sesión": "Could not sign in"
 }
