@@ -336,7 +336,7 @@ func test_rally_and_reinforcements() -> void:
 	check(rr["state"] == "marching" and not f.is_empty(), "al terminar la espera sale la flota conjunta (%d participantes)" % parts)
 	var lead_atk: float = float(preload("res://server/sgm/economy.gd").combat_mods(p, false)["attack"])
 	check(absf(float(f.get("mods", {}).get("attack", -1.0)) - lead_atk) < 0.0001, "la flota del Asedio usa los bonos del líder (herencia de boosts)")
-	var inf_before: int = int(ally["troops"].get("infantry_1", 0))
+	var inf_before: int = int(p["troops"].get("infantry_1", 0))
 	var bonds_before: int = int(p["resources"].get("bonds", 0))
 	for i: int in range(200):
 		advance(1.0)
@@ -345,7 +345,7 @@ func test_rally_and_reinforcements() -> void:
 	check(not srv.fleets.fleets().has(str(rr["fleet_id"])), "la flota del Asedio combate y vuelve")
 	var rep: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return bool(x.get("rally", false)))
 	check(not rep.is_empty() and (rep[0].get("participants", []) as Array).size() >= 2, "el informe del Asedio lista a los participantes (los humanos reciben copia)")
-	check(int(ally["troops"].get("infantry_1", 0)) >= inf_before, "los supervivientes vuelven a cada participante")
+	check(int(p["troops"].get("infantry_1", 0)) > inf_before, "los supervivientes vuelven a cada participante (el líder recupera su parte)")
 	check(int(p["resources"].get("bonds", 0)) > bonds_before, "participar en el Asedio da Bonos")
 	var split: Dictionary = srv.rally.split_by_shares({"infantry_1": 100}, {"a": {"infantry_1": 30}, "b": {"infantry_1": 70}})
 	check(int(split["a"]["infantry_1"]) == 30 and int(split["b"]["infantry_1"]) == 70, "bajas y botín se reparten según el aporte (30/70)")
