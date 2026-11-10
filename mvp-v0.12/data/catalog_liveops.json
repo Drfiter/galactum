@@ -10,7 +10,8 @@
   "room_upgraded": 80,
   "research_done": 100,
   "troops_trained_per_10": 4,
-  "power_destroyed_per_100": 2
+  "power_destroyed_per_100": 2,
+  "expedition_win": 25
  },
  "pass": {
   "name": "Pase de Expedición",

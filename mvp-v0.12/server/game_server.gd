@@ -28,6 +28,7 @@ const ArmoryMod = preload("res://server/sgm/armory.gd")
 const AllianceMod = preload("res://server/sgm/alliance.gd")
 const RallyMod = preload("res://server/sss/rally.gd")
 const LiveOpsMod = preload("res://server/sgm/liveops.gd")
+const ExpeditionsMod = preload("res://server/sgm/expeditions.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -54,6 +55,7 @@ var armory: RefCounted
 var alliance: RefCounted
 var rally: RefCounted
 var liveops: RefCounted
+var expeditions: RefCounted
 ## Sistema Solar activo (contexto SSS): entidades, flotas, terreno y respawns.
 var cur: Dictionary = {}
 var current_system: String = ""
@@ -87,6 +89,7 @@ func _init() -> void:
 	alliance = AllianceMod.new(self)
 	rally = RallyMod.new(self)
 	liveops = LiveOpsMod.new(self)
+	expeditions = ExpeditionsMod.new(self)
 
 
 func start(options: Dictionary = {}) -> void:
@@ -663,6 +666,15 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return rally.join(p, str(msg.get("rally_id", "")), jt)
 		"rally_cancel":
 			return rally.cancel(p, str(msg.get("rally_id", "")))
+		"exp_battle":
+			var ids: Array = (msg.get("crew", []) if msg.get("crew", []) is Array else []).map(func(x: Variant) -> String: return str(x))
+			return expeditions.battle(p, str(msg.get("stage", "")), bool(msg.get("elite", false)), ids)
+		"exp_sweep":
+			return expeditions.sweep(p, str(msg.get("stage", "")), bool(msg.get("elite", false)), int(msg.get("times", 1)))
+		"exp_chest":
+			return expeditions.claim_chest(p, int(msg.get("chapter", -1)), int(msg.get("index", -1)))
+		"exp_refill":
+			return expeditions.refill(p)
 		"pass_buy":
 			return liveops.buy_pass(p)
 		"pass_claim":
@@ -831,6 +843,7 @@ func player_view(p: Dictionary) -> Dictionary:
 		"gear": armory.view(p),
 		"alliance_hq": _alliance_hq(p),
 		"liveops": liveops.view(p),
+		"expedition": expeditions.view(p),
 		"guild_brief": _guild_brief(p),
 		"event_brief": _event_brief(p),
 	}

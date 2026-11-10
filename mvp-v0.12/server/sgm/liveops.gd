@@ -64,6 +64,8 @@ static func score(table: Dictionary, kind: String, amount: float) -> int:
 			return int(float(table.get("troops_trained_per_10", 0)) * amount / 10.0)
 		"power_destroyed":
 			return int(float(table.get("power_destroyed_per_100", 0)) * amount / 100.0)
+		"expedition_win":
+			return int(float(table.get("expedition_win", 0)) * amount)
 	return 0
 
 
