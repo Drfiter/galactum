@@ -27,6 +27,7 @@ var portraits: Dictionary = {}
 var shop: Dictionary = {}
 var events: Dictionary = {}
 var crew: Dictionary = {}
+var commander: Dictionary = {}
 
 
 const U = preload("res://shared/util.gd")
@@ -101,6 +102,7 @@ func reload() -> void:
 	shop = _read("catalog_shop")
 	events = _read("catalog_events")
 	crew = _read("catalog_crew")
+	commander = _read("catalog_commander")
 
 
 func _read(catalog_name: String) -> Dictionary:

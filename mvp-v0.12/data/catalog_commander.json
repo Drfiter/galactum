@@ -1,0 +1,218 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Comandante: nivel por EXP, Protocolos de Mando (talentos en 3 ramas) y captura. Cada nivel da points_per_level puntos. Un talento de nivel 'tier' requiere tier*points_per_tier puntos invertidos en su rama. Valores de demo acelerados.",
+ "levels": {
+  "max": 60,
+  "exp_base": 150,
+  "exp_growth": 1.1
+ },
+ "points_per_level": 1,
+ "points_per_tier": 5,
+ "respec_cost_mo": 200,
+ "exp_rewards": {
+  "hunt_per_level": 30,
+  "attack_win": 120,
+  "attack_loss": 30,
+  "defense_win": 60,
+  "gather": 15
+ },
+ "capture": {
+  "_doc": "Al perder la nave con bajas >= min_loss_ratio de las tropas, el Comandante puede ser capturado. Mientras está capturado sus Protocolos no aplican. Se libera al pagar el rescate o al cumplir la condena.",
+  "base_chance": 0.25,
+  "min_loss_ratio": 0.5,
+  "duration_sec": 900,
+  "ransom_credits_per_level": 300,
+  "bot_ransom_after_sec": [
+   90,
+   300
+  ]
+ },
+ "branches": [
+  {
+   "id": "combat",
+   "name": "Combate",
+   "color": "#ff6680",
+   "icon": "ui_attack",
+   "talents": [
+    {
+     "id": "c_attack",
+     "name": "Ofensiva Coordinada",
+     "effect": "attack",
+     "per_rank": 0.02,
+     "max": 5,
+     "tier": 0,
+     "desc": "+2% de ataque de fuerzas por nivel."
+    },
+    {
+     "id": "c_defense",
+     "name": "Doctrina Defensiva",
+     "effect": "defense",
+     "per_rank": 0.02,
+     "max": 5,
+     "tier": 0,
+     "desc": "+2% de defensa de fuerzas por nivel."
+    },
+    {
+     "id": "c_hp",
+     "name": "Blindaje Reforzado",
+     "effect": "hp",
+     "per_rank": 0.02,
+     "max": 5,
+     "tier": 1,
+     "desc": "+2% de vida de fuerzas por nivel."
+    },
+    {
+     "id": "c_pve",
+     "name": "Cazador de Xenoformas",
+     "effect": "pve_damage",
+     "per_rank": 0.03,
+     "max": 5,
+     "tier": 1,
+     "desc": "+3% de daño contra Xenoformas por nivel."
+    },
+    {
+     "id": "c_march",
+     "name": "Maniobras Rápidas",
+     "effect": "march_speed",
+     "per_rank": 0.03,
+     "max": 3,
+     "tier": 2,
+     "desc": "+3% de velocidad de flota por nivel."
+    },
+    {
+     "id": "c_capture",
+     "name": "Protocolo de Evasión",
+     "effect": "capture_resist",
+     "per_rank": 0.15,
+     "max": 3,
+     "tier": 2,
+     "desc": "-15% de probabilidad de ser capturado por nivel."
+    }
+   ]
+  },
+  {
+   "id": "economy",
+   "name": "Economía",
+   "color": "#5ce08a",
+   "icon": "ui_cargo",
+   "talents": [
+    {
+     "id": "e_prod",
+     "name": "Optimización Industrial",
+     "effect": "production",
+     "per_rank": 0.03,
+     "max": 5,
+     "tier": 0,
+     "desc": "+3% de producción de las salas por nivel."
+    },
+    {
+     "id": "e_gather",
+     "name": "Minería Eficiente",
+     "effect": "gather_speed",
+     "per_rank": 0.03,
+     "max": 5,
+     "tier": 0,
+     "desc": "+3% de velocidad de minería por nivel."
+    },
+    {
+     "id": "e_load",
+     "name": "Bodegas Ampliadas",
+     "effect": "load",
+     "per_rank": 0.04,
+     "max": 5,
+     "tier": 1,
+     "desc": "+4% de capacidad de carga por nivel."
+    },
+    {
+     "id": "e_research",
+     "name": "Laboratorio Avanzado",
+     "effect": "research_speed",
+     "per_rank": 0.03,
+     "max": 5,
+     "tier": 1,
+     "desc": "+3% de velocidad de investigación por nivel."
+    },
+    {
+     "id": "e_train",
+     "name": "Instrucción Intensiva",
+     "effect": "train_speed",
+     "per_rank": 0.03,
+     "max": 5,
+     "tier": 2,
+     "desc": "+3% de velocidad de entrenamiento por nivel."
+    },
+    {
+     "id": "e_ransom",
+     "name": "Fondo de Rescate",
+     "effect": "ransom_discount",
+     "per_rank": 0.15,
+     "max": 3,
+     "tier": 2,
+     "desc": "-15% en el costo del rescate por nivel."
+    }
+   ]
+  },
+  {
+   "id": "leadership",
+   "name": "Liderazgo",
+   "color": "#4fa8ff",
+   "icon": "ui_crew",
+   "talents": [
+    {
+     "id": "l_crew",
+     "name": "Mando de Tripulación",
+     "effect": "crew_power",
+     "per_rank": 0.04,
+     "max": 5,
+     "tier": 0,
+     "desc": "+4% a las pasivas de los tripulantes por nivel."
+    },
+    {
+     "id": "l_capacity",
+     "name": "Logística de Flota",
+     "effect": "march_capacity",
+     "per_rank": 0.03,
+     "max": 5,
+     "tier": 0,
+     "desc": "+3% de capacidad de flota por nivel."
+    },
+    {
+     "id": "l_capture",
+     "name": "Celda de Interrogación",
+     "effect": "capture_chance",
+     "per_rank": 0.1,
+     "max": 3,
+     "tier": 1,
+     "desc": "+10% de probabilidad de capturar Comandantes por nivel."
+    },
+    {
+     "id": "l_exp",
+     "name": "Academia de Oficiales",
+     "effect": "crew_exp",
+     "per_rank": 0.05,
+     "max": 5,
+     "tier": 1,
+     "desc": "+5% de EXP para los tripulantes por nivel."
+    },
+    {
+     "id": "l_ransom",
+     "name": "Diplomacia de Rehenes",
+     "effect": "ransom_bonus",
+     "per_rank": 0.1,
+     "max": 3,
+     "tier": 2,
+     "desc": "+10% del rescate que cobras por nivel."
+    },
+    {
+     "id": "l_cmdexp",
+     "name": "Experiencia de Mando",
+     "effect": "cmd_exp",
+     "per_rank": 0.05,
+     "max": 5,
+     "tier": 2,
+     "desc": "+5% de EXP del Comandante por nivel."
+    }
+   ]
+  }
+ ]
+}
