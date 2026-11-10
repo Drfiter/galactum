@@ -31,6 +31,8 @@ func _ready() -> void:
 		await fase6()
 	if only == 0 or only == 7:
 		await fase7()
+	if only == 0 or only == 8:
+		await fase8()
 	get_tree().quit()
 
 
@@ -355,6 +357,71 @@ func fase7() -> void:
 		s2.pressed.emit()
 	await _wait(0.8)
 	await shot("f7_04_elite_barrido")
+	game.close_all_panels()
+
+
+func fase8() -> void:
+	var p: Dictionary = me_srv()
+	var s: Node = srv()
+	var E: RefCounted = s.endgame
+	s.use_player_system(p)
+	E.ensure_system()
+	p["rank"] = "R5"
+	var hive: Dictionary = E.hives()[0]
+	hive["hp"] = int(hive["max_hp"] * 0.62)
+	hive["damage_by"][p["id"]] = 9400
+	hive["last_hit"] = U.now_ms()
+	s.world.bump(hive)
+	var ext: Dictionary = {}
+	for e: Dictionary in E.platforms():
+		if str(e["ptype"]) == "extraction":
+			ext = e
+	E._capture(ext, str(p["tag"]), U.now_ms())
+	game.close_all_panels()
+	game.show_map()
+	await _wait(1.0)
+	game.focus_tile(U.v2(ext["pos"]))
+	await _wait(1.5)
+	await shot("f8_01_plataformas_mapa")
+	game.hud.show_entity(E.citadel()["id"])
+	await _wait(0.8)
+	await shot("f8_02_ciudadela")
+	game.hud.hide_popup()
+	game.focus_tile(U.v2(hive["pos"]))
+	await _wait(1.5)
+	game.hud.show_entity(hive["id"])
+	await _wait(0.8)
+	await shot("f8_03_colmena")
+	game.hud.hide_popup()
+	game.open_panel("endgame", {"tab": "platforms"})
+	await _wait(1.0)
+	await shot("f8_04_guerra_plataformas")
+	game.close_all_panels()
+	game.open_panel("endgame", {"tab": "hives"})
+	await _wait(1.0)
+	await shot("f8_05_guerra_colmenas")
+	game.close_all_panels()
+	E._capture(E.citadel(), str(p["tag"]), U.now_ms())
+	E.grant_title(p, "admiral", p["id"])
+	s.mark_player_dirty(p["id"])
+	await _wait(0.8)
+	game.open_panel("endgame", {"tab": "titles"})
+	await _wait(1.0)
+	var gb: Button = game.modal_root.find_child("Grant_deserter", true, false) as Button
+	if gb != null:
+		gb.pressed.emit()
+	await _wait(0.8)
+	await shot("f8_06_titulos")
+	game.close_all_panels()
+	p["rooms"]["cryo"] = {"level": 3, "last_ts": U.now_ms(), "pending": {}}
+	p["cryo"] = {"infantry_1": 180, "drones_1": 90, "pilots_1": 60}
+	s.endgame.rescue_start(p)
+	s.mark_player_dirty(p["id"])
+	game.show_base()
+	await _wait(1.2)
+	game.open_panel("room", {"room": "cryo"})
+	await _wait(1.0)
+	await shot("f8_07_rescate")
 	game.close_all_panels()
 
 
