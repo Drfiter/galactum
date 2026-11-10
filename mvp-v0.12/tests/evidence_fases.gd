@@ -25,6 +25,8 @@ func _ready() -> void:
 		await fase3()
 	if only == 0 or only == 4:
 		await fase4()
+	if only == 0 or only == 5:
+		await fase5()
 	get_tree().quit()
 
 
@@ -207,6 +209,42 @@ func fase4() -> void:
 	await _wait(0.8)
 	await shot("f4_06_mapa_asedio")
 	game.hud.hide_popup()
+
+
+func fase5() -> void:
+	var p: Dictionary = me_srv()
+	p["rooms"]["bridge"]["level"] = 16
+	p["rooms"]["lab"]["level"] = 9
+	for rid: String in ["dock", "airlock", "cargo_bay", "trade_port", "containment", "cloak"]:
+		p["rooms"][rid] = {"level": 2, "last_ts": U.now_ms(), "pending": {}}
+	p["tech"] = {"kinetic_alloys": 3, "ablative_armor": 2, "nanomedicine": 1, "tier2_protocol": 1, "tier3_protocol": 1, "assisted_mining": 2, "ion_drives": 2, "neural_link": 1}
+	for k: String in ["ore", "kliptium", "water", "credits", "copper"]:
+		p["resources"][k] = int(p["resources"].get(k, 0)) + 200000
+	srv().mark_player_dirty(p["id"])
+	game.close_all_panels()
+	game.show_base()
+	await _wait(2.0)
+	await shot("f5_01_cubierta_24_salas")
+	game.open_panel("research")
+	await _wait(1.2)
+	await shot("f5_02_arbol_investigacion")
+	game.close_all_panels()
+	game.open_panel("room", {"room": "hangar"})
+	await _wait(1.0)
+	await shot("f5_03_hangar_n1_n5")
+	game.close_all_panels()
+	game.open_panel("room", {"room": "trade_port"})
+	await _wait(1.0)
+	await shot("f5_04_puerto_comercio")
+	game.close_all_panels()
+	game.show_map()
+	await _wait(1.0)
+	game.goto_mission({"event": "xeno_hunted"})
+	await _wait(0.8)
+	game.open_fleet_dialog("attack", GameClient.entities.get(game.map_view.selected_id, {}))
+	await _wait(1.0)
+	await shot("f5_05_formaciones")
+	game.close_all_panels()
 
 
 func _wait(s: float) -> void:
