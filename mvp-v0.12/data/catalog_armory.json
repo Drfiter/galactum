@@ -1,0 +1,3065 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Generado por tools/gen_armory_catalog.py. 150 materiales (30 tipos × 5 calidades) y 90 equipos (15 conjuntos × 6 ranuras) mejorables hasta el nivel 5. tier_by_armory_level[n] = escalón máximo forjable con la Armería en nivel n.",
+ "grades": [
+  {
+   "grade": 1,
+   "suffix": "I",
+   "quality": "Común",
+   "color": "#9aa6c8"
+  },
+  {
+   "grade": 2,
+   "suffix": "II",
+   "quality": "Refinado",
+   "color": "#5ce08a"
+  },
+  {
+   "grade": 3,
+   "suffix": "III",
+   "quality": "Superior",
+   "color": "#4fa8ff"
+  },
+  {
+   "grade": 4,
+   "suffix": "IV",
+   "quality": "Épico",
+   "color": "#b388ff"
+  },
+  {
+   "grade": 5,
+   "suffix": "V",
+   "quality": "Legendario",
+   "color": "#ffc24a"
+  }
+ ],
+ "slots": [
+  {
+   "id": "weapon",
+   "name": "Arma"
+  },
+  {
+   "id": "armor",
+   "name": "Blindaje"
+  },
+  {
+   "id": "visor",
+   "name": "Visor"
+  },
+  {
+   "id": "module",
+   "name": "Módulo táctico"
+  },
+  {
+   "id": "reactor",
+   "name": "Reactor"
+  },
+  {
+   "id": "emblem",
+   "name": "Emblema"
+  }
+ ],
+ "max_level": 5,
+ "level_step": 0.25,
+ "upgrade_credits": 900,
+ "refine_in": 4,
+ "tier_by_armory_level": [
+  0,
+  1,
+  1,
+  2,
+  2,
+  3,
+  3,
+  4,
+  4,
+  5,
+  5
+ ],
+ "set_bonus": [
+  {
+   "pieces": 3,
+   "effect": "attack",
+   "per_tier": 0.02
+  },
+  {
+   "pieces": 6,
+   "effect": "hp",
+   "per_tier": 0.03
+  }
+ ],
+ "drops": {
+  "_doc": "Caza: material de la especie con calidad = nivel de la xenoforma (si es abatida: count[nivel-1]; si no, la mitad). Minería: material de forja con calidad = nivel del asteroide.",
+  "hunt_count": [
+   2,
+   3,
+   3,
+   4,
+   5
+  ],
+  "mining_count": [
+   1,
+   2,
+   2,
+   3,
+   3
+  ]
+ },
+ "families": [
+  {
+   "id": "x_x01",
+   "name": "Quitina de Leviatán del Vacío",
+   "source": "hunt",
+   "species": "x01"
+  },
+  {
+   "id": "x_x02",
+   "name": "Escama de Enjambre Cristalino",
+   "source": "hunt",
+   "species": "x02"
+  },
+  {
+   "id": "x_x03",
+   "name": "Núcleo de Devorador de Plasma",
+   "source": "hunt",
+   "species": "x03"
+  },
+  {
+   "id": "x_x04",
+   "name": "Glándula de Acechador Umbrío",
+   "source": "hunt",
+   "species": "x04"
+  },
+  {
+   "id": "x_x05",
+   "name": "Fibra de Coloso Magmático",
+   "source": "hunt",
+   "species": "x05"
+  },
+  {
+   "id": "x_x06",
+   "name": "Cristal de Medusa Estelar",
+   "source": "hunt",
+   "species": "x06"
+  },
+  {
+   "id": "x_x07",
+   "name": "Quitina de Carroñero Orbital",
+   "source": "hunt",
+   "species": "x07"
+  },
+  {
+   "id": "x_x08",
+   "name": "Escama de Tejedora de Niebla",
+   "source": "hunt",
+   "species": "x08"
+  },
+  {
+   "id": "x_x09",
+   "name": "Núcleo de Quimera Lunar",
+   "source": "hunt",
+   "species": "x09"
+  },
+  {
+   "id": "x_x10",
+   "name": "Glándula de Pulpo Gravitatorio",
+   "source": "hunt",
+   "species": "x10"
+  },
+  {
+   "id": "x_x11",
+   "name": "Fibra de Escarabajo Férrico",
+   "source": "hunt",
+   "species": "x11"
+  },
+  {
+   "id": "x_x12",
+   "name": "Cristal de Anguila Iónica",
+   "source": "hunt",
+   "species": "x12"
+  },
+  {
+   "id": "x_x13",
+   "name": "Quitina de Brutalisco Xeno",
+   "source": "hunt",
+   "species": "x13"
+  },
+  {
+   "id": "x_x14",
+   "name": "Escama de Espectro Radiante",
+   "source": "hunt",
+   "species": "x14"
+  },
+  {
+   "id": "x_x15",
+   "name": "Núcleo de Larva Titánica",
+   "source": "hunt",
+   "species": "x15"
+  },
+  {
+   "id": "x_x16",
+   "name": "Glándula de Sierpe de Anillos",
+   "source": "hunt",
+   "species": "x16"
+  },
+  {
+   "id": "x_x17",
+   "name": "Fibra de Polilla del Púlsar",
+   "source": "hunt",
+   "species": "x17"
+  },
+  {
+   "id": "x_x18",
+   "name": "Cristal de Gusano Sísmico",
+   "source": "hunt",
+   "species": "x18"
+  },
+  {
+   "id": "x_x19",
+   "name": "Quitina de Hidra Criogénica",
+   "source": "hunt",
+   "species": "x19"
+  },
+  {
+   "id": "x_x20",
+   "name": "Escama de Mantis del Cinturón",
+   "source": "hunt",
+   "species": "x20"
+  },
+  {
+   "id": "x_x21",
+   "name": "Núcleo de Esporo Errante",
+   "source": "hunt",
+   "species": "x21"
+  },
+  {
+   "id": "x_x22",
+   "name": "Glándula de Behemot Estelar",
+   "source": "hunt",
+   "species": "x22"
+  },
+  {
+   "id": "x_x23",
+   "name": "Fibra de Sombra Nebular",
+   "source": "hunt",
+   "species": "x23"
+  },
+  {
+   "id": "x_x24",
+   "name": "Cristal de Reina Colmena",
+   "source": "hunt",
+   "species": "x24"
+  },
+  {
+   "id": "f_alloy",
+   "name": "Aleación Estelar",
+   "source": "mining"
+  },
+  {
+   "id": "f_plasma_fil",
+   "name": "Filamento de Plasma",
+   "source": "mining"
+  },
+  {
+   "id": "f_neutrino",
+   "name": "Placa de Neutrinos",
+   "source": "mining"
+  },
+  {
+   "id": "f_quantum",
+   "name": "Circuito Cuántico",
+   "source": "mining"
+  },
+  {
+   "id": "f_lens",
+   "name": "Lente Gravitacional",
+   "source": "mining"
+  },
+  {
+   "id": "f_nebula",
+   "name": "Polvo de Nebulosa",
+   "source": "mining"
+  }
+ ],
+ "materials": [
+  {
+   "id": "mat_x_x01_1",
+   "family": "x_x01",
+   "name": "Quitina de Leviatán del Vacío I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x01"
+  },
+  {
+   "id": "mat_x_x01_2",
+   "family": "x_x01",
+   "name": "Quitina de Leviatán del Vacío II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x01"
+  },
+  {
+   "id": "mat_x_x01_3",
+   "family": "x_x01",
+   "name": "Quitina de Leviatán del Vacío III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x01"
+  },
+  {
+   "id": "mat_x_x01_4",
+   "family": "x_x01",
+   "name": "Quitina de Leviatán del Vacío IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x01"
+  },
+  {
+   "id": "mat_x_x01_5",
+   "family": "x_x01",
+   "name": "Quitina de Leviatán del Vacío V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x01"
+  },
+  {
+   "id": "mat_x_x02_1",
+   "family": "x_x02",
+   "name": "Escama de Enjambre Cristalino I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x02"
+  },
+  {
+   "id": "mat_x_x02_2",
+   "family": "x_x02",
+   "name": "Escama de Enjambre Cristalino II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x02"
+  },
+  {
+   "id": "mat_x_x02_3",
+   "family": "x_x02",
+   "name": "Escama de Enjambre Cristalino III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x02"
+  },
+  {
+   "id": "mat_x_x02_4",
+   "family": "x_x02",
+   "name": "Escama de Enjambre Cristalino IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x02"
+  },
+  {
+   "id": "mat_x_x02_5",
+   "family": "x_x02",
+   "name": "Escama de Enjambre Cristalino V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x02"
+  },
+  {
+   "id": "mat_x_x03_1",
+   "family": "x_x03",
+   "name": "Núcleo de Devorador de Plasma I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x03"
+  },
+  {
+   "id": "mat_x_x03_2",
+   "family": "x_x03",
+   "name": "Núcleo de Devorador de Plasma II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x03"
+  },
+  {
+   "id": "mat_x_x03_3",
+   "family": "x_x03",
+   "name": "Núcleo de Devorador de Plasma III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x03"
+  },
+  {
+   "id": "mat_x_x03_4",
+   "family": "x_x03",
+   "name": "Núcleo de Devorador de Plasma IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x03"
+  },
+  {
+   "id": "mat_x_x03_5",
+   "family": "x_x03",
+   "name": "Núcleo de Devorador de Plasma V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x03"
+  },
+  {
+   "id": "mat_x_x04_1",
+   "family": "x_x04",
+   "name": "Glándula de Acechador Umbrío I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x04"
+  },
+  {
+   "id": "mat_x_x04_2",
+   "family": "x_x04",
+   "name": "Glándula de Acechador Umbrío II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x04"
+  },
+  {
+   "id": "mat_x_x04_3",
+   "family": "x_x04",
+   "name": "Glándula de Acechador Umbrío III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x04"
+  },
+  {
+   "id": "mat_x_x04_4",
+   "family": "x_x04",
+   "name": "Glándula de Acechador Umbrío IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x04"
+  },
+  {
+   "id": "mat_x_x04_5",
+   "family": "x_x04",
+   "name": "Glándula de Acechador Umbrío V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x04"
+  },
+  {
+   "id": "mat_x_x05_1",
+   "family": "x_x05",
+   "name": "Fibra de Coloso Magmático I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x05"
+  },
+  {
+   "id": "mat_x_x05_2",
+   "family": "x_x05",
+   "name": "Fibra de Coloso Magmático II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x05"
+  },
+  {
+   "id": "mat_x_x05_3",
+   "family": "x_x05",
+   "name": "Fibra de Coloso Magmático III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x05"
+  },
+  {
+   "id": "mat_x_x05_4",
+   "family": "x_x05",
+   "name": "Fibra de Coloso Magmático IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x05"
+  },
+  {
+   "id": "mat_x_x05_5",
+   "family": "x_x05",
+   "name": "Fibra de Coloso Magmático V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x05"
+  },
+  {
+   "id": "mat_x_x06_1",
+   "family": "x_x06",
+   "name": "Cristal de Medusa Estelar I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x06"
+  },
+  {
+   "id": "mat_x_x06_2",
+   "family": "x_x06",
+   "name": "Cristal de Medusa Estelar II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x06"
+  },
+  {
+   "id": "mat_x_x06_3",
+   "family": "x_x06",
+   "name": "Cristal de Medusa Estelar III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x06"
+  },
+  {
+   "id": "mat_x_x06_4",
+   "family": "x_x06",
+   "name": "Cristal de Medusa Estelar IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x06"
+  },
+  {
+   "id": "mat_x_x06_5",
+   "family": "x_x06",
+   "name": "Cristal de Medusa Estelar V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x06"
+  },
+  {
+   "id": "mat_x_x07_1",
+   "family": "x_x07",
+   "name": "Quitina de Carroñero Orbital I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x07"
+  },
+  {
+   "id": "mat_x_x07_2",
+   "family": "x_x07",
+   "name": "Quitina de Carroñero Orbital II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x07"
+  },
+  {
+   "id": "mat_x_x07_3",
+   "family": "x_x07",
+   "name": "Quitina de Carroñero Orbital III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x07"
+  },
+  {
+   "id": "mat_x_x07_4",
+   "family": "x_x07",
+   "name": "Quitina de Carroñero Orbital IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x07"
+  },
+  {
+   "id": "mat_x_x07_5",
+   "family": "x_x07",
+   "name": "Quitina de Carroñero Orbital V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x07"
+  },
+  {
+   "id": "mat_x_x08_1",
+   "family": "x_x08",
+   "name": "Escama de Tejedora de Niebla I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x08"
+  },
+  {
+   "id": "mat_x_x08_2",
+   "family": "x_x08",
+   "name": "Escama de Tejedora de Niebla II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x08"
+  },
+  {
+   "id": "mat_x_x08_3",
+   "family": "x_x08",
+   "name": "Escama de Tejedora de Niebla III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x08"
+  },
+  {
+   "id": "mat_x_x08_4",
+   "family": "x_x08",
+   "name": "Escama de Tejedora de Niebla IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x08"
+  },
+  {
+   "id": "mat_x_x08_5",
+   "family": "x_x08",
+   "name": "Escama de Tejedora de Niebla V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x08"
+  },
+  {
+   "id": "mat_x_x09_1",
+   "family": "x_x09",
+   "name": "Núcleo de Quimera Lunar I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x09"
+  },
+  {
+   "id": "mat_x_x09_2",
+   "family": "x_x09",
+   "name": "Núcleo de Quimera Lunar II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x09"
+  },
+  {
+   "id": "mat_x_x09_3",
+   "family": "x_x09",
+   "name": "Núcleo de Quimera Lunar III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x09"
+  },
+  {
+   "id": "mat_x_x09_4",
+   "family": "x_x09",
+   "name": "Núcleo de Quimera Lunar IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x09"
+  },
+  {
+   "id": "mat_x_x09_5",
+   "family": "x_x09",
+   "name": "Núcleo de Quimera Lunar V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x09"
+  },
+  {
+   "id": "mat_x_x10_1",
+   "family": "x_x10",
+   "name": "Glándula de Pulpo Gravitatorio I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x10"
+  },
+  {
+   "id": "mat_x_x10_2",
+   "family": "x_x10",
+   "name": "Glándula de Pulpo Gravitatorio II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x10"
+  },
+  {
+   "id": "mat_x_x10_3",
+   "family": "x_x10",
+   "name": "Glándula de Pulpo Gravitatorio III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x10"
+  },
+  {
+   "id": "mat_x_x10_4",
+   "family": "x_x10",
+   "name": "Glándula de Pulpo Gravitatorio IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x10"
+  },
+  {
+   "id": "mat_x_x10_5",
+   "family": "x_x10",
+   "name": "Glándula de Pulpo Gravitatorio V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x10"
+  },
+  {
+   "id": "mat_x_x11_1",
+   "family": "x_x11",
+   "name": "Fibra de Escarabajo Férrico I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x11"
+  },
+  {
+   "id": "mat_x_x11_2",
+   "family": "x_x11",
+   "name": "Fibra de Escarabajo Férrico II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x11"
+  },
+  {
+   "id": "mat_x_x11_3",
+   "family": "x_x11",
+   "name": "Fibra de Escarabajo Férrico III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x11"
+  },
+  {
+   "id": "mat_x_x11_4",
+   "family": "x_x11",
+   "name": "Fibra de Escarabajo Férrico IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x11"
+  },
+  {
+   "id": "mat_x_x11_5",
+   "family": "x_x11",
+   "name": "Fibra de Escarabajo Férrico V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x11"
+  },
+  {
+   "id": "mat_x_x12_1",
+   "family": "x_x12",
+   "name": "Cristal de Anguila Iónica I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x12"
+  },
+  {
+   "id": "mat_x_x12_2",
+   "family": "x_x12",
+   "name": "Cristal de Anguila Iónica II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x12"
+  },
+  {
+   "id": "mat_x_x12_3",
+   "family": "x_x12",
+   "name": "Cristal de Anguila Iónica III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x12"
+  },
+  {
+   "id": "mat_x_x12_4",
+   "family": "x_x12",
+   "name": "Cristal de Anguila Iónica IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x12"
+  },
+  {
+   "id": "mat_x_x12_5",
+   "family": "x_x12",
+   "name": "Cristal de Anguila Iónica V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x12"
+  },
+  {
+   "id": "mat_x_x13_1",
+   "family": "x_x13",
+   "name": "Quitina de Brutalisco Xeno I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x13"
+  },
+  {
+   "id": "mat_x_x13_2",
+   "family": "x_x13",
+   "name": "Quitina de Brutalisco Xeno II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x13"
+  },
+  {
+   "id": "mat_x_x13_3",
+   "family": "x_x13",
+   "name": "Quitina de Brutalisco Xeno III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x13"
+  },
+  {
+   "id": "mat_x_x13_4",
+   "family": "x_x13",
+   "name": "Quitina de Brutalisco Xeno IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x13"
+  },
+  {
+   "id": "mat_x_x13_5",
+   "family": "x_x13",
+   "name": "Quitina de Brutalisco Xeno V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x13"
+  },
+  {
+   "id": "mat_x_x14_1",
+   "family": "x_x14",
+   "name": "Escama de Espectro Radiante I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x14"
+  },
+  {
+   "id": "mat_x_x14_2",
+   "family": "x_x14",
+   "name": "Escama de Espectro Radiante II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x14"
+  },
+  {
+   "id": "mat_x_x14_3",
+   "family": "x_x14",
+   "name": "Escama de Espectro Radiante III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x14"
+  },
+  {
+   "id": "mat_x_x14_4",
+   "family": "x_x14",
+   "name": "Escama de Espectro Radiante IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x14"
+  },
+  {
+   "id": "mat_x_x14_5",
+   "family": "x_x14",
+   "name": "Escama de Espectro Radiante V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x14"
+  },
+  {
+   "id": "mat_x_x15_1",
+   "family": "x_x15",
+   "name": "Núcleo de Larva Titánica I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x15"
+  },
+  {
+   "id": "mat_x_x15_2",
+   "family": "x_x15",
+   "name": "Núcleo de Larva Titánica II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x15"
+  },
+  {
+   "id": "mat_x_x15_3",
+   "family": "x_x15",
+   "name": "Núcleo de Larva Titánica III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x15"
+  },
+  {
+   "id": "mat_x_x15_4",
+   "family": "x_x15",
+   "name": "Núcleo de Larva Titánica IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x15"
+  },
+  {
+   "id": "mat_x_x15_5",
+   "family": "x_x15",
+   "name": "Núcleo de Larva Titánica V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x15"
+  },
+  {
+   "id": "mat_x_x16_1",
+   "family": "x_x16",
+   "name": "Glándula de Sierpe de Anillos I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x16"
+  },
+  {
+   "id": "mat_x_x16_2",
+   "family": "x_x16",
+   "name": "Glándula de Sierpe de Anillos II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x16"
+  },
+  {
+   "id": "mat_x_x16_3",
+   "family": "x_x16",
+   "name": "Glándula de Sierpe de Anillos III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x16"
+  },
+  {
+   "id": "mat_x_x16_4",
+   "family": "x_x16",
+   "name": "Glándula de Sierpe de Anillos IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x16"
+  },
+  {
+   "id": "mat_x_x16_5",
+   "family": "x_x16",
+   "name": "Glándula de Sierpe de Anillos V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x16"
+  },
+  {
+   "id": "mat_x_x17_1",
+   "family": "x_x17",
+   "name": "Fibra de Polilla del Púlsar I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x17"
+  },
+  {
+   "id": "mat_x_x17_2",
+   "family": "x_x17",
+   "name": "Fibra de Polilla del Púlsar II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x17"
+  },
+  {
+   "id": "mat_x_x17_3",
+   "family": "x_x17",
+   "name": "Fibra de Polilla del Púlsar III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x17"
+  },
+  {
+   "id": "mat_x_x17_4",
+   "family": "x_x17",
+   "name": "Fibra de Polilla del Púlsar IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x17"
+  },
+  {
+   "id": "mat_x_x17_5",
+   "family": "x_x17",
+   "name": "Fibra de Polilla del Púlsar V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x17"
+  },
+  {
+   "id": "mat_x_x18_1",
+   "family": "x_x18",
+   "name": "Cristal de Gusano Sísmico I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x18"
+  },
+  {
+   "id": "mat_x_x18_2",
+   "family": "x_x18",
+   "name": "Cristal de Gusano Sísmico II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x18"
+  },
+  {
+   "id": "mat_x_x18_3",
+   "family": "x_x18",
+   "name": "Cristal de Gusano Sísmico III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x18"
+  },
+  {
+   "id": "mat_x_x18_4",
+   "family": "x_x18",
+   "name": "Cristal de Gusano Sísmico IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x18"
+  },
+  {
+   "id": "mat_x_x18_5",
+   "family": "x_x18",
+   "name": "Cristal de Gusano Sísmico V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x18"
+  },
+  {
+   "id": "mat_x_x19_1",
+   "family": "x_x19",
+   "name": "Quitina de Hidra Criogénica I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x19"
+  },
+  {
+   "id": "mat_x_x19_2",
+   "family": "x_x19",
+   "name": "Quitina de Hidra Criogénica II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x19"
+  },
+  {
+   "id": "mat_x_x19_3",
+   "family": "x_x19",
+   "name": "Quitina de Hidra Criogénica III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x19"
+  },
+  {
+   "id": "mat_x_x19_4",
+   "family": "x_x19",
+   "name": "Quitina de Hidra Criogénica IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x19"
+  },
+  {
+   "id": "mat_x_x19_5",
+   "family": "x_x19",
+   "name": "Quitina de Hidra Criogénica V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x19"
+  },
+  {
+   "id": "mat_x_x20_1",
+   "family": "x_x20",
+   "name": "Escama de Mantis del Cinturón I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x20"
+  },
+  {
+   "id": "mat_x_x20_2",
+   "family": "x_x20",
+   "name": "Escama de Mantis del Cinturón II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x20"
+  },
+  {
+   "id": "mat_x_x20_3",
+   "family": "x_x20",
+   "name": "Escama de Mantis del Cinturón III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x20"
+  },
+  {
+   "id": "mat_x_x20_4",
+   "family": "x_x20",
+   "name": "Escama de Mantis del Cinturón IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x20"
+  },
+  {
+   "id": "mat_x_x20_5",
+   "family": "x_x20",
+   "name": "Escama de Mantis del Cinturón V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x20"
+  },
+  {
+   "id": "mat_x_x21_1",
+   "family": "x_x21",
+   "name": "Núcleo de Esporo Errante I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x21"
+  },
+  {
+   "id": "mat_x_x21_2",
+   "family": "x_x21",
+   "name": "Núcleo de Esporo Errante II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x21"
+  },
+  {
+   "id": "mat_x_x21_3",
+   "family": "x_x21",
+   "name": "Núcleo de Esporo Errante III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x21"
+  },
+  {
+   "id": "mat_x_x21_4",
+   "family": "x_x21",
+   "name": "Núcleo de Esporo Errante IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x21"
+  },
+  {
+   "id": "mat_x_x21_5",
+   "family": "x_x21",
+   "name": "Núcleo de Esporo Errante V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x21"
+  },
+  {
+   "id": "mat_x_x22_1",
+   "family": "x_x22",
+   "name": "Glándula de Behemot Estelar I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x22"
+  },
+  {
+   "id": "mat_x_x22_2",
+   "family": "x_x22",
+   "name": "Glándula de Behemot Estelar II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x22"
+  },
+  {
+   "id": "mat_x_x22_3",
+   "family": "x_x22",
+   "name": "Glándula de Behemot Estelar III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x22"
+  },
+  {
+   "id": "mat_x_x22_4",
+   "family": "x_x22",
+   "name": "Glándula de Behemot Estelar IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x22"
+  },
+  {
+   "id": "mat_x_x22_5",
+   "family": "x_x22",
+   "name": "Glándula de Behemot Estelar V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x22"
+  },
+  {
+   "id": "mat_x_x23_1",
+   "family": "x_x23",
+   "name": "Fibra de Sombra Nebular I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x23"
+  },
+  {
+   "id": "mat_x_x23_2",
+   "family": "x_x23",
+   "name": "Fibra de Sombra Nebular II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x23"
+  },
+  {
+   "id": "mat_x_x23_3",
+   "family": "x_x23",
+   "name": "Fibra de Sombra Nebular III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x23"
+  },
+  {
+   "id": "mat_x_x23_4",
+   "family": "x_x23",
+   "name": "Fibra de Sombra Nebular IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x23"
+  },
+  {
+   "id": "mat_x_x23_5",
+   "family": "x_x23",
+   "name": "Fibra de Sombra Nebular V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x23"
+  },
+  {
+   "id": "mat_x_x24_1",
+   "family": "x_x24",
+   "name": "Cristal de Reina Colmena I",
+   "grade": 1,
+   "source": "hunt",
+   "species": "x24"
+  },
+  {
+   "id": "mat_x_x24_2",
+   "family": "x_x24",
+   "name": "Cristal de Reina Colmena II",
+   "grade": 2,
+   "source": "hunt",
+   "species": "x24"
+  },
+  {
+   "id": "mat_x_x24_3",
+   "family": "x_x24",
+   "name": "Cristal de Reina Colmena III",
+   "grade": 3,
+   "source": "hunt",
+   "species": "x24"
+  },
+  {
+   "id": "mat_x_x24_4",
+   "family": "x_x24",
+   "name": "Cristal de Reina Colmena IV",
+   "grade": 4,
+   "source": "hunt",
+   "species": "x24"
+  },
+  {
+   "id": "mat_x_x24_5",
+   "family": "x_x24",
+   "name": "Cristal de Reina Colmena V",
+   "grade": 5,
+   "source": "hunt",
+   "species": "x24"
+  },
+  {
+   "id": "mat_f_alloy_1",
+   "family": "f_alloy",
+   "name": "Aleación Estelar I",
+   "grade": 1,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_alloy_2",
+   "family": "f_alloy",
+   "name": "Aleación Estelar II",
+   "grade": 2,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_alloy_3",
+   "family": "f_alloy",
+   "name": "Aleación Estelar III",
+   "grade": 3,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_alloy_4",
+   "family": "f_alloy",
+   "name": "Aleación Estelar IV",
+   "grade": 4,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_alloy_5",
+   "family": "f_alloy",
+   "name": "Aleación Estelar V",
+   "grade": 5,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_plasma_fil_1",
+   "family": "f_plasma_fil",
+   "name": "Filamento de Plasma I",
+   "grade": 1,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_plasma_fil_2",
+   "family": "f_plasma_fil",
+   "name": "Filamento de Plasma II",
+   "grade": 2,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_plasma_fil_3",
+   "family": "f_plasma_fil",
+   "name": "Filamento de Plasma III",
+   "grade": 3,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_plasma_fil_4",
+   "family": "f_plasma_fil",
+   "name": "Filamento de Plasma IV",
+   "grade": 4,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_plasma_fil_5",
+   "family": "f_plasma_fil",
+   "name": "Filamento de Plasma V",
+   "grade": 5,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_neutrino_1",
+   "family": "f_neutrino",
+   "name": "Placa de Neutrinos I",
+   "grade": 1,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_neutrino_2",
+   "family": "f_neutrino",
+   "name": "Placa de Neutrinos II",
+   "grade": 2,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_neutrino_3",
+   "family": "f_neutrino",
+   "name": "Placa de Neutrinos III",
+   "grade": 3,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_neutrino_4",
+   "family": "f_neutrino",
+   "name": "Placa de Neutrinos IV",
+   "grade": 4,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_neutrino_5",
+   "family": "f_neutrino",
+   "name": "Placa de Neutrinos V",
+   "grade": 5,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_quantum_1",
+   "family": "f_quantum",
+   "name": "Circuito Cuántico I",
+   "grade": 1,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_quantum_2",
+   "family": "f_quantum",
+   "name": "Circuito Cuántico II",
+   "grade": 2,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_quantum_3",
+   "family": "f_quantum",
+   "name": "Circuito Cuántico III",
+   "grade": 3,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_quantum_4",
+   "family": "f_quantum",
+   "name": "Circuito Cuántico IV",
+   "grade": 4,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_quantum_5",
+   "family": "f_quantum",
+   "name": "Circuito Cuántico V",
+   "grade": 5,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_lens_1",
+   "family": "f_lens",
+   "name": "Lente Gravitacional I",
+   "grade": 1,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_lens_2",
+   "family": "f_lens",
+   "name": "Lente Gravitacional II",
+   "grade": 2,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_lens_3",
+   "family": "f_lens",
+   "name": "Lente Gravitacional III",
+   "grade": 3,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_lens_4",
+   "family": "f_lens",
+   "name": "Lente Gravitacional IV",
+   "grade": 4,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_lens_5",
+   "family": "f_lens",
+   "name": "Lente Gravitacional V",
+   "grade": 5,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_nebula_1",
+   "family": "f_nebula",
+   "name": "Polvo de Nebulosa I",
+   "grade": 1,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_nebula_2",
+   "family": "f_nebula",
+   "name": "Polvo de Nebulosa II",
+   "grade": 2,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_nebula_3",
+   "family": "f_nebula",
+   "name": "Polvo de Nebulosa III",
+   "grade": 3,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_nebula_4",
+   "family": "f_nebula",
+   "name": "Polvo de Nebulosa IV",
+   "grade": 4,
+   "source": "mining"
+  },
+  {
+   "id": "mat_f_nebula_5",
+   "family": "f_nebula",
+   "name": "Polvo de Nebulosa V",
+   "grade": 5,
+   "source": "mining"
+  }
+ ],
+ "sets": [
+  {
+   "id": "set_01",
+   "name": "Vanguardia",
+   "tier": 1
+  },
+  {
+   "id": "set_02",
+   "name": "Centinela",
+   "tier": 1
+  },
+  {
+   "id": "set_03",
+   "name": "Halcón",
+   "tier": 1
+  },
+  {
+   "id": "set_04",
+   "name": "Coloso",
+   "tier": 2
+  },
+  {
+   "id": "set_05",
+   "name": "Espectro",
+   "tier": 2
+  },
+  {
+   "id": "set_06",
+   "name": "Nébula",
+   "tier": 2
+  },
+  {
+   "id": "set_07",
+   "name": "Titán",
+   "tier": 3
+  },
+  {
+   "id": "set_08",
+   "name": "Quasar",
+   "tier": 3
+  },
+  {
+   "id": "set_09",
+   "name": "Púlsar",
+   "tier": 3
+  },
+  {
+   "id": "set_10",
+   "name": "Aurora",
+   "tier": 4
+  },
+  {
+   "id": "set_11",
+   "name": "Eclipse",
+   "tier": 4
+  },
+  {
+   "id": "set_12",
+   "name": "Supernova",
+   "tier": 4
+  },
+  {
+   "id": "set_13",
+   "name": "Singular",
+   "tier": 5
+  },
+  {
+   "id": "set_14",
+   "name": "Leviatán",
+   "tier": 5
+  },
+  {
+   "id": "set_15",
+   "name": "Horizonte",
+   "tier": 5
+  }
+ ],
+ "equipment": [
+  {
+   "id": "eq_01_weapon",
+   "name": "Cañón Vanguardia",
+   "slot": "weapon",
+   "set": "set_01",
+   "tier": 1,
+   "stats": {
+    "attack": 0.02,
+    "pve_damage": 0.015
+   },
+   "recipe": {
+    "mat_x_x01_1": 4,
+    "mat_x_x08_1": 3,
+    "mat_f_alloy_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_01_armor",
+   "name": "Blindaje Vanguardia",
+   "slot": "armor",
+   "set": "set_01",
+   "tier": 1,
+   "stats": {
+    "defense": 0.02,
+    "hp": 0.015
+   },
+   "recipe": {
+    "mat_x_x02_1": 4,
+    "mat_x_x09_1": 3,
+    "mat_f_plasma_fil_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_01_visor",
+   "name": "Visor Vanguardia",
+   "slot": "visor",
+   "set": "set_01",
+   "tier": 1,
+   "stats": {
+    "hp": 0.015,
+    "capture_resist": 0.04
+   },
+   "recipe": {
+    "mat_x_x03_1": 4,
+    "mat_x_x10_1": 3,
+    "mat_f_neutrino_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_01_module",
+   "name": "Módulo Vanguardia",
+   "slot": "module",
+   "set": "set_01",
+   "tier": 1,
+   "stats": {
+    "march_speed": 0.02,
+    "load": 0.03
+   },
+   "recipe": {
+    "mat_x_x04_1": 4,
+    "mat_x_x11_1": 3,
+    "mat_f_quantum_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_01_reactor",
+   "name": "Reactor Vanguardia",
+   "slot": "reactor",
+   "set": "set_01",
+   "tier": 1,
+   "stats": {
+    "production": 0.02,
+    "gather_speed": 0.02
+   },
+   "recipe": {
+    "mat_x_x05_1": 4,
+    "mat_x_x12_1": 3,
+    "mat_f_lens_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_01_emblem",
+   "name": "Emblema Vanguardia",
+   "slot": "emblem",
+   "set": "set_01",
+   "tier": 1,
+   "stats": {
+    "crew_power": 0.03,
+    "research_speed": 0.02
+   },
+   "recipe": {
+    "mat_x_x06_1": 4,
+    "mat_x_x13_1": 3,
+    "mat_f_nebula_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_02_weapon",
+   "name": "Cañón Centinela",
+   "slot": "weapon",
+   "set": "set_02",
+   "tier": 1,
+   "stats": {
+    "attack": 0.02,
+    "pve_damage": 0.015
+   },
+   "recipe": {
+    "mat_x_x07_1": 4,
+    "mat_x_x14_1": 3,
+    "mat_f_plasma_fil_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_02_armor",
+   "name": "Blindaje Centinela",
+   "slot": "armor",
+   "set": "set_02",
+   "tier": 1,
+   "stats": {
+    "defense": 0.02,
+    "hp": 0.015
+   },
+   "recipe": {
+    "mat_x_x08_1": 4,
+    "mat_x_x15_1": 3,
+    "mat_f_neutrino_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_02_visor",
+   "name": "Visor Centinela",
+   "slot": "visor",
+   "set": "set_02",
+   "tier": 1,
+   "stats": {
+    "hp": 0.015,
+    "capture_resist": 0.04
+   },
+   "recipe": {
+    "mat_x_x09_1": 4,
+    "mat_x_x16_1": 3,
+    "mat_f_quantum_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_02_module",
+   "name": "Módulo Centinela",
+   "slot": "module",
+   "set": "set_02",
+   "tier": 1,
+   "stats": {
+    "march_speed": 0.02,
+    "load": 0.03
+   },
+   "recipe": {
+    "mat_x_x10_1": 4,
+    "mat_x_x17_1": 3,
+    "mat_f_lens_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_02_reactor",
+   "name": "Reactor Centinela",
+   "slot": "reactor",
+   "set": "set_02",
+   "tier": 1,
+   "stats": {
+    "production": 0.02,
+    "gather_speed": 0.02
+   },
+   "recipe": {
+    "mat_x_x11_1": 4,
+    "mat_x_x18_1": 3,
+    "mat_f_nebula_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_02_emblem",
+   "name": "Emblema Centinela",
+   "slot": "emblem",
+   "set": "set_02",
+   "tier": 1,
+   "stats": {
+    "crew_power": 0.03,
+    "research_speed": 0.02
+   },
+   "recipe": {
+    "mat_x_x12_1": 4,
+    "mat_x_x19_1": 3,
+    "mat_f_alloy_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_03_weapon",
+   "name": "Cañón Halcón",
+   "slot": "weapon",
+   "set": "set_03",
+   "tier": 1,
+   "stats": {
+    "attack": 0.02,
+    "pve_damage": 0.015
+   },
+   "recipe": {
+    "mat_x_x13_1": 4,
+    "mat_x_x20_1": 3,
+    "mat_f_neutrino_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_03_armor",
+   "name": "Blindaje Halcón",
+   "slot": "armor",
+   "set": "set_03",
+   "tier": 1,
+   "stats": {
+    "defense": 0.02,
+    "hp": 0.015
+   },
+   "recipe": {
+    "mat_x_x14_1": 4,
+    "mat_x_x21_1": 3,
+    "mat_f_quantum_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_03_visor",
+   "name": "Visor Halcón",
+   "slot": "visor",
+   "set": "set_03",
+   "tier": 1,
+   "stats": {
+    "hp": 0.015,
+    "capture_resist": 0.04
+   },
+   "recipe": {
+    "mat_x_x15_1": 4,
+    "mat_x_x22_1": 3,
+    "mat_f_lens_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_03_module",
+   "name": "Módulo Halcón",
+   "slot": "module",
+   "set": "set_03",
+   "tier": 1,
+   "stats": {
+    "march_speed": 0.02,
+    "load": 0.03
+   },
+   "recipe": {
+    "mat_x_x16_1": 4,
+    "mat_x_x23_1": 3,
+    "mat_f_nebula_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_03_reactor",
+   "name": "Reactor Halcón",
+   "slot": "reactor",
+   "set": "set_03",
+   "tier": 1,
+   "stats": {
+    "production": 0.02,
+    "gather_speed": 0.02
+   },
+   "recipe": {
+    "mat_x_x17_1": 4,
+    "mat_x_x24_1": 3,
+    "mat_f_alloy_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_03_emblem",
+   "name": "Emblema Halcón",
+   "slot": "emblem",
+   "set": "set_03",
+   "tier": 1,
+   "stats": {
+    "crew_power": 0.03,
+    "research_speed": 0.02
+   },
+   "recipe": {
+    "mat_x_x18_1": 4,
+    "mat_x_x01_1": 3,
+    "mat_f_plasma_fil_1": 3
+   },
+   "credits": 1500
+  },
+  {
+   "id": "eq_04_weapon",
+   "name": "Cañón Coloso",
+   "slot": "weapon",
+   "set": "set_04",
+   "tier": 2,
+   "stats": {
+    "attack": 0.032,
+    "pve_damage": 0.024
+   },
+   "recipe": {
+    "mat_x_x19_2": 5,
+    "mat_x_x02_2": 4,
+    "mat_f_quantum_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_04_armor",
+   "name": "Blindaje Coloso",
+   "slot": "armor",
+   "set": "set_04",
+   "tier": 2,
+   "stats": {
+    "defense": 0.032,
+    "hp": 0.024
+   },
+   "recipe": {
+    "mat_x_x20_2": 5,
+    "mat_x_x03_2": 4,
+    "mat_f_lens_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_04_visor",
+   "name": "Visor Coloso",
+   "slot": "visor",
+   "set": "set_04",
+   "tier": 2,
+   "stats": {
+    "hp": 0.024,
+    "capture_resist": 0.064
+   },
+   "recipe": {
+    "mat_x_x21_2": 5,
+    "mat_x_x04_2": 4,
+    "mat_f_nebula_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_04_module",
+   "name": "Módulo Coloso",
+   "slot": "module",
+   "set": "set_04",
+   "tier": 2,
+   "stats": {
+    "march_speed": 0.032,
+    "load": 0.048
+   },
+   "recipe": {
+    "mat_x_x22_2": 5,
+    "mat_x_x05_2": 4,
+    "mat_f_alloy_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_04_reactor",
+   "name": "Reactor Coloso",
+   "slot": "reactor",
+   "set": "set_04",
+   "tier": 2,
+   "stats": {
+    "production": 0.032,
+    "gather_speed": 0.032
+   },
+   "recipe": {
+    "mat_x_x23_2": 5,
+    "mat_x_x06_2": 4,
+    "mat_f_plasma_fil_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_04_emblem",
+   "name": "Emblema Coloso",
+   "slot": "emblem",
+   "set": "set_04",
+   "tier": 2,
+   "stats": {
+    "crew_power": 0.048,
+    "research_speed": 0.032
+   },
+   "recipe": {
+    "mat_x_x24_2": 5,
+    "mat_x_x07_2": 4,
+    "mat_f_neutrino_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_05_weapon",
+   "name": "Cañón Espectro",
+   "slot": "weapon",
+   "set": "set_05",
+   "tier": 2,
+   "stats": {
+    "attack": 0.032,
+    "pve_damage": 0.024
+   },
+   "recipe": {
+    "mat_x_x01_2": 5,
+    "mat_x_x08_2": 4,
+    "mat_f_lens_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_05_armor",
+   "name": "Blindaje Espectro",
+   "slot": "armor",
+   "set": "set_05",
+   "tier": 2,
+   "stats": {
+    "defense": 0.032,
+    "hp": 0.024
+   },
+   "recipe": {
+    "mat_x_x02_2": 5,
+    "mat_x_x09_2": 4,
+    "mat_f_nebula_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_05_visor",
+   "name": "Visor Espectro",
+   "slot": "visor",
+   "set": "set_05",
+   "tier": 2,
+   "stats": {
+    "hp": 0.024,
+    "capture_resist": 0.064
+   },
+   "recipe": {
+    "mat_x_x03_2": 5,
+    "mat_x_x10_2": 4,
+    "mat_f_alloy_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_05_module",
+   "name": "Módulo Espectro",
+   "slot": "module",
+   "set": "set_05",
+   "tier": 2,
+   "stats": {
+    "march_speed": 0.032,
+    "load": 0.048
+   },
+   "recipe": {
+    "mat_x_x04_2": 5,
+    "mat_x_x11_2": 4,
+    "mat_f_plasma_fil_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_05_reactor",
+   "name": "Reactor Espectro",
+   "slot": "reactor",
+   "set": "set_05",
+   "tier": 2,
+   "stats": {
+    "production": 0.032,
+    "gather_speed": 0.032
+   },
+   "recipe": {
+    "mat_x_x05_2": 5,
+    "mat_x_x12_2": 4,
+    "mat_f_neutrino_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_05_emblem",
+   "name": "Emblema Espectro",
+   "slot": "emblem",
+   "set": "set_05",
+   "tier": 2,
+   "stats": {
+    "crew_power": 0.048,
+    "research_speed": 0.032
+   },
+   "recipe": {
+    "mat_x_x06_2": 5,
+    "mat_x_x13_2": 4,
+    "mat_f_quantum_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_06_weapon",
+   "name": "Cañón Nébula",
+   "slot": "weapon",
+   "set": "set_06",
+   "tier": 2,
+   "stats": {
+    "attack": 0.032,
+    "pve_damage": 0.024
+   },
+   "recipe": {
+    "mat_x_x07_2": 5,
+    "mat_x_x14_2": 4,
+    "mat_f_nebula_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_06_armor",
+   "name": "Blindaje Nébula",
+   "slot": "armor",
+   "set": "set_06",
+   "tier": 2,
+   "stats": {
+    "defense": 0.032,
+    "hp": 0.024
+   },
+   "recipe": {
+    "mat_x_x08_2": 5,
+    "mat_x_x15_2": 4,
+    "mat_f_alloy_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_06_visor",
+   "name": "Visor Nébula",
+   "slot": "visor",
+   "set": "set_06",
+   "tier": 2,
+   "stats": {
+    "hp": 0.024,
+    "capture_resist": 0.064
+   },
+   "recipe": {
+    "mat_x_x09_2": 5,
+    "mat_x_x16_2": 4,
+    "mat_f_plasma_fil_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_06_module",
+   "name": "Módulo Nébula",
+   "slot": "module",
+   "set": "set_06",
+   "tier": 2,
+   "stats": {
+    "march_speed": 0.032,
+    "load": 0.048
+   },
+   "recipe": {
+    "mat_x_x10_2": 5,
+    "mat_x_x17_2": 4,
+    "mat_f_neutrino_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_06_reactor",
+   "name": "Reactor Nébula",
+   "slot": "reactor",
+   "set": "set_06",
+   "tier": 2,
+   "stats": {
+    "production": 0.032,
+    "gather_speed": 0.032
+   },
+   "recipe": {
+    "mat_x_x11_2": 5,
+    "mat_x_x18_2": 4,
+    "mat_f_quantum_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_06_emblem",
+   "name": "Emblema Nébula",
+   "slot": "emblem",
+   "set": "set_06",
+   "tier": 2,
+   "stats": {
+    "crew_power": 0.048,
+    "research_speed": 0.032
+   },
+   "recipe": {
+    "mat_x_x12_2": 5,
+    "mat_x_x19_2": 4,
+    "mat_f_lens_2": 4
+   },
+   "credits": 3000
+  },
+  {
+   "id": "eq_07_weapon",
+   "name": "Cañón Titán",
+   "slot": "weapon",
+   "set": "set_07",
+   "tier": 3,
+   "stats": {
+    "attack": 0.048,
+    "pve_damage": 0.036
+   },
+   "recipe": {
+    "mat_x_x13_3": 6,
+    "mat_x_x20_3": 5,
+    "mat_f_alloy_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_07_armor",
+   "name": "Blindaje Titán",
+   "slot": "armor",
+   "set": "set_07",
+   "tier": 3,
+   "stats": {
+    "defense": 0.048,
+    "hp": 0.036
+   },
+   "recipe": {
+    "mat_x_x14_3": 6,
+    "mat_x_x21_3": 5,
+    "mat_f_plasma_fil_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_07_visor",
+   "name": "Visor Titán",
+   "slot": "visor",
+   "set": "set_07",
+   "tier": 3,
+   "stats": {
+    "hp": 0.036,
+    "capture_resist": 0.096
+   },
+   "recipe": {
+    "mat_x_x15_3": 6,
+    "mat_x_x22_3": 5,
+    "mat_f_neutrino_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_07_module",
+   "name": "Módulo Titán",
+   "slot": "module",
+   "set": "set_07",
+   "tier": 3,
+   "stats": {
+    "march_speed": 0.048,
+    "load": 0.072
+   },
+   "recipe": {
+    "mat_x_x16_3": 6,
+    "mat_x_x23_3": 5,
+    "mat_f_quantum_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_07_reactor",
+   "name": "Reactor Titán",
+   "slot": "reactor",
+   "set": "set_07",
+   "tier": 3,
+   "stats": {
+    "production": 0.048,
+    "gather_speed": 0.048
+   },
+   "recipe": {
+    "mat_x_x17_3": 6,
+    "mat_x_x24_3": 5,
+    "mat_f_lens_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_07_emblem",
+   "name": "Emblema Titán",
+   "slot": "emblem",
+   "set": "set_07",
+   "tier": 3,
+   "stats": {
+    "crew_power": 0.072,
+    "research_speed": 0.048
+   },
+   "recipe": {
+    "mat_x_x18_3": 6,
+    "mat_x_x01_3": 5,
+    "mat_f_nebula_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_08_weapon",
+   "name": "Cañón Quasar",
+   "slot": "weapon",
+   "set": "set_08",
+   "tier": 3,
+   "stats": {
+    "attack": 0.048,
+    "pve_damage": 0.036
+   },
+   "recipe": {
+    "mat_x_x19_3": 6,
+    "mat_x_x02_3": 5,
+    "mat_f_plasma_fil_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_08_armor",
+   "name": "Blindaje Quasar",
+   "slot": "armor",
+   "set": "set_08",
+   "tier": 3,
+   "stats": {
+    "defense": 0.048,
+    "hp": 0.036
+   },
+   "recipe": {
+    "mat_x_x20_3": 6,
+    "mat_x_x03_3": 5,
+    "mat_f_neutrino_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_08_visor",
+   "name": "Visor Quasar",
+   "slot": "visor",
+   "set": "set_08",
+   "tier": 3,
+   "stats": {
+    "hp": 0.036,
+    "capture_resist": 0.096
+   },
+   "recipe": {
+    "mat_x_x21_3": 6,
+    "mat_x_x04_3": 5,
+    "mat_f_quantum_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_08_module",
+   "name": "Módulo Quasar",
+   "slot": "module",
+   "set": "set_08",
+   "tier": 3,
+   "stats": {
+    "march_speed": 0.048,
+    "load": 0.072
+   },
+   "recipe": {
+    "mat_x_x22_3": 6,
+    "mat_x_x05_3": 5,
+    "mat_f_lens_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_08_reactor",
+   "name": "Reactor Quasar",
+   "slot": "reactor",
+   "set": "set_08",
+   "tier": 3,
+   "stats": {
+    "production": 0.048,
+    "gather_speed": 0.048
+   },
+   "recipe": {
+    "mat_x_x23_3": 6,
+    "mat_x_x06_3": 5,
+    "mat_f_nebula_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_08_emblem",
+   "name": "Emblema Quasar",
+   "slot": "emblem",
+   "set": "set_08",
+   "tier": 3,
+   "stats": {
+    "crew_power": 0.072,
+    "research_speed": 0.048
+   },
+   "recipe": {
+    "mat_x_x24_3": 6,
+    "mat_x_x07_3": 5,
+    "mat_f_alloy_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_09_weapon",
+   "name": "Cañón Púlsar",
+   "slot": "weapon",
+   "set": "set_09",
+   "tier": 3,
+   "stats": {
+    "attack": 0.048,
+    "pve_damage": 0.036
+   },
+   "recipe": {
+    "mat_x_x01_3": 6,
+    "mat_x_x08_3": 5,
+    "mat_f_neutrino_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_09_armor",
+   "name": "Blindaje Púlsar",
+   "slot": "armor",
+   "set": "set_09",
+   "tier": 3,
+   "stats": {
+    "defense": 0.048,
+    "hp": 0.036
+   },
+   "recipe": {
+    "mat_x_x02_3": 6,
+    "mat_x_x09_3": 5,
+    "mat_f_quantum_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_09_visor",
+   "name": "Visor Púlsar",
+   "slot": "visor",
+   "set": "set_09",
+   "tier": 3,
+   "stats": {
+    "hp": 0.036,
+    "capture_resist": 0.096
+   },
+   "recipe": {
+    "mat_x_x03_3": 6,
+    "mat_x_x10_3": 5,
+    "mat_f_lens_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_09_module",
+   "name": "Módulo Púlsar",
+   "slot": "module",
+   "set": "set_09",
+   "tier": 3,
+   "stats": {
+    "march_speed": 0.048,
+    "load": 0.072
+   },
+   "recipe": {
+    "mat_x_x04_3": 6,
+    "mat_x_x11_3": 5,
+    "mat_f_nebula_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_09_reactor",
+   "name": "Reactor Púlsar",
+   "slot": "reactor",
+   "set": "set_09",
+   "tier": 3,
+   "stats": {
+    "production": 0.048,
+    "gather_speed": 0.048
+   },
+   "recipe": {
+    "mat_x_x05_3": 6,
+    "mat_x_x12_3": 5,
+    "mat_f_alloy_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_09_emblem",
+   "name": "Emblema Púlsar",
+   "slot": "emblem",
+   "set": "set_09",
+   "tier": 3,
+   "stats": {
+    "crew_power": 0.072,
+    "research_speed": 0.048
+   },
+   "recipe": {
+    "mat_x_x06_3": 6,
+    "mat_x_x13_3": 5,
+    "mat_f_plasma_fil_3": 5
+   },
+   "credits": 4500
+  },
+  {
+   "id": "eq_10_weapon",
+   "name": "Cañón Aurora",
+   "slot": "weapon",
+   "set": "set_10",
+   "tier": 4,
+   "stats": {
+    "attack": 0.068,
+    "pve_damage": 0.051
+   },
+   "recipe": {
+    "mat_x_x07_4": 7,
+    "mat_x_x14_4": 6,
+    "mat_f_quantum_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_10_armor",
+   "name": "Blindaje Aurora",
+   "slot": "armor",
+   "set": "set_10",
+   "tier": 4,
+   "stats": {
+    "defense": 0.068,
+    "hp": 0.051
+   },
+   "recipe": {
+    "mat_x_x08_4": 7,
+    "mat_x_x15_4": 6,
+    "mat_f_lens_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_10_visor",
+   "name": "Visor Aurora",
+   "slot": "visor",
+   "set": "set_10",
+   "tier": 4,
+   "stats": {
+    "hp": 0.051,
+    "capture_resist": 0.136
+   },
+   "recipe": {
+    "mat_x_x09_4": 7,
+    "mat_x_x16_4": 6,
+    "mat_f_nebula_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_10_module",
+   "name": "Módulo Aurora",
+   "slot": "module",
+   "set": "set_10",
+   "tier": 4,
+   "stats": {
+    "march_speed": 0.068,
+    "load": 0.102
+   },
+   "recipe": {
+    "mat_x_x10_4": 7,
+    "mat_x_x17_4": 6,
+    "mat_f_alloy_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_10_reactor",
+   "name": "Reactor Aurora",
+   "slot": "reactor",
+   "set": "set_10",
+   "tier": 4,
+   "stats": {
+    "production": 0.068,
+    "gather_speed": 0.068
+   },
+   "recipe": {
+    "mat_x_x11_4": 7,
+    "mat_x_x18_4": 6,
+    "mat_f_plasma_fil_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_10_emblem",
+   "name": "Emblema Aurora",
+   "slot": "emblem",
+   "set": "set_10",
+   "tier": 4,
+   "stats": {
+    "crew_power": 0.102,
+    "research_speed": 0.068
+   },
+   "recipe": {
+    "mat_x_x12_4": 7,
+    "mat_x_x19_4": 6,
+    "mat_f_neutrino_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_11_weapon",
+   "name": "Cañón Eclipse",
+   "slot": "weapon",
+   "set": "set_11",
+   "tier": 4,
+   "stats": {
+    "attack": 0.068,
+    "pve_damage": 0.051
+   },
+   "recipe": {
+    "mat_x_x13_4": 7,
+    "mat_x_x20_4": 6,
+    "mat_f_lens_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_11_armor",
+   "name": "Blindaje Eclipse",
+   "slot": "armor",
+   "set": "set_11",
+   "tier": 4,
+   "stats": {
+    "defense": 0.068,
+    "hp": 0.051
+   },
+   "recipe": {
+    "mat_x_x14_4": 7,
+    "mat_x_x21_4": 6,
+    "mat_f_nebula_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_11_visor",
+   "name": "Visor Eclipse",
+   "slot": "visor",
+   "set": "set_11",
+   "tier": 4,
+   "stats": {
+    "hp": 0.051,
+    "capture_resist": 0.136
+   },
+   "recipe": {
+    "mat_x_x15_4": 7,
+    "mat_x_x22_4": 6,
+    "mat_f_alloy_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_11_module",
+   "name": "Módulo Eclipse",
+   "slot": "module",
+   "set": "set_11",
+   "tier": 4,
+   "stats": {
+    "march_speed": 0.068,
+    "load": 0.102
+   },
+   "recipe": {
+    "mat_x_x16_4": 7,
+    "mat_x_x23_4": 6,
+    "mat_f_plasma_fil_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_11_reactor",
+   "name": "Reactor Eclipse",
+   "slot": "reactor",
+   "set": "set_11",
+   "tier": 4,
+   "stats": {
+    "production": 0.068,
+    "gather_speed": 0.068
+   },
+   "recipe": {
+    "mat_x_x17_4": 7,
+    "mat_x_x24_4": 6,
+    "mat_f_neutrino_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_11_emblem",
+   "name": "Emblema Eclipse",
+   "slot": "emblem",
+   "set": "set_11",
+   "tier": 4,
+   "stats": {
+    "crew_power": 0.102,
+    "research_speed": 0.068
+   },
+   "recipe": {
+    "mat_x_x18_4": 7,
+    "mat_x_x01_4": 6,
+    "mat_f_quantum_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_12_weapon",
+   "name": "Cañón Supernova",
+   "slot": "weapon",
+   "set": "set_12",
+   "tier": 4,
+   "stats": {
+    "attack": 0.068,
+    "pve_damage": 0.051
+   },
+   "recipe": {
+    "mat_x_x19_4": 7,
+    "mat_x_x02_4": 6,
+    "mat_f_nebula_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_12_armor",
+   "name": "Blindaje Supernova",
+   "slot": "armor",
+   "set": "set_12",
+   "tier": 4,
+   "stats": {
+    "defense": 0.068,
+    "hp": 0.051
+   },
+   "recipe": {
+    "mat_x_x20_4": 7,
+    "mat_x_x03_4": 6,
+    "mat_f_alloy_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_12_visor",
+   "name": "Visor Supernova",
+   "slot": "visor",
+   "set": "set_12",
+   "tier": 4,
+   "stats": {
+    "hp": 0.051,
+    "capture_resist": 0.136
+   },
+   "recipe": {
+    "mat_x_x21_4": 7,
+    "mat_x_x04_4": 6,
+    "mat_f_plasma_fil_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_12_module",
+   "name": "Módulo Supernova",
+   "slot": "module",
+   "set": "set_12",
+   "tier": 4,
+   "stats": {
+    "march_speed": 0.068,
+    "load": 0.102
+   },
+   "recipe": {
+    "mat_x_x22_4": 7,
+    "mat_x_x05_4": 6,
+    "mat_f_neutrino_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_12_reactor",
+   "name": "Reactor Supernova",
+   "slot": "reactor",
+   "set": "set_12",
+   "tier": 4,
+   "stats": {
+    "production": 0.068,
+    "gather_speed": 0.068
+   },
+   "recipe": {
+    "mat_x_x23_4": 7,
+    "mat_x_x06_4": 6,
+    "mat_f_quantum_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_12_emblem",
+   "name": "Emblema Supernova",
+   "slot": "emblem",
+   "set": "set_12",
+   "tier": 4,
+   "stats": {
+    "crew_power": 0.102,
+    "research_speed": 0.068
+   },
+   "recipe": {
+    "mat_x_x24_4": 7,
+    "mat_x_x07_4": 6,
+    "mat_f_lens_4": 6
+   },
+   "credits": 6000
+  },
+  {
+   "id": "eq_13_weapon",
+   "name": "Cañón Singular",
+   "slot": "weapon",
+   "set": "set_13",
+   "tier": 5,
+   "stats": {
+    "attack": 0.096,
+    "pve_damage": 0.072
+   },
+   "recipe": {
+    "mat_x_x01_5": 8,
+    "mat_x_x08_5": 7,
+    "mat_f_alloy_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_13_armor",
+   "name": "Blindaje Singular",
+   "slot": "armor",
+   "set": "set_13",
+   "tier": 5,
+   "stats": {
+    "defense": 0.096,
+    "hp": 0.072
+   },
+   "recipe": {
+    "mat_x_x02_5": 8,
+    "mat_x_x09_5": 7,
+    "mat_f_plasma_fil_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_13_visor",
+   "name": "Visor Singular",
+   "slot": "visor",
+   "set": "set_13",
+   "tier": 5,
+   "stats": {
+    "hp": 0.072,
+    "capture_resist": 0.192
+   },
+   "recipe": {
+    "mat_x_x03_5": 8,
+    "mat_x_x10_5": 7,
+    "mat_f_neutrino_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_13_module",
+   "name": "Módulo Singular",
+   "slot": "module",
+   "set": "set_13",
+   "tier": 5,
+   "stats": {
+    "march_speed": 0.096,
+    "load": 0.144
+   },
+   "recipe": {
+    "mat_x_x04_5": 8,
+    "mat_x_x11_5": 7,
+    "mat_f_quantum_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_13_reactor",
+   "name": "Reactor Singular",
+   "slot": "reactor",
+   "set": "set_13",
+   "tier": 5,
+   "stats": {
+    "production": 0.096,
+    "gather_speed": 0.096
+   },
+   "recipe": {
+    "mat_x_x05_5": 8,
+    "mat_x_x12_5": 7,
+    "mat_f_lens_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_13_emblem",
+   "name": "Emblema Singular",
+   "slot": "emblem",
+   "set": "set_13",
+   "tier": 5,
+   "stats": {
+    "crew_power": 0.144,
+    "research_speed": 0.096
+   },
+   "recipe": {
+    "mat_x_x06_5": 8,
+    "mat_x_x13_5": 7,
+    "mat_f_nebula_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_14_weapon",
+   "name": "Cañón Leviatán",
+   "slot": "weapon",
+   "set": "set_14",
+   "tier": 5,
+   "stats": {
+    "attack": 0.096,
+    "pve_damage": 0.072
+   },
+   "recipe": {
+    "mat_x_x07_5": 8,
+    "mat_x_x14_5": 7,
+    "mat_f_plasma_fil_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_14_armor",
+   "name": "Blindaje Leviatán",
+   "slot": "armor",
+   "set": "set_14",
+   "tier": 5,
+   "stats": {
+    "defense": 0.096,
+    "hp": 0.072
+   },
+   "recipe": {
+    "mat_x_x08_5": 8,
+    "mat_x_x15_5": 7,
+    "mat_f_neutrino_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_14_visor",
+   "name": "Visor Leviatán",
+   "slot": "visor",
+   "set": "set_14",
+   "tier": 5,
+   "stats": {
+    "hp": 0.072,
+    "capture_resist": 0.192
+   },
+   "recipe": {
+    "mat_x_x09_5": 8,
+    "mat_x_x16_5": 7,
+    "mat_f_quantum_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_14_module",
+   "name": "Módulo Leviatán",
+   "slot": "module",
+   "set": "set_14",
+   "tier": 5,
+   "stats": {
+    "march_speed": 0.096,
+    "load": 0.144
+   },
+   "recipe": {
+    "mat_x_x10_5": 8,
+    "mat_x_x17_5": 7,
+    "mat_f_lens_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_14_reactor",
+   "name": "Reactor Leviatán",
+   "slot": "reactor",
+   "set": "set_14",
+   "tier": 5,
+   "stats": {
+    "production": 0.096,
+    "gather_speed": 0.096
+   },
+   "recipe": {
+    "mat_x_x11_5": 8,
+    "mat_x_x18_5": 7,
+    "mat_f_nebula_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_14_emblem",
+   "name": "Emblema Leviatán",
+   "slot": "emblem",
+   "set": "set_14",
+   "tier": 5,
+   "stats": {
+    "crew_power": 0.144,
+    "research_speed": 0.096
+   },
+   "recipe": {
+    "mat_x_x12_5": 8,
+    "mat_x_x19_5": 7,
+    "mat_f_alloy_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_15_weapon",
+   "name": "Cañón Horizonte",
+   "slot": "weapon",
+   "set": "set_15",
+   "tier": 5,
+   "stats": {
+    "attack": 0.096,
+    "pve_damage": 0.072
+   },
+   "recipe": {
+    "mat_x_x13_5": 8,
+    "mat_x_x20_5": 7,
+    "mat_f_neutrino_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_15_armor",
+   "name": "Blindaje Horizonte",
+   "slot": "armor",
+   "set": "set_15",
+   "tier": 5,
+   "stats": {
+    "defense": 0.096,
+    "hp": 0.072
+   },
+   "recipe": {
+    "mat_x_x14_5": 8,
+    "mat_x_x21_5": 7,
+    "mat_f_quantum_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_15_visor",
+   "name": "Visor Horizonte",
+   "slot": "visor",
+   "set": "set_15",
+   "tier": 5,
+   "stats": {
+    "hp": 0.072,
+    "capture_resist": 0.192
+   },
+   "recipe": {
+    "mat_x_x15_5": 8,
+    "mat_x_x22_5": 7,
+    "mat_f_lens_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_15_module",
+   "name": "Módulo Horizonte",
+   "slot": "module",
+   "set": "set_15",
+   "tier": 5,
+   "stats": {
+    "march_speed": 0.096,
+    "load": 0.144
+   },
+   "recipe": {
+    "mat_x_x16_5": 8,
+    "mat_x_x23_5": 7,
+    "mat_f_nebula_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_15_reactor",
+   "name": "Reactor Horizonte",
+   "slot": "reactor",
+   "set": "set_15",
+   "tier": 5,
+   "stats": {
+    "production": 0.096,
+    "gather_speed": 0.096
+   },
+   "recipe": {
+    "mat_x_x17_5": 8,
+    "mat_x_x24_5": 7,
+    "mat_f_alloy_5": 7
+   },
+   "credits": 7500
+  },
+  {
+   "id": "eq_15_emblem",
+   "name": "Emblema Horizonte",
+   "slot": "emblem",
+   "set": "set_15",
+   "tier": 5,
+   "stats": {
+    "crew_power": 0.144,
+    "research_speed": 0.096
+   },
+   "recipe": {
+    "mat_x_x18_5": 8,
+    "mat_x_x01_5": 7,
+    "mat_f_plasma_fil_5": 7
+   },
+   "credits": 7500
+  }
+ ]
+}
