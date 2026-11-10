@@ -26,6 +26,7 @@ func _ready() -> void:
 	test_alliances()
 	test_rally_and_reinforcements()
 	test_progression()
+	test_liveops()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -428,3 +429,61 @@ func test_progression() -> void:
 	var f: Dictionary = srv.fleets.fleets().get(str(r.get("fleet_id", "")), {})
 	var base_pve: float = float(Eco.combat_mods(p, false)["pve_damage"])
 	check(r.get("type") == "ack" and f.get("formation", "") == "hunter" and absf(float(f["mods"]["pve_damage"]) - base_pve - 0.15) < 0.0001, "la formación Cacería suma +15%% de daño contra Xenoformas a la flota")
+
+
+# ---------------------------------------------------------------- fase 6
+
+func test_liveops() -> void:
+	print(" -- Fase 6: LiveOps")
+	const Eco = preload("res://server/sgm/economy.gd")
+	var p: Dictionary = me()
+	var lo: Dictionary = srv.liveops.ensure(p)
+	var pts0: int = int(lo["pass"]["points"])
+	srv.on_activity(p, "xeno_kill", 3.0)
+	check(int(srv.liveops.ensure(p)["pass"]["points"]) > pts0, "cazar da puntos de Pase de Expedición")
+	srv.liveops.ensure(p)["pass"]["points"] = 300 * 6
+	check(srv.liveops.pass_level(p) == 6, "300 puntos por nivel: 1.800 puntos = nivel 6")
+	var r: Dictionary = intent("pass_claim", {"level": 5, "track": "free"})
+	check(r.get("type") == "ack", "reclamar el nivel 5 de la pista gratuita")
+	r = intent("pass_claim", {"level": 5, "track": "free"})
+	check(r.get("code", "") == "ALREADY", "no se puede reclamar dos veces")
+	r = intent("pass_claim", {"level": 7, "track": "free"})
+	check(r.get("code", "") == "LOCKED", "un nivel no alcanzado está bloqueado")
+	r = intent("pass_claim", {"level": 3, "track": "premium"})
+	check(r.get("code", "") == "NOT_PREMIUM", "la pista premium exige comprar el Pase")
+	p["resources"]["dark_matter"] = 5000
+	r = intent("pass_buy", {})
+	check(r.get("type") == "ack" and bool(srv.liveops.ensure(p)["pass"]["premium"]), "comprar el Pase premium (compra simulada con MO)")
+	r = intent("pass_claim", {"level": 3, "track": "premium"})
+	check(r.get("type") == "ack", "el premium desbloquea retroactivamente los niveles ya alcanzados")
+	var lvl0: int = srv.liveops.license_level(p)
+	r = intent("license_daily", {})
+	check(r.get("type") == "ack", "reclamar los puntos diarios de Licencia")
+	r = intent("license_daily", {})
+	check(r.get("code", "") == "ALREADY", "una vez por día")
+	srv.liveops.add_license_points(p, 2500)
+	check(srv.liveops.license_level(p) >= 6 and srv.liveops.has_auto_battle(p), "la Licencia sube de nivel (%d) y en el 6 activa la auto-batalla" % srv.liveops.license_level(p))
+	check(float(p.get("vip_mods", {}).get("production", 0.0)) > 0.0 and Eco.extra(p, "production") >= float(p["vip_mods"]["production"]), "los beneficios de la Licencia entran a los modificadores")
+	var period: int = int(Catalog.liveops["singularity"]["period_hours"]) * 3600000
+	var now: int = U.now_ms()
+	var to_start: int = period - (now % period) + 1000
+	advance(float(to_start) / 1000.0)
+	var ev: Dictionary = srv.liveops.singularity_now()
+	check(bool(ev.get("active", false)), "se abre un Evento de Singularidad (%s)" % str(ev.get("def", {}).get("name", "")))
+	for kind: String in ["xeno_kill", "resources", "pvp_win", "room_upgraded", "power_destroyed"]:
+		srv.on_activity(p, kind, 50000.0 if kind == "resources" else 20.0)
+	check(int(srv.liveops.ensure(p)["sing"]["points"]) >= 600, "las actividades suman puntos a la Singularidad activa")
+	r = intent("sing_claim", {"index": 0})
+	check(r.get("type") == "ack", "reclamar el primer hito de la Singularidad")
+	check(srv.liveops.singularity_ranking(p).size() > 5, "la Singularidad tiene clasificación")
+	var fe: Dictionary = srv.liveops.festival(str(p["tag"]))
+	fe["progress"] = {}
+	var fp0: int = srv.liveops.festival_points(fe)
+	srv.on_activity(p, "xeno_kill", 1.0)
+	advance(600.0)
+	check(srv.liveops.festival_points(srv.liveops.festival(str(p["tag"]))) > fp0, "el Festival suma el aporte del jugador y de los aliados")
+	srv.liveops.festival(str(p["tag"]))["progress"]["f_hunt"] = 999.0
+	r = intent("fest_claim", {"index": 0})
+	check(r.get("type") == "ack", "reclamar un hito colectivo del Festival de la Flota")
+	var v: Dictionary = srv.liveops.view(p)
+	check(v.has("pass") and v.has("license") and v.has("singularity") and v.has("festival"), "la vista del cliente incluye Pase, Licencia, Singularidad y Festival")
