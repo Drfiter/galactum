@@ -21,6 +21,8 @@ func _ready() -> void:
 		await fase1()
 	if only == 0 or only == 2:
 		await fase2()
+	if only == 0 or only == 3:
+		await fase3()
 	get_tree().quit()
 
 
@@ -114,6 +116,37 @@ func fase2() -> void:
 	p["resources"]["credits"] = int(p["resources"].get("credits", 0)) + 50000
 	cmd.pay_ransom(p)
 	await _wait(0.5)
+
+
+func fase3() -> void:
+	var p: Dictionary = me_srv()
+	var arm: RefCounted = srv().armory
+	p["rooms"]["armory"] = {"level": 4}
+	p["resources"]["credits"] = int(p["resources"].get("credits", 0)) + 400000
+	for eq_id: String in ["eq_01_weapon", "eq_01_armor", "eq_01_visor", "eq_04_module", "eq_02_reactor"]:
+		var eq: Dictionary = Catalog.equipment_by_id[eq_id]
+		for k: String in eq["recipe"]:
+			p["resources"][k] = int(p["resources"].get(k, 0)) + int(eq["recipe"][k]) * 6
+		arm.forge(p, eq_id)
+		arm.equip(p, eq_id)
+	arm.upgrade(p, "eq_01_weapon")
+	arm.upgrade(p, "eq_01_weapon")
+	for mid: String in ["mat_x_x05_1", "mat_x_x12_2", "mat_f_alloy_2", "mat_f_quantum_3", "mat_x_x20_3"]:
+		p["resources"][mid] = int(p["resources"].get(mid, 0)) + 7
+	srv().mark_player_dirty(p["id"])
+	await _wait(0.8)
+	game.open_panel("armory", {"tab": "gear"})
+	await _wait(1.0)
+	await shot("f3_01_equipo")
+	game.close_all_panels()
+	game.open_panel("armory", {"tab": "forge"})
+	await _wait(1.0)
+	await shot("f3_02_forja")
+	game.close_all_panels()
+	game.open_panel("armory", {"tab": "materials"})
+	await _wait(1.0)
+	await shot("f3_03_materiales")
+	game.close_all_panels()
 
 
 func _wait(s: float) -> void:
