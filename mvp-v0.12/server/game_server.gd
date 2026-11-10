@@ -25,6 +25,8 @@ const EventsMod = preload("res://server/sgm/events.gd")
 const CrewMod = preload("res://server/sgm/crew.gd")
 const CommanderMod = preload("res://server/sgm/commander.gd")
 const ArmoryMod = preload("res://server/sgm/armory.gd")
+const AllianceMod = preload("res://server/sgm/alliance.gd")
+const RallyMod = preload("res://server/sss/rally.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -48,6 +50,8 @@ var events: RefCounted
 var crew: RefCounted
 var commander: RefCounted
 var armory: RefCounted
+var alliance: RefCounted
+var rally: RefCounted
 ## Sistema Solar activo (contexto SSS): entidades, flotas, terreno y respawns.
 var cur: Dictionary = {}
 var current_system: String = ""
@@ -78,6 +82,8 @@ func _init() -> void:
 	crew = CrewMod.new(self)
 	commander = CommanderMod.new(self)
 	armory = ArmoryMod.new(self)
+	alliance = AllianceMod.new(self)
+	rally = RallyMod.new(self)
 
 
 func start(options: Dictionary = {}) -> void:
@@ -284,6 +290,7 @@ func create_human(name: String, avatar: String) -> Dictionary:
 		bots.spawn_bot(r, ally_pos, 0.15, "VGA", U.t(ALLY_MENTOR_NAME))
 	social.post("VGA", U.t("Sistema"), U.t("%s se unió a la Alianza. ¡Bienvenido, comandante!") % name, "system")
 	guild.refresh_member_mods("VGA")
+	alliance.ensure_ranks()
 	return p
 
 
@@ -342,10 +349,12 @@ func _tick() -> void:
 		use_system(sid)
 		world.process_respawns(now)
 		fleets.tick(now)
+		rally.tick(now)
 		bots.tick(now)
 		guild.tick(now)
 	social.tick(now)
 	commander.tick(now)
+	alliance.tick(now)
 	events.tick(now)
 	for p: Dictionary in state["players"].values():
 		if p.get("is_bot", false):
@@ -604,6 +613,44 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return armory.unequip(p, str(msg.get("slot", "")))
 		"armory_refine":
 			return armory.refine(p, str(msg.get("material", "")), int(msg.get("times", 1)))
+		"alliance_create":
+			return alliance.create(p, str(msg.get("tag", "")), str(msg.get("name", "")), str(msg.get("mode", "request")))
+		"alliance_search":
+			return alliance.search(p, str(msg.get("query", "")), bool(msg.get("only_open", false)))
+		"alliance_join":
+			return alliance.join(p, str(msg.get("tag", "")))
+		"alliance_leave":
+			return alliance.leave(p)
+		"alliance_accept":
+			return alliance.accept(p, str(msg.get("player", "")))
+		"alliance_reject":
+			return alliance.reject(p, str(msg.get("player", "")))
+		"alliance_invite":
+			return alliance.invite(p, str(msg.get("player", "")))
+		"alliance_rank":
+			return alliance.set_rank(p, str(msg.get("player", "")), str(msg.get("rank", "")))
+		"alliance_transfer":
+			return alliance.transfer(p, str(msg.get("player", "")))
+		"alliance_kick":
+			return alliance.kick(p, str(msg.get("player", "")))
+		"alliance_mode":
+			return alliance.set_mode(p, str(msg.get("mode", "")))
+		"treasury_donate":
+			return alliance.donate(p, str(msg.get("res", "")), int(msg.get("amount", 0)))
+		"treasury_withdraw":
+			return alliance.withdraw(p, str(msg.get("res", "")), int(msg.get("amount", 0)))
+		"ally_shop_buy":
+			return alliance.shop_buy(p, str(msg.get("item", "")))
+		"help_all":
+			return alliance.help_all(p)
+		"rally_start":
+			var rt: Dictionary = msg.get("troops", {}) if msg.get("troops", {}) is Dictionary else {}
+			return rally.start(p, str(msg.get("target_id", "")), rt, int(msg.get("wait", 30)))
+		"rally_join":
+			var jt: Dictionary = msg.get("troops", {}) if msg.get("troops", {}) is Dictionary else {}
+			return rally.join(p, str(msg.get("rally_id", "")), jt)
+		"rally_cancel":
+			return rally.cancel(p, str(msg.get("rally_id", "")))
 		"exchange":
 			return progression.exchange(p, str(msg.get("from", "")), str(msg.get("to", "")), int(msg.get("amount", 0)))
 		"debug_guild_cycle":
@@ -698,6 +745,12 @@ func _entity_view(id: String, now: int) -> Dictionary:
 	return v
 
 
+func _alliance_hq(p: Dictionary) -> Dictionary:
+	var v: Dictionary = alliance.view(p)
+	v.merge(rally.view(p))
+	return v
+
+
 func player_view(p: Dictionary) -> Dictionary:
 	var now: int = U.now_ms()
 	var base: Dictionary = world.get_entity(p["base_id"])
@@ -752,6 +805,7 @@ func player_view(p: Dictionary) -> Dictionary:
 		"crew": crew.view(p),
 		"commander": commander.view(p),
 		"gear": armory.view(p),
+		"alliance_hq": _alliance_hq(p),
 		"guild_brief": _guild_brief(p),
 		"event_brief": _event_brief(p),
 	}
@@ -820,6 +874,7 @@ func _load() -> bool:
 			break
 	use_system(first)
 	refresh_alliances()
+	alliance.ensure_ranks()
 	_rename_bots_named_like_crew()
 	# Recovery por timestamps: las flotas y viajes vencidos se resuelven en el
 	# primer tick en orden de llegada, sin perder nada.

@@ -98,6 +98,10 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 			var err: Dictionary = _validate_attack_target(p, target)
 			if not err.is_empty():
 				return err
+		"reinforce":
+			var rerr: Dictionary = srv.rally.validate_reinforce(p, target, clean)
+			if not rerr.is_empty():
+				return rerr
 		"scout":
 			if target["kind"] != "base" or target["owner"] == p["id"]:
 				return _err("INVALID_TARGET", U.t("Solo puedes espiar naves de otros comandantes"))
@@ -173,6 +177,9 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		srv.mark_player_dirty(f["target_owner"])
 		if mission == "attack":
 			srv.notify(f["target_owner"], U.t("¡%s envía una flota de ataque contra ti!") % srv.display_name(p["id"]), "danger")
+			# Algún aliado bot puede mandar refuerzos a la nave atacada.
+			if f["target_kind"] == "base":
+				srv.rally.maybe_bot_reinforce(srv.player(f["target_owner"]))
 		elif mission == "scout":
 			srv.notify(f["target_owner"], U.t("Sensores: una sonda de %s se aproxima") % srv.display_name(p["id"]), "warning")
 	match mission:
@@ -244,6 +251,9 @@ func recall(p: Dictionary, fleet_id: String) -> Dictionary:
 		"working":
 			_stop_mining(f, now)
 			_start_return(f, now, U.v2(f["target"]))
+		"stationed":
+			srv.mark_player_dirty(str(f.get("host", "")))
+			_start_return(f, now, U.v2(f["target"]))
 		_:
 			return _err("ALREADY_RETURNING", U.t("La flota ya está regresando"))
 	return {"ok": true}
@@ -285,6 +295,8 @@ func _arrive(f: Dictionary, now: int) -> void:
 				_arrive_tile_hit(f, now)
 		"scout":
 			_arrive_scout(f, now)
+		"reinforce":
+			srv.rally.on_arrive(f, now)
 		_:
 			_start_return(f, now, U.v2(f["target"]))
 
@@ -313,6 +325,10 @@ func _start_return(f: Dictionary, now: int, from: Vector2) -> void:
 func _return_home(f: Dictionary) -> void:
 	var p: Dictionary = srv.player(f["owner"])
 	fleets().erase(f["id"])
+	if f.has("shares"):
+		# Flota de Asedio: cada participante recibe su parte.
+		srv.rally.on_return(f)
+		return
 	if p.is_empty():
 		return
 	Eco.add_troops(p["troops"], f["troops"])
@@ -505,17 +521,21 @@ func _arrive_attack_base(f: Dictionary, now: int) -> void:
 		_start_return(f, now, U.v2(f["target"]))
 		return
 	var att_initial: Dictionary = f["troops"].duplicate()
-	var def_initial: Dictionary = def["troops"].duplicate()
+	# Defienden las tropas propias más los refuerzos aliados estacionados.
+	var def_shares: Dictionary = srv.rally.defense_stacks(def)
+	var def_initial: Dictionary = {}
+	for sid: String in def_shares:
+		Eco.add_troops(def_initial, def_shares[sid])
 	var seed: int = U.hash_seed(f["id"] + ":pvp")
 	var res: Dictionary = Resolver.resolve(
 		{"stacks": f["troops"], "mods": f["mods"]},
-		{"stacks": def["troops"], "mods": Eco.combat_mods(def, true), "perimeter_hp": Eco.perimeter_hp(def)},
+		{"stacks": def_initial.duplicate(), "mods": Eco.combat_mods(def, true), "perimeter_hp": Eco.perimeter_hp(def)},
 		seed,
 	)
-	var att_cas: Dictionary = _attacker_casualties(att, f, res["attacker"]["losses"])
+	var att_cas: Dictionary = _rally_casualties(f, res["attacker"]["losses"]) if f.has("shares") else _attacker_casualties(att, f, res["attacker"]["losses"])
 	f["troops"] = res["attacker"]["survivors"]
-	def["troops"] = res["defender"]["survivors"]
-	var def_cas: Dictionary = Eco.absorb_casualties(def, res["defender"]["losses"], 1.0)
+	var own_losses: Dictionary = srv.rally.apply_defense_result(def, def_shares, res["defender"]["survivors"], res["defender"]["losses"], now)
+	var def_cas: Dictionary = Eco.absorb_casualties(def, own_losses, 1.0)
 	var loot: Dictionary = {}
 	if res["outcome"] == "attacker_win":
 		loot = _take_loot(def, f)
@@ -548,6 +568,17 @@ func _arrive_attack_base(f: Dictionary, now: int) -> void:
 	ra["type"] = "attack"
 	ra["outcome"] = "victory" if won else "defeat"
 	ra["title"] = (U.t("Victoria contra %s") if won else U.t("Derrota contra %s")) % srv.display_name(def["id"])
+	if f.has("shares"):
+		ra["rally"] = true
+		ra["title"] = (U.t("Asedio: victoria contra %s") if won else U.t("Asedio: derrota contra %s")) % srv.display_name(def["id"])
+		ra["participants"] = f["shares"].keys().map(func(pid: String) -> String: return srv.display_name(pid))
+		for pid: String in f["shares"]:
+			var q: Dictionary = srv.player(pid)
+			srv.alliance.grant_bonds(q, "rally_join")
+			if pid != att["id"] and not q.is_empty():
+				srv.reports.add(pid, ra.duplicate(true))
+	if not srv.rally.stationed_at(def["id"]).is_empty() or def_shares.size() > 1:
+		ra["reinforced"] = def_shares.size() - 1
 	srv.reports.add(att["id"], ra)
 	var rd: Dictionary = report_base.duplicate(true)
 	rd["type"] = "defense"
@@ -661,6 +692,21 @@ func _attacker_casualties(owner: Dictionary, f: Dictionary, losses: Dictionary) 
 			lost[k] = int(dead[k]) - c
 	Eco.add_troops(owner["cryo"], cryo)
 	return {"wounded": wounded, "dead": dead, "cryo": cryo, "lost": lost}
+
+
+## Bajas de una flota de Asedio: cada participante asume las suyas (heridos
+## viajan con la flota y se reparten al volver; muertos a su Criosantuario).
+func _rally_casualties(f: Dictionary, losses: Dictionary) -> Dictionary:
+	var per: Dictionary = srv.rally.split_by_shares(losses, f["shares"])
+	var total: Dictionary = {"wounded": {}, "dead": {}, "cryo": {}, "lost": {}}
+	for pid: String in per:
+		var q: Dictionary = srv.player(pid)
+		if q.is_empty() or (per[pid] as Dictionary).is_empty():
+			continue
+		var c: Dictionary = _attacker_casualties(q, f, per[pid])
+		for k: String in total:
+			Eco.add_troops(total[k], c.get(k, {}))
+	return total
 
 
 func _take_loot(def: Dictionary, f: Dictionary) -> Dictionary:
