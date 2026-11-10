@@ -21,6 +21,7 @@ func _ready() -> void:
 	sid = srv.open_session(func(m: Dictionary) -> void: inbox.append(m))
 	srv.handle_message(sid, {"type": "hello", "protocol": "galactum-mvp-1", "name": "Tester", "avatar": "p05"})
 	test_crew_in_fleets()
+	test_commander()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -123,3 +124,64 @@ func test_crew_in_fleets() -> void:
 	var v: Dictionary = srv.crew.view(p)
 	var row: Dictionary = (v["owned"] as Array).filter(func(e: Dictionary) -> bool: return e["id"] == "p04")[0]
 	check(row.has("level") and row.has("rank") and row.has("grade") and row.has("exp_next"), "la vista del cliente incluye nivel, rango, grado y EXP")
+
+
+# ---------------------------------------------------------------- fase 2
+
+func test_commander() -> void:
+	print(" -- Fase 2: Comandante")
+	const Eco = preload("res://server/sgm/economy.gd")
+	var p: Dictionary = me()
+	var c: Dictionary = srv.commander.ensure(p)
+	check(int(c["level"]) == 1 and srv.commander.points_free(p) == 1, "el Comandante empieza en nivel 1 con 1 punto de Protocolo")
+	var atk0: float = float(Eco.combat_mods(p, false)["attack"])
+	var r: Dictionary = intent("talent_learn", {"talent": "c_attack"})
+	check(r.get("type") == "ack", "aprende un Protocolo de nivel 0 (Ofensiva Coordinada)")
+	check(absf(float(Eco.combat_mods(p, false)["attack"]) - atk0 - 0.02) < 0.0001, "el Protocolo suma +2% de ataque al combate")
+	r = intent("talent_learn", {"talent": "c_defense"})
+	check(r.get("code", "") == "NO_POINTS", "sin puntos no se puede aprender más")
+	var up: int = srv.commander.grant_exp(p, 20000)
+	check(up > 5 and srv.commander.points_free(p) == up, "con EXP sube %d niveles y gana %d puntos" % [up, up])
+	r = intent("talent_learn", {"talent": "c_hp"})
+	check(r.get("code", "") == "TIER_LOCKED", "un Protocolo de nivel 1 exige 5 puntos en su rama")
+	for i: int in range(4):
+		intent("talent_learn", {"talent": "c_attack"})
+	r = intent("talent_learn", {"talent": "c_hp"})
+	check(r.get("type") == "ack", "con 5 puntos en Combate se desbloquea el nivel 1")
+	var prod0: float = float(Eco.production_rates(p).get("ore", 0.0))
+	intent("talent_learn", {"talent": "e_prod"})
+	check(float(Eco.production_rates(p).get("ore", 0.0)) > prod0, "Optimización Industrial aumenta la producción")
+	var bot: Dictionary = {}
+	for q: Dictionary in srv.state["players"].values():
+		if q.get("is_bot", false):
+			bot = q
+			break
+	var old_chance: float = float(Catalog.commander["capture"]["base_chance"])
+	Catalog.commander["capture"]["base_chance"] = 1.0
+	var got: bool = srv.commander.try_capture(bot, p, {"infantry_1": 100}, {"infantry_1": 80}, 7)
+	check(got and srv.commander.is_captured(p), "al perder la nave con muchas bajas el Comandante puede ser capturado")
+	check((p.get("cmd_mods", {}) as Dictionary).is_empty(), "mientras está capturado sus Protocolos no aplican")
+	check(absf(float(Eco.combat_mods(p, false)["attack"]) - atk0) < 0.0001, "el ataque vuelve al valor sin Protocolos")
+	check(not srv.commander.try_capture(bot, p, {"infantry_1": 100}, {"infantry_1": 10}, 9), "con pocas bajas no hay captura")
+	var bot_cr: int = int(bot["resources"].get("credits", 0))
+	p["resources"]["credits"] = 0
+	r = intent("pay_ransom", {})
+	check(r.get("code", "") == "INSUFFICIENT_RESOURCES", "el rescate cuesta Créditos")
+	p["resources"]["credits"] = 100000
+	r = intent("pay_ransom", {})
+	check(r.get("type") == "ack" and not srv.commander.is_captured(p), "pagar el rescate libera al Comandante")
+	check(int(bot["resources"].get("credits", 0)) > bot_cr, "el captor cobra el rescate")
+	check(not (p.get("cmd_mods", {}) as Dictionary).is_empty(), "al volver, sus Protocolos aplican otra vez")
+	srv.commander.try_capture(bot, p, {"infantry_1": 100}, {"infantry_1": 90}, 11)
+	advance(float(Catalog.commander["capture"]["duration_sec"]) + 5.0)
+	check(not srv.commander.is_captured(p), "cumplida la condena vuelve solo")
+	var cr0: int = int(p["resources"].get("credits", 0))
+	srv.commander.try_capture(p, bot, {"infantry_1": 100}, {"infantry_1": 90}, 13)
+	check((srv.commander.view(p)["prisoners"] as Array).size() == 1, "capturar al Comandante de un bot lo deja como prisionero")
+	advance(310.0)
+	check(int(p["resources"].get("credits", 0)) > cr0, "el bot paga el rescate y lo cobras")
+	Catalog.commander["capture"]["base_chance"] = old_chance
+	r = intent("talent_reset", {})
+	check(r.get("type") == "ack" and (srv.commander.ensure(p)["talents"] as Dictionary).is_empty(), "reiniciar Protocolos devuelve los puntos (cuesta Materia Oscura)")
+	var v: Dictionary = srv.commander.view(p)
+	check(v.has("level") and v.has("points") and v.has("captured") and v.has("prisoners"), "la vista del cliente incluye nivel, puntos, captura y prisioneros")
