@@ -78,7 +78,7 @@ func on_activity(p: Dictionary, kind: String, amount: float) -> void:
 	if kind == "mo_spent":
 		add_license_points(p, int(amount * float(cfg().get("license", {}).get("points_per_mo", 1))))
 	var ev: Dictionary = singularity_now()
-	if not ev.is_empty():
+	if bool(ev.get("active", false)):
 		var s: Dictionary = lo["sing"]
 		if str(s["id"]) != str(ev["instance"]):
 			lo["sing"] = {"id": ev["instance"], "points": 0, "claimed": []}
