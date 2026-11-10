@@ -83,15 +83,24 @@ func start_remote(host: String, port: int, name: String, avatar_id: String, acco
 	commander_name = name
 	avatar = avatar_id
 	account = account_info
-	_host_key = "%s_%d" % [host.replace(".", "_"), port]
+	var url: String = ws_url(host, port)
+	_host_key = url.md5_text().substr(0, 16)
 	mode = "remote"
 	var l := WsLink.new()
 	_wire(l)
 	link = l
-	connection_changed.emit("connecting", "ws://%s:%d" % [host, port])
-	var err: Error = l.open_url("ws://%s:%d" % [host, port])
+	connection_changed.emit("connecting", url)
+	var err: Error = l.open_url(url)
 	if err != OK:
 		connection_changed.emit("error", U.t("No se pudo iniciar la conexión (%s)") % error_string(err))
+
+
+## URL del SSS: `host` puede ser una URL completa (ws:// o wss://, como la de
+## la versión web detrás de nginx: wss://dominio/ws) o un host al que se suma el puerto.
+static func ws_url(host: String, port: int) -> String:
+	if host.begins_with("ws://") or host.begins_with("wss://"):
+		return host
+	return "ws://%s:%d" % [host, port]
 
 
 func _wire(l: RefCounted) -> void:

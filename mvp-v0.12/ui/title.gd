@@ -144,6 +144,9 @@ func _ready() -> void:
 	var rh := UI.hbox(8)
 	_host = LineEdit.new()
 	_host.text = str(cfg.get_value("net", "host", "127.0.0.1"))
+	# Versión web (Docker + nginx): por defecto, el SSS del mismo sitio en /ws.
+	if OS.has_feature("web"):
+		_host.text = _same_origin_ws()
 	_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_host.custom_minimum_size.y = 48
 	rh.add_child(_host)
@@ -232,6 +235,13 @@ func _save_settings() -> void:
 	if _user != null:
 		cfg.set_value("net", "user", _user.text.strip_edges())
 	cfg.save(SETTINGS_PATH)
+
+
+## En el navegador, la URL WebSocket del mismo origen (nginx la reenvía al SSS).
+func _same_origin_ws() -> String:
+	var loc: Variant = JavaScriptBridge.eval("location.protocol + '//' + location.host", true)
+	var origin: String = str(loc) if loc != null else "http://localhost:8080"
+	return origin.replace("https://", "wss://").replace("http://", "ws://") + "/ws"
 
 
 func _player_name() -> String:
