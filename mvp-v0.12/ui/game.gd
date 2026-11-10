@@ -26,6 +26,7 @@ const PANELS: Dictionary = {
 	"crew": preload("res://ui/panels/crew_panel.gd"),
 	"commander": preload("res://ui/panels/commander_panel.gd"),
 	"armory": preload("res://ui/panels/armory_panel.gd"),
+	"alliance_hq": preload("res://ui/panels/alliance_hq_panel.gd"),
 	"battle": preload("res://ui/panels/battle_panel.gd"),
 }
 
@@ -338,6 +339,10 @@ func back_to_title() -> void:
 func open_panel(name: String, args: Dictionary = {}) -> Control:
 	if not PANELS.has(name):
 		return null
+	# Sin alianza, el botón Alianza lleva a buscar o crear una.
+	if name == "alliance" and str(GameClient.me.get("tag", "")).is_empty():
+		name = "alliance_hq"
+		args = {"tab": "search"}
 	hud.hide_popup()
 	map_view.clear_selection()
 	var dim := ColorRect.new()
@@ -662,7 +667,10 @@ func build_entity_card(c: VBoxContainer, e: Dictionary) -> void:
 					gb.pressed.connect(func() -> void: open_panel("galaxy"))
 					actions.add_child(gb)
 				"ally":
-					c.add_child(UI.label(U.t("Miembro de tu Alianza. Refuerzos (Muelle de Atraque): Fase 2."), 15, UI.GREEN))
+					c.add_child(UI.label(U.t("Miembro de tu Alianza. Tus refuerzos defienden su nave y te dan Bonos."), 15, UI.GREEN))
+					var rb := UI.button(U.t("Enviar refuerzos"), "PrimaryButton", "ui_shield", Vector2(240, 54))
+					rb.pressed.connect(func() -> void: open_fleet_dialog("reinforce", e))
+					actions.add_child(rb)
 				_:
 					var spy := UI.button(U.t("Espiar (%d Cr)") % int(Catalog.cfg("scout_cost_credits", 50)), "GhostButton", "ui_scout", Vector2(200, 54))
 					spy.pressed.connect(func() -> void: open_fleet_dialog("scout", e))
@@ -670,6 +678,12 @@ func build_entity_card(c: VBoxContainer, e: Dictionary) -> void:
 					var atk := UI.button(U.t("Atacar"), "DangerButton", "ui_attack", Vector2(180, 54))
 					atk.pressed.connect(func() -> void: open_fleet_dialog("attack", e))
 					actions.add_child(atk)
+					if (GameClient.me.get("alliance_hq", {}).get("permissions", []) as Array).has("rally"):
+						var rly := UI.button(U.t("Abrir Asedio"), "DangerButton", "ui_rally", Vector2(200, 54))
+						rly.pressed.connect(func() -> void: open_fleet_dialog("rally", e))
+						actions.add_child(rly)
+						if bool(e.get("shield", false)) or bool(e.get("protected", false)):
+							rly.disabled = true
 					if str(GameClient.me.get("rank", "R2")) in ["R4", "R5"]:
 						var marked: bool = str(GameClient.me.get("guild_brief", {}).get("target_id", "")) == str(e["id"])
 						var mk := UI.button(U.t("Objetivo marcado") if marked else U.t("Marcar objetivo"), "GoldButton", "ui_rally", Vector2(200, 54))
