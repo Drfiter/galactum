@@ -23,7 +23,7 @@ var _sig: String = ""
 
 func _signature() -> String:
 	var c: Dictionary = cv()
-	return JSON.stringify([c.get("owned", []), c.get("active", []), c.get("free", false), c.get("slots", 0), GameClient.res("dark_matter"), GameClient.res("recruit_ticket")])
+	return JSON.stringify([c.get("owned", []), c.get("active", []), c.get("free", false), c.get("slots", 0), GameClient.res("dark_matter"), GameClient.res("recruit_ticket"), GameClient.res("insignia")])
 
 
 func on_player_updated() -> void:
@@ -128,12 +128,37 @@ func _card(cid: String, size: Vector2, show_action: bool, reveal: Dictionary = {
 		var bl := UI.wrap(UI.label("+%.1f%% %s" % [float(o.get("bonus", 0.0)) * 100.0, _stat_label(str(d.get("stat", "")))], 12, UI.GREEN, "semibold"))
 		bl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		v.add_child(bl)
+		if o.has("level"):
+			# Nivel (EXP), rango y grado (Insignias).
+			var ll := UI.label(U.t("Nv %d · %s · Grado %d") % [int(o["level"]), U.t(str(o.get("rank", ""))), int(o.get("grade", 1))], 12, UI.CYAN, "semibold")
+			ll.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			ll.clip_text = true
+			v.add_child(ll)
+			var xb := ProgressBar.new()
+			xb.show_percentage = false
+			xb.custom_minimum_size = Vector2(0, 6)
+			xb.max_value = maxi(1, int(o.get("exp_next", 1)))
+			xb.value = int(o.get("exp", 0)) if int(o.get("exp_next", 0)) > 0 else xb.max_value
+			v.add_child(xb)
 		if show_action:
 			var active: bool = (cv().get("active", []) as Array).has(cid)
-			var b := UI.button(U.t("Retirar") if active else U.t("Activar"), "GhostButton" if active else "GreenButton", "", Vector2(0, 38))
-			b.add_theme_font_size_override("font_size", 15)
+			var in_fleet: bool = not str(o.get("fleet", "")).is_empty()
+			var b := UI.button(U.t("En flota") if in_fleet else (U.t("Retirar") if active else U.t("Activar")), "GhostButton" if active or in_fleet else "GreenButton", "", Vector2(0, 36))
+			b.add_theme_font_size_override("font_size", 14)
+			b.disabled = in_fleet
+			b.tooltip_text = U.t("Un tripulante trabaja en una sala o viaja en una flota, no ambas")
 			b.pressed.connect(func() -> void: send("crew_assign", {"crew_id": cid, "on": not active}))
 			v.add_child(b)
+			var cost: int = int(o.get("promote_cost", 0))
+			if cost > 0:
+				var pb := UI.button(U.t("Grado +1 (%d)") % cost, "GoldButton", "ui_insignia", Vector2(0, 34))
+				pb.add_theme_font_size_override("font_size", 13)
+				pb.disabled = GameClient.res("insignia") < cost
+				pb.tooltip_text = U.t("Sube el grado con Insignias de Mando (tienes %d)") % GameClient.res("insignia")
+				pb.pressed.connect(func() -> void: send("crew_promote", {"crew_id": cid}, func(_p: Dictionary) -> void:
+					UI.Sfx.play("upgrade")
+					game.toast(U.t("%s sube a grado %d") % [U.t(pname), int(o.get("grade", 1)) + 1], "success")))
+				v.add_child(pb)
 	return card
 
 
@@ -199,7 +224,7 @@ func _collection() -> void:
 			return oa
 		return int(rank[a["rarity"]]) < int(rank[b["rarity"]]))
 	for d: Dictionary in order:
-		grid.add_child(_card(str(d["id"]), Vector2(148, 268), true))
+		grid.add_child(_card(str(d["id"]), Vector2(148, 330), true))
 
 
 func _recruit() -> void:

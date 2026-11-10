@@ -72,6 +72,11 @@ func _item_card(it: Dictionary, qty: int) -> Control:
 			b.pressed.connect(func() -> void:
 				close_window()
 				game.open_panel("crew", {"tab": "recruit"}))
+		"badge":
+			b.text = U.t("Tripulación…")
+			b.pressed.connect(func() -> void:
+				close_window()
+				game.open_panel("crew", {"tab": "collection"}))
 		"interstellar":
 			b.text = U.t("Galaxia…")
 			b.pressed.connect(func() -> void:
