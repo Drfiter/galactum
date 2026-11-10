@@ -28,6 +28,9 @@ var shop: Dictionary = {}
 var events: Dictionary = {}
 var crew: Dictionary = {}
 var commander: Dictionary = {}
+var armory: Dictionary = {}
+var materials_by_id: Dictionary = {}
+var equipment_by_id: Dictionary = {}
 
 
 const U = preload("res://shared/util.gd")
@@ -103,6 +106,13 @@ func reload() -> void:
 	events = _read("catalog_events")
 	crew = _read("catalog_crew")
 	commander = _read("catalog_commander")
+	armory = _read("catalog_armory")
+	materials_by_id.clear()
+	for m: Dictionary in armory.get("materials", []):
+		materials_by_id[m["id"]] = m
+	equipment_by_id.clear()
+	for e: Dictionary in armory.get("equipment", []):
+		equipment_by_id[e["id"]] = e
 
 
 func _read(catalog_name: String) -> Dictionary:
@@ -134,6 +144,8 @@ func _read_raw(catalog_name: String) -> Dictionary:
 func res_name(id: String) -> String:
 	if items_by_id.has(id):
 		return str(items_by_id[id]["name"])
+	if materials_by_id.has(id):
+		return str(materials_by_id[id]["name"])
 	return str(resource_info.get(id, {}).get("name", id))
 
 
