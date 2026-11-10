@@ -27,6 +27,7 @@ func _ready() -> void:
 	test_rally_and_reinforcements()
 	test_progression()
 	test_liveops()
+	test_expeditions()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -487,3 +488,91 @@ func test_liveops() -> void:
 	check(r.get("type") == "ack", "reclamar un hito colectivo del Festival de la Flota")
 	var v: Dictionary = srv.liveops.view(p)
 	check(v.has("pass") and v.has("license") and v.has("singularity") and v.has("festival"), "la vista del cliente incluye Pase, Licencia, Singularidad y Festival")
+
+
+func test_expeditions() -> void:
+	print(" -- Fase 7: Expediciones")
+	var X = srv.expeditions
+	var p: Dictionary = me()
+	check(X.chapters().size() == 6 and (X.chapters()[0]["stages"] as Array).size() == 8, "la campaña tiene 6 capítulos de 8 etapas")
+	var c: Dictionary = srv.crew.ensure(p)
+	for cid: String in ["p02", "p03", "p04", "p06", "p08"]:
+		c["owned"][cid] = {"stars": 1, "ts": 0, "level": 1, "exp": 0, "grade": 1}
+	var team: Array = ["p02", "p03", "p04"]
+	var r: Dictionary = intent("exp_battle", {"stage": "1-2", "elite": false, "crew": team})
+	check(r.get("code", "") == "LOCKED", "la etapa 1-2 exige ganar la 1-1")
+	r = intent("exp_battle", {"stage": "1-1", "elite": false, "crew": []})
+	check(r.get("code", "") == "NO_TEAM", "sin tripulantes no se puede combatir")
+	r = intent("exp_battle", {"stage": "1-1", "elite": false, "crew": ["p02", "p03", "p04", "p06", "p08", "p05"]})
+	check(r.get("code", "") == "TOO_MANY", "máximo 5 tripulantes por equipo")
+	# Determinismo de la simulación.
+	var st: Dictionary = X.find_stage("1-3")[0]
+	var units: Array = team.map(func(cid: String) -> Dictionary: return X.crew_unit(p, cid))
+	var a: Dictionary = X.simulate(units, X.enemy_units(st, false), 77, Catalog.expeditions["battle"])
+	var b: Dictionary = X.simulate(units, X.enemy_units(st, false), 77, Catalog.expeditions["battle"])
+	check(JSON.stringify(a) == JSON.stringify(b), "la simulación es determinista con la misma semilla")
+	check(X.power_of(X.enemy_units(st, true)) > X.power_of(X.enemy_units(st, false)), "el modo Élite tiene enemigos más fuertes")
+	var fuel0: int = X.fuel(p)
+	var ins0: int = int(p["items"].get("insignia", 0))
+	var lvl0: int = int(c["owned"]["p02"].get("level", 1))
+	r = intent("exp_battle", {"stage": "1-1", "elite": false, "crew": team})
+	check(r.get("type") == "ack" and bool(r.get("win", false)) and int(r.get("stars", 0)) >= 1, "el equipo inicial gana la etapa 1-1 (%d★)" % int(r.get("stars", 0)))
+	check((r.get("log", []) as Array).size() > 0 and (r.get("enemies", []) as Array).size() == 3, "el resultado trae el registro del combate para repetirlo en el cliente")
+	check(X.fuel(p) == fuel0 - int(Catalog.expeditions["fuel"]["cost_normal"]), "combatir gasta Combustible de Expedición")
+	check(int(p["items"].get("insignia", 0)) > ins0, "la primera victoria da Insignias de Mando")
+	check(int(c["owned"]["p02"].get("level", 1)) > lvl0 or int(c["owned"]["p02"].get("exp", 0)) > 0, "los tripulantes del equipo ganan EXP")
+	check(bool(r.get("first", false)), "la primera victoria se marca como tal")
+	var cr0: int = int(p["resources"].get("credits", 0))
+	r = intent("exp_battle", {"stage": "1-1", "elite": false, "crew": team})
+	check(r.get("type") == "ack" and not bool(r.get("first", true)) and int(p["resources"].get("credits", 0)) - cr0 < int(st["first"]["credits"]), "repetir la etapa da el premio reducido")
+	# Doble empleo: un tripulante en una flota no puede ir.
+	srv.crew.ensure(p)
+	var busy_id: String = "p06"
+	srv.fleets.fleets()["test_fleet"] = {"id": "test_fleet", "owner": p["id"], "crew": [busy_id], "state": "outbound"}
+	r = X.battle(p, "1-1", false, [busy_id])
+	check(r.get("code", "") == "CREW_BUSY", "un tripulante que viaja en una flota no puede ir a la Expedición")
+	srv.fleets.fleets().erase("test_fleet")
+	# Barrido (auto-batalla) con Licencia 6.
+	srv.liveops.ensure(p)["license"]["points"] = 0
+	X.ensure(p)["stars"]["1-1"] = 3
+	r = intent("exp_sweep", {"stage": "1-1", "elite": false, "times": 5})
+	check(r.get("code", "") == "LICENSE", "el barrido exige Licencia de Comandante 6")
+	srv.liveops.add_license_points(p, 2400)
+	X.ensure(p)["fuel"] = 100
+	r = intent("exp_sweep", {"stage": "1-1", "elite": false, "times": 5})
+	check(r.get("type") == "ack" and int(r.get("times", 0)) == 5 and X.fuel(p) == 70, "barrido x5 con Licencia 6 (gasta 30 de Combustible)")
+	r = intent("exp_sweep", {"stage": "1-2", "elite": false, "times": 1})
+	check(r.get("code", "") == "NEED_3_STARS", "solo se barren etapas con 3 estrellas")
+	# Élite: se abre al terminar el capítulo en Normal; intentos diarios.
+	r = intent("exp_battle", {"stage": "1-1", "elite": true, "crew": team})
+	check(r.get("code", "") == "LOCKED", "el Élite exige terminar el capítulo en Normal")
+	for st2: Dictionary in X.chapters()[0]["stages"]:
+		X.ensure(p)["stars"][st2["id"]] = 3
+	X.ensure(p)["fuel"] = 120
+	var strong: Array = ["p02", "p03", "p04", "p06", "p08"]
+	for cid: String in strong:
+		c["owned"][cid]["level"] = 30
+		c["owned"][cid]["grade"] = 4
+	for i: int in range(3):
+		r = intent("exp_battle", {"stage": "1-1", "elite": true, "crew": strong})
+	check(r.get("type") == "ack" and X.elite_tries_left(p, "1-1") == 0, "el Élite tiene 3 intentos diarios")
+	r = intent("exp_battle", {"stage": "1-1", "elite": true, "crew": strong})
+	check(r.get("code", "") == "LIMIT", "sin intentos Élite no se puede combatir")
+	# Cofres de capítulo y capítulo 2.
+	r = intent("exp_chest", {"chapter": 0, "index": 2})
+	check(r.get("type") == "ack", "cofre de 24 estrellas del capítulo 1")
+	r = intent("exp_chest", {"chapter": 0, "index": 2})
+	check(r.get("code", "") == "ALREADY", "un cofre se abre una sola vez")
+	check(not X.locked_reason(p, 1, 0, false).is_empty() == (int(p["rooms"]["bridge"]["level"]) < 5), "el capítulo 2 depende del nivel del Puente")
+	p["rooms"]["bridge"]["level"] = maxi(5, int(p["rooms"]["bridge"]["level"]))
+	check(X.locked_reason(p, 1, 0, false).is_empty(), "con Puente 5 y el capítulo 1 terminado se abre el capítulo 2")
+	# Combustible: se regenera y se puede recargar con MO.
+	X.ensure(p)["fuel"] = 10
+	X.ensure(p)["fuel_ts"] = U.now_ms() - 6 * 60000 * 3
+	check(X.fuel(p) == 13, "el Combustible se regenera 1 cada 6 minutos")
+	p["resources"]["dark_matter"] = 500
+	r = intent("exp_refill", {})
+	check(r.get("type") == "ack" and X.fuel(p) == 73, "recargar Combustible con Materia Oscura")
+	var v: Dictionary = srv.player_view(p) if srv.has_method("player_view") else {}
+	check(v.get("expedition", {}).has("chapters") and (v.get("expedition", {}).get("units", {}) as Dictionary).size() >= 5, "la vista del cliente incluye las Expediciones")
+
