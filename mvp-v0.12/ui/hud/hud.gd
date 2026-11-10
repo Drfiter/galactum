@@ -27,7 +27,7 @@ var toggle_btn: Button
 var toggle_label: Label
 var menu_bar: HBoxContainer
 var menu_badges: Dictionary = {}
-var feature_bar: VBoxContainer
+var feature_bar: GridContainer
 var feature_badges: Dictionary = {}
 var minimap: Control
 var coords_chip: PanelContainer
@@ -205,9 +205,12 @@ func _build_bottom() -> void:
 
 ## Columna de accesos destacados (estilo Lords Mobile): bono diario, eventos…
 func _build_features() -> void:
-	feature_bar = UI.vbox(8)
+	feature_bar = GridContainer.new()
+	feature_bar.columns = 1
+	feature_bar.add_theme_constant_override("h_separation", 8)
+	feature_bar.add_theme_constant_override("v_separation", 8)
 	add_child(feature_bar)
-	for entry: Array in [["login", U.t("Bono"), "ui_calendar", Color("43b83a")], ["events", U.t("Eventos"), "ui_event", Color("f2a81d")], ["liveops", U.t("Pase"), "ui_trophy", Color("e0567a")], ["crew", U.t("Tripul."), "ui_crew", Color("b06be0")]]:
+	for entry: Array in [["login", U.t("Bono"), "ui_calendar", Color("43b83a")], ["events", U.t("Eventos"), "ui_event", Color("f2a81d")], ["liveops", U.t("Pase"), "ui_trophy", Color("e0567a")], ["expedition", U.t("Expedición"), "ui_target", Color("2bb3a3")], ["crew", U.t("Tripul."), "ui_crew", Color("b06be0")]]:
 		add_feature(entry[0], entry[1], entry[2], entry[3])
 
 
@@ -328,6 +331,13 @@ func _layout() -> void:
 	fleet_panel.size = Vector2(280, 0)
 	toggle_btn.position = Vector2(14, s.y - 122)
 	feature_bar.position = Vector2(10, mission_card.position.y + mission_card.size.y + 12)
+	# Una columna si cabe; si no (pantallas bajas), dos o tres columnas.
+	var room_h: float = toggle_btn.position.y - 4 - feature_bar.position.y
+	var n: int = feature_bar.get_child_count()
+	var cols: int = 1
+	while cols < 3 and (ceili(float(n) / cols) * 80 - 8) > room_h:
+		cols += 1
+	feature_bar.columns = cols
 	feature_bar.size = feature_bar.get_combined_minimum_size()
 	feature_bar.visible = feature_bar.position.y + feature_bar.size.y < toggle_btn.position.y - 4
 	var mb: Vector2 = menu_bar.get_combined_minimum_size()
@@ -393,6 +403,8 @@ func refresh() -> void:
 	menu_badges["lab"].visible = false
 	feature_badges["login"].visible = bool(me.get("shop", {}).get("login", {}).get("available", false))
 	feature_badges["liveops"].visible = preload("res://ui/panels/liveops_panel.gd").claimable(me.get("liveops", {})) > 0
+	var xp: Dictionary = me.get("expedition", {})
+	feature_badges["expedition"].visible = not xp.is_empty() and int(xp.get("fuel", 0)) >= int(xp.get("fuel_max", 120))
 	menu_badges["alliance"].visible = caps > 0 or int(me.get("guild_brief", {}).get("chests", 0)) > 0
 	(menu_badges["alliance"].get_child(0) as Label).text = str(caps + int(me.get("guild_brief", {}).get("chests", 0)))
 	if not popup_entity_id.is_empty() or popup_tile.x >= 0:
