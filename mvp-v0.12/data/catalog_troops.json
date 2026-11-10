@@ -43,10 +43,10 @@
     {
      "tier": 2,
      "stats": {
-      "attack": 22,
-      "defense": 14,
-      "hp": 54,
-      "load": 22,
+      "attack": 24,
+      "defense": 8,
+      "hp": 60,
+      "load": 24,
       "speed": 1.0
      },
      "recipe": {
@@ -60,6 +60,69 @@
      "train_sec": 1.2,
      "power": 8,
      "requires_tech": "tier2_protocol"
+    },
+    {
+     "tier": 3,
+     "stats": {
+      "attack": 42,
+      "defense": 8,
+      "hp": 105,
+      "load": 42,
+      "speed": 1.0
+     },
+     "recipe": {
+      "roderitium": 39,
+      "food": 32,
+      "water": 24,
+      "aminoacids": 24,
+      "oxygen": 24,
+      "credits": 8
+     },
+     "train_sec": 2.16,
+     "power": 24,
+     "requires_tech": "tier3_protocol"
+    },
+    {
+     "tier": 4,
+     "stats": {
+      "attack": 72,
+      "defense": 8,
+      "hp": 180,
+      "load": 72,
+      "speed": 1.0
+     },
+     "recipe": {
+      "roderitium": 102,
+      "food": 82,
+      "water": 61,
+      "aminoacids": 61,
+      "oxygen": 61,
+      "credits": 21
+     },
+     "train_sec": 3.9,
+     "power": 72,
+     "requires_tech": "tier4_protocol"
+    },
+    {
+     "tier": 5,
+     "stats": {
+      "attack": 120,
+      "defense": 8,
+      "hp": 300,
+      "load": 120,
+      "speed": 1.0
+     },
+     "recipe": {
+      "roderitium": 264,
+      "food": 211,
+      "water": 159,
+      "aminoacids": 159,
+      "oxygen": 159,
+      "credits": 53
+     },
+     "train_sec": 7.02,
+     "power": 216,
+     "requires_tech": "tier5_protocol"
     }
    ]
   },
@@ -94,10 +157,10 @@
     {
      "tier": 2,
      "stats": {
-      "attack": 27,
-      "defense": 11,
-      "hp": 43,
-      "load": 14,
+      "attack": 30,
+      "defense": 6,
+      "hp": 48,
+      "load": 16,
       "speed": 1.4
      },
      "recipe": {
@@ -111,6 +174,69 @@
      "train_sec": 1.2,
      "power": 8,
      "requires_tech": "tier2_protocol"
+    },
+    {
+     "tier": 3,
+     "stats": {
+      "attack": 52,
+      "defense": 6,
+      "hp": 84,
+      "load": 28,
+      "speed": 1.4
+     },
+     "recipe": {
+      "roderitium": 32,
+      "kliptium": 32,
+      "water": 24,
+      "co2": 24,
+      "oxygen": 24,
+      "credits": 8
+     },
+     "train_sec": 2.16,
+     "power": 24,
+     "requires_tech": "tier3_protocol"
+    },
+    {
+     "tier": 4,
+     "stats": {
+      "attack": 90,
+      "defense": 6,
+      "hp": 144,
+      "load": 48,
+      "speed": 1.4
+     },
+     "recipe": {
+      "roderitium": 82,
+      "kliptium": 82,
+      "water": 61,
+      "co2": 61,
+      "oxygen": 61,
+      "credits": 21
+     },
+     "train_sec": 3.9,
+     "power": 72,
+     "requires_tech": "tier4_protocol"
+    },
+    {
+     "tier": 5,
+     "stats": {
+      "attack": 150,
+      "defense": 6,
+      "hp": 240,
+      "load": 80,
+      "speed": 1.4
+     },
+     "recipe": {
+      "roderitium": 211,
+      "kliptium": 211,
+      "water": 159,
+      "co2": 159,
+      "oxygen": 159,
+      "credits": 53
+     },
+     "train_sec": 7.02,
+     "power": 216,
+     "requires_tech": "tier5_protocol"
     }
    ]
   },
@@ -145,10 +271,10 @@
     {
      "tier": 2,
      "stats": {
-      "attack": 23,
-      "defense": 13,
-      "hp": 50,
-      "load": 18,
+      "attack": 26,
+      "defense": 7,
+      "hp": 56,
+      "load": 20,
       "speed": 1.2
      },
      "recipe": {
@@ -162,6 +288,69 @@
      "train_sec": 1.2,
      "power": 8,
      "requires_tech": "tier2_protocol"
+    },
+    {
+     "tier": 3,
+     "stats": {
+      "attack": 46,
+      "defense": 7,
+      "hp": 98,
+      "load": 35,
+      "speed": 1.2
+     },
+     "recipe": {
+      "kliptium": 39,
+      "food": 32,
+      "water": 24,
+      "aminoacids": 24,
+      "oxygen": 24,
+      "credits": 8
+     },
+     "train_sec": 2.16,
+     "power": 24,
+     "requires_tech": "tier3_protocol"
+    },
+    {
+     "tier": 4,
+     "stats": {
+      "attack": 78,
+      "defense": 7,
+      "hp": 168,
+      "load": 60,
+      "speed": 1.2
+     },
+     "recipe": {
+      "kliptium": 102,
+      "food": 82,
+      "water": 61,
+      "aminoacids": 61,
+      "oxygen": 61,
+      "credits": 21
+     },
+     "train_sec": 3.9,
+     "power": 72,
+     "requires_tech": "tier4_protocol"
+    },
+    {
+     "tier": 5,
+     "stats": {
+      "attack": 130,
+      "defense": 7,
+      "hp": 280,
+      "load": 100,
+      "speed": 1.2
+     },
+     "recipe": {
+      "kliptium": 264,
+      "food": 211,
+      "water": 159,
+      "aminoacids": 159,
+      "oxygen": 159,
+      "credits": 53
+     },
+     "train_sec": 7.02,
+     "power": 216,
+     "requires_tech": "tier5_protocol"
     }
    ]
   },
@@ -195,10 +384,10 @@
     {
      "tier": 2,
      "stats": {
-      "attack": 5,
-      "defense": 40,
-      "hp": 126,
-      "load": 11,
+      "attack": 6,
+      "defense": 22,
+      "hp": 140,
+      "load": 12,
       "speed": 0.8
      },
      "recipe": {
@@ -211,6 +400,66 @@
      "train_sec": 1.2,
      "power": 8,
      "requires_tech": "tier2_protocol"
+    },
+    {
+     "tier": 3,
+     "stats": {
+      "attack": 10,
+      "defense": 22,
+      "hp": 245,
+      "load": 21,
+      "speed": 0.8
+     },
+     "recipe": {
+      "roderitium": 39,
+      "copper": 39,
+      "aluminium": 32,
+      "oxygen": 24,
+      "credits": 8
+     },
+     "train_sec": 2.16,
+     "power": 24,
+     "requires_tech": "tier3_protocol"
+    },
+    {
+     "tier": 4,
+     "stats": {
+      "attack": 18,
+      "defense": 22,
+      "hp": 420,
+      "load": 36,
+      "speed": 0.8
+     },
+     "recipe": {
+      "roderitium": 102,
+      "copper": 102,
+      "aluminium": 82,
+      "oxygen": 61,
+      "credits": 21
+     },
+     "train_sec": 3.9,
+     "power": 72,
+     "requires_tech": "tier4_protocol"
+    },
+    {
+     "tier": 5,
+     "stats": {
+      "attack": 30,
+      "defense": 22,
+      "hp": 700,
+      "load": 60,
+      "speed": 0.8
+     },
+     "recipe": {
+      "roderitium": 264,
+      "copper": 264,
+      "aluminium": 211,
+      "oxygen": 159,
+      "credits": 53
+     },
+     "train_sec": 7.02,
+     "power": 216,
+     "requires_tech": "tier5_protocol"
     }
    ]
   },
@@ -246,10 +495,10 @@
     {
      "tier": 2,
      "stats": {
-      "attack": 32,
-      "defense": 7,
-      "hp": 36,
-      "load": 25,
+      "attack": 36,
+      "defense": 4,
+      "hp": 40,
+      "load": 28,
       "speed": 0.7
      },
      "recipe": {
@@ -264,8 +513,122 @@
      "train_sec": 1.2,
      "power": 8,
      "requires_tech": "tier2_protocol"
+    },
+    {
+     "tier": 3,
+     "stats": {
+      "attack": 63,
+      "defense": 4,
+      "hp": 70,
+      "load": 49,
+      "speed": 0.7
+     },
+     "recipe": {
+      "kliptium": 32,
+      "aluminium": 32,
+      "food": 24,
+      "water": 24,
+      "aminoacids": 24,
+      "oxygen": 24,
+      "credits": 16
+     },
+     "train_sec": 2.16,
+     "power": 24,
+     "requires_tech": "tier3_protocol"
+    },
+    {
+     "tier": 4,
+     "stats": {
+      "attack": 108,
+      "defense": 4,
+      "hp": 120,
+      "load": 84,
+      "speed": 0.7
+     },
+     "recipe": {
+      "kliptium": 82,
+      "aluminium": 82,
+      "food": 61,
+      "water": 61,
+      "aminoacids": 61,
+      "oxygen": 61,
+      "credits": 41
+     },
+     "train_sec": 3.9,
+     "power": 72,
+     "requires_tech": "tier4_protocol"
+    },
+    {
+     "tier": 5,
+     "stats": {
+      "attack": 180,
+      "defense": 4,
+      "hp": 200,
+      "load": 140,
+      "speed": 0.7
+     },
+     "recipe": {
+      "kliptium": 211,
+      "aluminium": 211,
+      "food": 159,
+      "water": 159,
+      "aminoacids": 159,
+      "oxygen": 159,
+      "credits": 106
+     },
+     "train_sec": 7.02,
+     "power": 216,
+     "requires_tech": "tier5_protocol"
     }
    ]
   }
- }
+ },
+ "formations": [
+  {
+   "id": "balanced",
+   "name": "Equilibrada",
+   "desc": "Sin bonos ni penalizaciones.",
+   "mods": {}
+  },
+  {
+   "id": "hunter",
+   "name": "Cacería",
+   "desc": "+15% de daño contra Xenoformas, -5% de defensa.",
+   "mods": {
+    "pve_damage": 0.15,
+    "defense": -0.05
+   }
+  },
+  {
+   "id": "assault",
+   "name": "Asalto",
+   "desc": "+12% de ataque, -8% de defensa.",
+   "mods": {
+    "attack": 0.12,
+    "defense": -0.08
+   },
+   "requires_tech": "formation_assault"
+  },
+  {
+   "id": "phalanx",
+   "name": "Falange",
+   "desc": "+12% de defensa y +6% de vida, -8% de ataque.",
+   "mods": {
+    "defense": 0.12,
+    "hp": 0.06,
+    "attack": -0.08
+   },
+   "requires_tech": "formation_phalanx"
+  },
+  {
+   "id": "wedge",
+   "name": "Cuña",
+   "desc": "+15% de velocidad de marcha, -5% de vida.",
+   "mods": {
+    "march_speed": 0.15,
+    "hp": -0.05
+   },
+   "requires_tech": "formation_wedge"
+  }
+ ]
 }
