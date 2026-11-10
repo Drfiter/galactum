@@ -28,6 +28,7 @@ func _ready() -> void:
 	test_progression()
 	test_liveops()
 	test_expeditions()
+	test_endgame()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -575,4 +576,107 @@ func test_expeditions() -> void:
 	check(r.get("type") == "ack" and X.fuel(p) == 73, "recargar Combustible con Materia Oscura")
 	var v: Dictionary = srv.player_view(p) if srv.has_method("player_view") else {}
 	check(v.get("expedition", {}).has("chapters") and (v.get("expedition", {}).get("units", {}) as Dictionary).size() >= 5, "la vista del cliente incluye las Expediciones")
+
+
+func _wait_fleet(fid: String, max_s: int = 300) -> void:
+	for i: int in range(max_s):
+		advance(1.0)
+		if not srv.fleets.fleets().has(fid):
+			return
+
+
+func test_endgame() -> void:
+	print(" -- Fase 8: Endgame")
+	var E = srv.endgame
+	var p: Dictionary = me()
+	srv.use_player_system(p)
+	E.ensure_system()
+	check(E.hives().size() == 3, "el sistema tiene 3 Colmenas Xeno")
+	check(E.platforms().size() == 4 and not E.citadel().is_empty(), "hay 4 Plataformas Orbitales (con la Ciudadela) alrededor del Portal")
+	check(not str(E.citadel().get("holder", "")).is_empty(), "al empezar, la Ciudadela está en manos de una alianza bot")
+	var hive: Dictionary = E.hives()[0]
+	p["troops"]["infantry_1"] = 3000
+	p["troops"]["drones_1"] = 1000
+	var r: Dictionary = intent("march", {"mission": "hunt", "target_id": hive["id"], "troops": {"infantry_1": 50}})
+	check(r.get("code", "") == "HIVE_NEEDS_RALLY", "una Colmena no se puede cazar en solitario")
+	# Asedio contra la Colmena.
+	p["rank"] = "R4"
+	for rr0: Dictionary in srv.rally.rallies().values():
+		if rr0["leader"] == p["id"]:
+			rr0["state"] = "done"
+	var hp0: int = int(hive["hp"])
+	var ins0: int = int(p["items"].get("insignia", 0))
+	r = intent("rally_start", {"target_id": hive["id"], "troops": {"infantry_1": 300, "drones_1": 100}, "wait": 30})
+	check(r.get("type") == "ack", "abrir un Asedio contra una Colmena Xeno")
+	var rid: String = str(r.get("rally_id", ""))
+	advance(31.0)
+	var rr: Dictionary = srv.rally.rallies().get(rid, {})
+	_wait_fleet(str(rr.get("fleet_id", "")))
+	var hv: Dictionary = srv.world.get_entity(str(hive["id"]))
+	check(hv.is_empty() or int(hv["hp"]) < hp0, "el Asedio daña la Colmena y el daño persiste")
+	check(int(p["items"].get("insignia", 0)) > ins0, "los participantes reciben premio según su aporte")
+	var reps: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return str(x.get("title", "")).contains("Colmena"))
+	check(not reps.is_empty(), "cada participante recibe el informe del Asedio a la Colmena")
+	# Derribo y reaparición.
+	if not hv.is_empty():
+		hv["hp"] = 50
+		r = intent("rally_start", {"target_id": hv["id"], "troops": {"infantry_1": 300}, "wait": 30})
+		advance(31.0)
+		_wait_fleet(str(srv.rally.rallies().get(str(r.get("rally_id", "")), {}).get("fleet_id", "")))
+	check(srv.world.get_entity(str(hive["id"])).is_empty(), "una Colmena sin vida desaparece")
+	check(E.hives().size() == 2, "y queda pendiente su reaparición")
+	advance(21.0 * 60.0)
+	check(E.hives().size() == 3, "la Colmena reaparece a los 20 minutos")
+	# Plataformas.
+	var plat: Dictionary = {}
+	for e: Dictionary in E.platforms():
+		if not bool(E.platform_def(str(e["ptype"])).get("titles", false)):
+			plat = e
+			break
+	plat["shield_until"] = 0
+	plat["holder"] = ""
+	plat["garrison"] = {"infantry_1": 20}
+	r = intent("rally_start", {"target_id": plat["id"], "troops": {"infantry_1": 300, "drones_1": 100}, "wait": 30})
+	check(r.get("type") == "ack", "abrir un Asedio contra una Plataforma Orbital")
+	advance(31.0)
+	_wait_fleet(str(srv.rally.rallies().get(str(r.get("rally_id", "")), {}).get("fleet_id", "")))
+	check(str(plat.get("holder", "")) == str(p["tag"]), "ganar el Asedio conquista la plataforma para la alianza")
+	check(int(plat.get("shield_until", 0)) > U.now_ms(), "la plataforma queda protegida tras la conquista")
+	E.refresh(p)
+	var buff: Dictionary = E.platform_def(str(plat["ptype"]))["buff"]
+	var k0: String = str(buff.keys()[0])
+	check(absf(float(p.get("platform_mods", {}).get(k0, 0.0)) - float(buff[k0])) < 0.0001, "los miembros reciben el bono de la plataforma (%s)" % k0)
+	check(preload("res://server/sgm/economy.gd").extra(p, k0) >= float(buff[k0]), "el bono entra al sistema unificado de modificadores")
+	r = intent("rally_start", {"target_id": plat["id"], "troops": {"infantry_1": 10}, "wait": 30})
+	check(r.get("code", "") == "INVALID_TARGET", "no se puede atacar una plataforma propia")
+	# Títulos.
+	var target: Dictionary = {}
+	for q: Dictionary in srv.state["players"].values():
+		if q.get("is_bot", false) and str(q.get("system", "")) == str(p.get("system", "")) and str(q.get("tag", "")) != str(p["tag"]):
+			target = q
+			break
+	r = intent("title_grant", {"title": "deserter", "player": target["id"]})
+	check(r.get("code", "") == "NO_PERMISSION", "sin la Ciudadela no se otorgan títulos")
+	E._capture(E.citadel(), str(p["tag"]), U.now_ms())
+	p["rank"] = "R5"
+	r = intent("title_grant", {"title": "admiral", "player": p["id"]})
+	check(r.get("type") == "ack" and float(p.get("title_mods", {}).get("attack", 0.0)) > 0.0, "el líder de la Ciudadela se otorga Gran Almirante (+ataque)")
+	r = intent("title_grant", {"title": "deserter", "player": target["id"]})
+	check(r.get("type") == "ack" and float(target.get("title_mods", {}).get("attack", 0.0)) < 0.0, "y puede imponer un título negativo a un rival")
+	r = intent("title_grant", {"title": "deserter", "player": p["id"]})
+	check(r.get("code", "") == "COOLDOWN", "cada título tiene un tiempo de espera para reasignarse")
+	advance(24.0 * 3600.0 + 60.0)
+	check(not E.cur_titles().has("admiral") or str(E.cur_titles()["admiral"]["pid"]) != p["id"], "los títulos vencen a las 24 h")
+	# Operación de Rescate.
+	p["rooms"]["cryo"] = {"level": 3, "last_ts": U.now_ms(), "pending": {}}
+	p["cryo"] = {"infantry_1": 100, "drones_1": 50}
+	var inf0: int = int(p["troops"].get("infantry_1", 0))
+	r = intent("rescue_start", {})
+	check(r.get("type") == "ack", "iniciar una Operación de Rescate en el Criosantuario")
+	r = intent("rescue_start", {})
+	check(r.get("code", "") == "QUEUE_BUSY", "solo una Operación de Rescate a la vez")
+	advance(121.0 * 60.0)
+	check(int(p["troops"].get("infantry_1", 0)) - inf0 == 30 and int(p["cryo"].get("infantry_1", 0)) == 70 and int(p["cryo"].get("drones_1", 0)) == 35, "la Operación de Rescate recupera el 30% de la criostasis")
+	var v: Dictionary = srv.player_view(p)
+	check(v.get("endgame", {}).has("platforms") and (v["endgame"]["titles"] as Array).size() == 7, "la vista del cliente incluye Plataformas, Colmenas y títulos")
 
