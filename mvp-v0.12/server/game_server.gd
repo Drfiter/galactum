@@ -23,6 +23,7 @@ const ShopMod = preload("res://server/sgm/shop.gd")
 const GuildMod = preload("res://server/sgm/guild.gd")
 const EventsMod = preload("res://server/sgm/events.gd")
 const CrewMod = preload("res://server/sgm/crew.gd")
+const CommanderMod = preload("res://server/sgm/commander.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -44,6 +45,7 @@ var shop: RefCounted
 var guild: RefCounted
 var events: RefCounted
 var crew: RefCounted
+var commander: RefCounted
 ## Sistema Solar activo (contexto SSS): entidades, flotas, terreno y respawns.
 var cur: Dictionary = {}
 var current_system: String = ""
@@ -72,6 +74,7 @@ func _init() -> void:
 	guild = GuildMod.new(self)
 	events = EventsMod.new(self)
 	crew = CrewMod.new(self)
+	commander = CommanderMod.new(self)
 
 
 func start(options: Dictionary = {}) -> void:
@@ -339,6 +342,7 @@ func _tick() -> void:
 		bots.tick(now)
 		guild.tick(now)
 	social.tick(now)
+	commander.tick(now)
 	events.tick(now)
 	for p: Dictionary in state["players"].values():
 		if p.get("is_bot", false):
@@ -581,6 +585,12 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return crew.assign(p, str(msg.get("crew_id", "")), bool(msg.get("on", true)))
 		"crew_promote":
 			return crew.promote(p, str(msg.get("crew_id", "")))
+		"talent_learn":
+			return commander.learn(p, str(msg.get("talent", "")))
+		"talent_reset":
+			return commander.reset(p)
+		"pay_ransom":
+			return commander.pay_ransom(p)
 		"exchange":
 			return progression.exchange(p, str(msg.get("from", "")), str(msg.get("to", "")), int(msg.get("amount", 0)))
 		"debug_guild_cycle":
@@ -727,6 +737,7 @@ func player_view(p: Dictionary) -> Dictionary:
 		"created_ts": int(p.get("created_ts", now)),
 		"shop": shop.view(p),
 		"crew": crew.view(p),
+		"commander": commander.view(p),
 		"guild_brief": _guild_brief(p),
 		"event_brief": _event_brief(p),
 	}

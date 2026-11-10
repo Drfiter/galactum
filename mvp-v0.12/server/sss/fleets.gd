@@ -397,6 +397,9 @@ func _finish_mining(f: Dictionary, now: int) -> void:
 	var ast: Dictionary = srv.world.get_entity(f["target_id"])
 	_collect_from_asteroid(f, ast, int(f["work_amount"]))
 	_crew_exp(f, int(Catalog.crew.get("exp_rewards", {}).get("gather", 20)))
+	var owner: Dictionary = srv.player(f["owner"])
+	if not owner.is_empty():
+		srv.commander.grant_exp(owner, int(Catalog.commander.get("exp_rewards", {}).get("gather", 15)))
 	_start_return(f, now, U.v2(f["target"]))
 
 
@@ -457,6 +460,7 @@ func _arrive_hunt(f: Dictionary, now: int) -> void:
 	var xr: Dictionary = Catalog.crew.get("exp_rewards", {})
 	var hunt_exp: int = int(float(xr.get("hunt_per_level", 40)) * lvl * (1.0 if res["killed"] else float(xr.get("hunt_partial_mult", 0.5))))
 	var crew_exp: Array = _crew_exp(f, hunt_exp)
+	srv.commander.grant_exp(p, int(float(Catalog.commander.get("exp_rewards", {}).get("hunt_per_level", 30)) * lvl * (1.0 if res["killed"] else 0.5)))
 	srv.emit_fx(U.v2(f["target"]), "hunt", f["owner"])
 	var report: Dictionary = {
 		"type": "hunt",
@@ -529,6 +533,12 @@ func _arrive_attack_base(f: Dictionary, now: int) -> void:
 	}
 	var won: bool = res["outcome"] == "attacker_win"
 	var xr: Dictionary = Catalog.crew.get("exp_rewards", {})
+	var cx: Dictionary = Catalog.commander.get("exp_rewards", {})
+	srv.commander.grant_exp(att, int(cx.get("attack_win", 120)) if won else int(cx.get("attack_loss", 30)))
+	if not won:
+		srv.commander.grant_exp(def, int(cx.get("defense_win", 60)))
+	# Riesgo de captura del Comandante defensor (si perdió muchas tropas).
+	report_base["capture"] = won and srv.commander.try_capture(att, def, def_initial, res["defender"]["losses"], seed)
 	var ra: Dictionary = report_base.duplicate(true)
 	ra["crew"] = _crew_exp(f, int(xr.get("attack_win", 80)) if won else int(xr.get("attack_loss", 25)))
 	ra["type"] = "attack"

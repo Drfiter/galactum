@@ -67,7 +67,7 @@ func bonus_of(p: Dictionary, crew_id: String) -> float:
 		return 0.0
 	var mult: float = float(rarity(str(d["rarity"])).get("mult", 1.0))
 	var stars: int = int(owned.get("stars", 1))
-	var room_boost: float = 1.0 + Eco.effect(p, "crew", "crew_power")
+	var room_boost: float = 1.0 + Eco.effect(p, "crew", "crew_power") + Eco.extra(p, "crew_power")
 	var grade_mult: float = 1.0 + float(cfg().get("grades", {}).get("bonus_per_grade", 0.25)) * (grade_of(owned) - 1)
 	var level_mult: float = 1.0 + float(cfg().get("levels", {}).get("bonus_per_level", 0.02)) * (level_of(owned) - 1)
 	var rank_mult: float = 1.0 + float(rank_of(level_of(owned)).get("bonus", 0.0))
@@ -104,6 +104,7 @@ func rank_of(lvl: int) -> Dictionary:
 ## Suma EXP a varios tripulantes. Devuelve [{id, exp, level, leveled}] para el informe.
 func grant_exp(p: Dictionary, ids: Array, amount: int) -> Array:
 	var out: Array = []
+	amount = int(round(amount * (1.0 + Eco.extra(p, "crew_exp"))))
 	if amount <= 0:
 		return out
 	var owned_all: Dictionary = ensure(p)["owned"]
