@@ -229,7 +229,7 @@ func _crew_exp(f: Dictionary, amount: int) -> Array:
 
 
 func hunt_energy(level: int) -> int:
-	return maxi(1, int(round(float(Catalog.xeno_level(level).get("energy", 10)) * (1.0 + Eco.event_factor("hunt_energy")))))
+	return Catalog.hunt_energy_cost(level, Eco.event_factor("hunt_energy"))
 
 
 func _validate_attack_target(p: Dictionary, target: Dictionary) -> Dictionary:

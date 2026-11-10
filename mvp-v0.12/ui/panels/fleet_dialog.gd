@@ -362,7 +362,7 @@ func _refresh() -> void:
 			var rate: float = float(Catalog.asteroid_level(int(entity.get("level", 1))).get("rate", 10)) * (1.0 + float(mods.get("gather_speed", 0.0)))
 			_summary.add_child(_line(UI.res_icon_name(str(entity.get("element", ""))), U.t("Extraerá"), U.t("%s en %s") % [U.fmt_num(amount), U.fmt_duration_short(amount / maxf(1.0, rate))], UI.GREEN))
 		"hunt":
-			var cost: int = int(Catalog.xeno_level(int(entity.get("level", 1))).get("energy", 10))
+			var cost: int = GameClient.hunt_energy_cost(int(entity.get("level", 1)))
 			var ok_e: bool = GameClient.current_energy() >= cost
 			_summary.add_child(_line("res_energy", U.t("Energía"), U.t("%d (tienes %d)") % [cost, GameClient.current_energy()], UI.TEXT if ok_e else UI.RED))
 			can = can and ok_e
