@@ -29,6 +29,7 @@ const AllianceMod = preload("res://server/sgm/alliance.gd")
 const RallyMod = preload("res://server/sss/rally.gd")
 const LiveOpsMod = preload("res://server/sgm/liveops.gd")
 const ExpeditionsMod = preload("res://server/sgm/expeditions.gd")
+const EndgameMod = preload("res://server/sgm/endgame.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -56,6 +57,7 @@ var alliance: RefCounted
 var rally: RefCounted
 var liveops: RefCounted
 var expeditions: RefCounted
+var endgame: RefCounted
 ## Sistema Solar activo (contexto SSS): entidades, flotas, terreno y respawns.
 var cur: Dictionary = {}
 var current_system: String = ""
@@ -90,6 +92,7 @@ func _init() -> void:
 	rally = RallyMod.new(self)
 	liveops = LiveOpsMod.new(self)
 	expeditions = ExpeditionsMod.new(self)
+	endgame = EndgameMod.new(self)
 
 
 func start(options: Dictionary = {}) -> void:
@@ -365,6 +368,7 @@ func _tick() -> void:
 		world.process_respawns(now)
 		fleets.tick(now)
 		rally.tick(now)
+		endgame.tick(now)
 		bots.tick(now)
 		guild.tick(now)
 	social.tick(now)
@@ -666,6 +670,12 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return rally.join(p, str(msg.get("rally_id", "")), jt)
 		"rally_cancel":
 			return rally.cancel(p, str(msg.get("rally_id", "")))
+		"title_grant":
+			return endgame.grant_title(p, str(msg.get("title", "")), str(msg.get("player", "")))
+		"title_revoke":
+			return endgame.revoke_title(p, str(msg.get("title", "")))
+		"rescue_start":
+			return endgame.rescue_start(p)
 		"exp_battle":
 			var ids: Array = (msg.get("crew", []) if msg.get("crew", []) is Array else []).map(func(x: Variant) -> String: return str(x))
 			return expeditions.battle(p, str(msg.get("stage", "")), bool(msg.get("elite", false)), ids)
@@ -764,6 +774,7 @@ func _entity_view(id: String, now: int) -> Dictionary:
 	var e: Dictionary = world.get_entity(id)
 	var v: Dictionary = e.duplicate(true)
 	v.erase("rev")
+	v.erase("damage_by")
 	if e["kind"] == "base":
 		var o: Dictionary = player(e["owner"])
 		v["name"] = o.get("name", "?")
@@ -844,6 +855,7 @@ func player_view(p: Dictionary) -> Dictionary:
 		"alliance_hq": _alliance_hq(p),
 		"liveops": liveops.view(p),
 		"expedition": expeditions.view(p),
+		"endgame": endgame.view(p),
 		"guild_brief": _guild_brief(p),
 		"event_brief": _event_brief(p),
 	}
