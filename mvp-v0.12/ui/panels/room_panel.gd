@@ -259,7 +259,32 @@ func _special_section() -> Control:
 			return _workshop()
 		"armory":
 			return _armory()
+		"trade_port":
+			return _trade_port()
 	return null
+
+
+## Puerto de Comercio: vende elementos a cambio de Créditos.
+func _trade_port() -> Control:
+	if GameClient.room_level("trade_port") <= 0:
+		return null
+	var s: Array = _section(U.t("Mercado"), "res_credits")
+	var v: VBoxContainer = s[1]
+	var rate: float = Catalog.room_effect("trade_port", "credit_rate", GameClient.room_level("trade_port"))
+	v.add_child(UI.label(U.t("Precio: %.2f Créditos por unidad") % rate, 16, UI.GOLD, "bold"))
+	var f := UI.flow(8, 6)
+	for el: String in Catalog.element_ids:
+		var have: int = GameClient.res(el)
+		var amount: int = 1000
+		var b := UI.button(U.t("Vender 1K %s") % Catalog.res_name(el), "GhostButton", UI.res_icon_name(el), Vector2(0, 40))
+		b.disabled = have < amount
+		var e2: String = el
+		b.pressed.connect(func() -> void: send("trade_sell", {"res": e2, "amount": amount}, func(p: Dictionary) -> void:
+			UI.Sfx.play("collect")
+			game.toast(U.t("Vendiste 1K %s: +%s Créditos") % [Catalog.res_name(e2), U.fmt_int(int(p.get("credits", 0)))], "success")))
+		f.add_child(b)
+	v.add_child(f)
+	return s[0]
 
 
 func _armory() -> Control:
@@ -478,44 +503,17 @@ func _lab() -> Control:
 	if not GameClient.queue("research").is_empty():
 		v.add_child(_queue_controls("research"))
 		v.add_child(UI.separator())
-	var lab_lvl: int = GameClient.room_level("lab")
+	var done: int = 0
 	for t: Dictionary in Catalog.research.get("techs", []):
-		var tid: String = t["id"]
-		var cur: int = GameClient.tech_level(tid)
-		var mx: int = int(t.get("max", 5))
-		var card := UI.panel("Card")
-		var h := UI.hbox(12)
-		card.add_child(h)
-		h.add_child(UI.icon("ui_" + str(t.get("icon", "star")) if ResourceLoader.exists("res://assets/icons/ui_%s.svg" % t.get("icon", "")) else "ui_star", 40, UI.PURPLE))
-		var tv := UI.vbox(2)
-		tv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tv.add_child(UI.label("%s  ·  %d/%d" % [t["name"], cur, mx], 16, UI.TEXT, "bold"))
-		var eff_now: String = ("+%d%%" % int(round(float(t["per_level"]) * cur * 100))) if bool(t.get("pct", true)) else (U.t("Sí") if cur > 0 else U.t("No"))
-		tv.add_child(UI.label(U.t("%s · %s · Rama: %s") % [t.get("label", ""), eff_now, t.get("branch", "")], 13, UI.TEXT_DIM))
-		if cur < mx:
-			var target: int = cur + 1
-			var cost: Dictionary = Catalog.tech_cost(tid, target)
-			tv.add_child(UI.cost_row(cost, 1.0, 14))
-			var req: int = maxi(target, int(t.get("requires_lab", 0)))
-			var b := UI.button(U.t("Investigar"), "PrimaryButton", "ui_lab", Vector2(150, 46))
-			var reason: String = ""
-			if lab_lvl < req:
-				reason = U.t("Laboratorio Nv %d") % req
-			elif not GameClient.queue("research").is_empty():
-				reason = U.t("Ocupado")
-			b.disabled = not reason.is_empty() or not GameClient.can_afford(cost)
-			var right := UI.vbox(2)
-			right.add_child(b)
-			right.add_child(UI.label(reason if not reason.is_empty() else U.fmt_duration_short(Catalog.tech_time(tid, target) / (1.0 + Catalog.room_effect("lab", "research_speed", lab_lvl))), 12, UI.GOLD if not reason.is_empty() else UI.TEXT_DIM))
-			b.pressed.connect(func() -> void: send("research", {"tech": tid}, func(_p: Dictionary) -> void: UI.Sfx.play("upgrade"); game.toast(U.t("Investigación iniciada: %s") % t["name"], "success")))
-			h.add_child(tv)
-			h.add_child(right)
-		else:
-			h.add_child(tv)
-			h.add_child(UI.icon("ui_check", 30, UI.GREEN))
-		v.add_child(card)
+		if GameClient.tech_level(str(t["id"])) > 0:
+			done += 1
+	v.add_child(UI.label(U.t("Árbol de 5 ramas · %d de %d tecnologías iniciadas") % [done, (Catalog.research.get("techs", []) as Array).size()], 16, UI.TEXT, "semibold"))
+	var b := UI.button(U.t("Abrir árbol de investigación"), "PrimaryButton", "ui_lab", Vector2(320, 54))
+	b.pressed.connect(func() -> void:
+		close_window()
+		game.open_panel("research"))
+	v.add_child(b)
 	return s[0]
-
 
 func _medbay() -> Control:
 	var s: Array = _section(U.t("Heridos en la Bahía Médica"), "ui_medic")
