@@ -19,6 +19,8 @@ func _ready() -> void:
 	await _wait(3.0)
 	if only == 0 or only == 1:
 		await fase1()
+	if only == 0 or only == 2:
+		await fase2()
 	get_tree().quit()
 
 
@@ -72,6 +74,46 @@ func fase1() -> void:
 	await _wait(1.0)
 	await shot("f1_03_informe_exp")
 	game.close_all_panels()
+
+
+func fase2() -> void:
+	var p: Dictionary = me_srv()
+	var cmd: RefCounted = srv().commander
+	cmd.grant_exp(p, 9000)
+	for tid: String in ["c_attack", "c_attack", "c_attack", "c_defense", "c_defense", "c_hp", "e_prod", "e_prod", "l_crew"]:
+		cmd.learn(p, tid)
+	await _wait(0.8)
+	game.open_panel("commander", {"tab": "talents"})
+	await _wait(1.0)
+	await shot("f2_01_protocolos")
+	game.close_all_panels()
+	var bot: Dictionary = {}
+	for q: Dictionary in srv().state["players"].values():
+		if q.get("is_bot", false):
+			bot = q
+			break
+	var old: float = float(Catalog.commander["capture"]["base_chance"])
+	Catalog.commander["capture"]["base_chance"] = 1.0
+	cmd.try_capture(bot, p, {"infantry_1": 100}, {"infantry_1": 90}, 3)
+	var bot2: Dictionary = {}
+	for q: Dictionary in srv().state["players"].values():
+		if q.get("is_bot", false) and q["id"] != bot["id"]:
+			bot2 = q
+			break
+	cmd.try_capture(p, bot2, {"infantry_1": 100}, {"infantry_1": 90}, 5)
+	Catalog.commander["capture"]["base_chance"] = old
+	await _wait(0.8)
+	game.open_panel("commander", {"tab": "profile"})
+	await _wait(1.0)
+	await shot("f2_02_capturado")
+	game.close_all_panels()
+	game.open_panel("commander", {"tab": "prisoners"})
+	await _wait(1.0)
+	await shot("f2_03_prisioneros")
+	game.close_all_panels()
+	p["resources"]["credits"] = int(p["resources"].get("credits", 0)) + 50000
+	cmd.pay_ransom(p)
+	await _wait(0.5)
 
 
 func _wait(s: float) -> void:
