@@ -364,7 +364,7 @@ func battle(p: Dictionary, stage_id: String, elite: bool, crew_ids: Array) -> Di
 	var out: Dictionary = {"ok": true, "stage": stage_id, "elite": elite, "win": sim["win"], "stars": stars,
 		"team": team, "enemies": foes, "log": sim["log"], "rounds": sim["rounds"], "reward": {}, "crew_exp": []}
 	if sim["win"]:
-		out.merge(_grant_win(p, stage, elite, stars, crew_ids))
+		out.merge(_grant_win(p, stage, elite, stars, crew_ids), true)
 	else:
 		# Una derrota devuelve la mitad del combustible y algo de EXP.
 		e["fuel"] = int(e["fuel"]) + cost / 2
