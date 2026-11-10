@@ -10,7 +10,7 @@ const RING = preload("res://assets/shaders/glow_ring.gdshader")
 const BAR = preload("res://assets/shaders/billboard_bar.gdshader")
 const ROUTE = preload("res://assets/shaders/route_dash.gdshader")
 
-const HOVER: Dictionary = {"base": 1.25, "asteroid": 0.75, "xenoform": 0.15, "fleet": 1.8}
+const HOVER: Dictionary = {"base": 1.25, "asteroid": 0.75, "xenoform": 0.15, "fleet": 1.8, "platform": 0.9}
 
 var id: String = ""
 var kind: String = ""
@@ -64,7 +64,7 @@ func setup(e: Dictionary, routes: Node3D) -> void:
 	sm.shader = BLOB
 	shadow.material_override = sm
 	shadow.position.y = -0.55
-	shadow.scale = Vector3.ONE * {"base": 4.6, "asteroid": 2.6, "xenoform": 2.2, "fleet": 2.0}.get(kind, 2.0)
+	shadow.scale = Vector3.ONE * {"base": 4.6, "asteroid": 2.6, "xenoform": 2.2, "fleet": 2.0, "platform": 5.0}.get(kind, 2.0) * (2.0 if bool(e.get("hive", false)) else 1.0)
 	shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(shadow)
 	match kind:
@@ -114,6 +114,14 @@ func setup(e: Dictionary, routes: Node3D) -> void:
 			_bar.position.y = 2.25
 			_bar.visible = false
 			add_child(_bar)
+		"platform":
+			_name_label = label3d("", 30, UI.GOLD, 12)
+			_name_label.position.y = 6.0
+			_name_label.offset = Vector2(0, 24)
+			add_child(_name_label)
+			_sub_label = label3d("", 24, UI.TEXT_DIM, 10)
+			_sub_label.position.y = 6.0
+			add_child(_sub_label)
 		"fleet":
 			for i: int in range(3):
 				var f := MeshInstance3D.new()
@@ -175,14 +183,32 @@ func refresh(e: Dictionary) -> void:
 		"xenoform":
 			var lvl2: int = int(e.get("level", 1))
 			var sp: Dictionary = Catalog.species_by_id.get(str(e.get("species", "")), {})
-			_set_model(Kit.xenoform(str(e.get("species", "x01")), lvl2, Color(str(sp.get("color", "#66e15e")))), 0.95 + lvl2 * 0.17, -1.0)
-			_name_label.text = U.t("N%d %s") % [lvl2, sp.get("name", U.t("Xenoforma"))]
-			_name_label.position.y = 1.9 + lvl2 * 0.22
+			var hive: bool = bool(e.get("hive", false))
+			var hscale: float = (1.5 + 0.35 * int(e.get("tier", 1))) if hive else 1.0
+			_set_model(Kit.xenoform(str(e.get("species", "x01")), lvl2, Color(str(sp.get("color", "#66e15e")))), (0.95 + lvl2 * 0.17) * hscale, -1.0)
+			_name_label.text = (U.t("COLMENA T%d") % int(e.get("tier", 1))) if hive else U.t("N%d %s") % [lvl2, sp.get("name", U.t("Xenoforma"))]
+			_name_label.modulate = Color("ff8fa3") if hive else Color("ffc2cf")
+			_name_label.position.y = (1.9 + lvl2 * 0.22) * (hscale * 0.85 if hive else 1.0)
 			_bar.position.y = _name_label.position.y - 0.4
 			var ratio: float = clampf(float(e.get("hp", 1)) / maxf(1.0, float(e.get("max_hp", 1))), 0.0, 1.0)
 			_bar.visible = ratio < 0.999
 			_bar_mat.set_shader_parameter("fill", ratio)
 			_bar_mat.set_shader_parameter("fill_color", Color("ff4d6d").lerp(Color("3ddc97"), ratio))
+		"platform":
+			var holder: String = str(e.get("holder", ""))
+			var citadel: bool = str(e.get("ptype", "")) == "citadel"
+			relation = "neutral" if holder.is_empty() else ("ally" if holder == str(GameClient.me.get("tag", "")) else "enemy")
+			var pc: Color = UI.REL_COLORS.get(relation, UI.TEXT)
+			_set_model(Kit.platform(pc, citadel), 1.9 if citadel else 1.6, 0.035)
+			var pd: Dictionary = {}
+			for d: Dictionary in Catalog.endgame.get("platforms", {}).get("list", []):
+				if str(d["id"]) == str(e.get("ptype", "")):
+					pd = d
+			_name_label.text = str(pd.get("name", U.t("Plataforma Orbital")))
+			_name_label.modulate = Color("ffd166") if citadel else UI.TEXT
+			var shield_s: String = U.t("  ·  ESCUDO") if int(e.get("shield_until", 0)) > GameClient.server_now() else ""
+			_sub_label.text = (U.t("Libre") if holder.is_empty() else "[%s]" % holder) + shield_s
+			_sub_label.modulate = pc.lightened(0.25)
 		"fleet":
 			relation = GameClient.relation_of(str(e.get("owner", "")), str(e.get("tag", "")))
 			var col2: Color = UI.REL_COLORS.get(relation, UI.TEXT)
@@ -247,6 +273,9 @@ func _process(delta: float) -> void:
 			model.get_child(0).scale = Vector3(1.0 + squash, 1.0 - squash, 1.0 + squash)
 			model.position.y = absf(sin(_t * 1.6)) * 0.12
 			model.rotation.y = sin(_t * 0.5 + _seed * 4.0) * 0.6
+		"platform":
+			model.rotation.y += delta * 0.15
+			model.position.y = sin(_t * 0.9) * 0.1
 		"fleet":
 			_update_fleet(delta)
 

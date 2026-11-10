@@ -378,7 +378,7 @@ func _process(delta: float) -> void:
 		var n: Node3D = nodes[selected_id]
 		_sel_ring.visible = true
 		_sel_ring.position = Vector3(n.position.x, 0.08, n.position.z)
-		var s: float = {"base": 7.0, "asteroid": 3.6, "xenoform": 3.8, "fleet": 3.0}.get(n.kind, 3.0)
+		var s: float = {"base": 7.0, "asteroid": 3.6, "xenoform": 3.8, "fleet": 3.0, "platform": 9.0}.get(n.kind, 3.0)
 		_sel_ring.scale = Vector3.ONE * (s + sin(_t * 4.0) * 0.15)
 		_sel_ring.rotation.y += delta * 0.8
 	else:
@@ -520,7 +520,7 @@ func _handle_tap(screen: Vector2) -> void:
 		if camera.is_position_behind(wp):
 			continue
 		var sp: Vector2 = camera.unproject_position(wp)
-		var r: float = {"base": 95.0, "asteroid": 55.0, "xenoform": 60.0, "fleet": 45.0}.get(n.kind, 50.0) * scale_px
+		var r: float = {"base": 95.0, "asteroid": 55.0, "xenoform": 60.0, "fleet": 45.0, "platform": 130.0}.get(n.kind, 50.0) * scale_px * (1.8 if bool(n.data.get("hive", false)) else 1.0)
 		r = maxf(r, 26.0)
 		var d: float = sp.distance_to(screen)
 		if n.kind == "fleet":

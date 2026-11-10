@@ -251,6 +251,30 @@ static func xenoform(species: String, level: int, body: Color) -> ArrayMesh:
 
 
 ## Planeta con franjas de latitud y anillo.
+## Plataforma Orbital: anillo con módulos, mástil y faro del color del dueño.
+static func platform(team: Color, citadel: bool) -> ArrayMesh:
+	var key: String = "platform|%s|%s" % [team.to_html(), str(citadel)]
+	if _cache.has(key):
+		return _cache[key]
+	var b := Builder.new()
+	var hull := Color("d9e2f2")
+	var dark := Color("39456a")
+	b.add(cyl(1.5, 1.7, 0.35, 16), xf(Vector3.ZERO), hull)
+	b.add(torus(1.9, 2.3, 32, 6), xf(Vector3(0, 0.05, 0), Vector3.ZERO, Vector3(1, 0.6, 1)), team, 0.35)
+	b.add(cyl(0.9, 1.1, 0.5, 12), xf(Vector3(0, 0.4, 0)), dark)
+	for i: int in range(4):
+		var a: float = TAU * i / 4.0 + PI / 4.0
+		b.add(box(Vector3(0.55, 0.45, 0.55)), xf(Vector3(cos(a) * 1.25, 0.35, sin(a) * 1.25)), hull)
+		b.add(sphere(0.12, 8, 4), xf(Vector3(cos(a) * 1.25, 0.66, sin(a) * 1.25)), team, 1.0)
+	var mast_h: float = 2.2 if citadel else 1.4
+	b.add(cyl(0.12, 0.2, mast_h, 8), xf(Vector3(0, 0.65 + mast_h / 2.0, 0)), hull)
+	b.add(sphere(0.32 if citadel else 0.24, 12, 8), xf(Vector3(0, 0.75 + mast_h, 0)), team, 1.0)
+	if citadel:
+		b.add(torus(0.5, 0.62, 20, 4), xf(Vector3(0, 0.75 + mast_h, 0), Vector3(90, 0, 0)), Color("ffd166"), 0.8)
+	_cache[key] = b.commit()
+	return _cache[key]
+
+
 static func planet(col: Color) -> ArrayMesh:
 	var key: String = "planet|" + col.to_html()
 	if _cache.has(key):
