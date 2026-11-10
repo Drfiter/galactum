@@ -178,6 +178,11 @@ func _battle_detail(r: Dictionary) -> void:
 			h.add_child(UI.label(U.t("vivos %d/%d%s") % [int(rd2.get("attacker_alive", 0)), int(rd2.get("defender_alive", 0)), extra], 12, UI.TEXT_DIM))
 			rv.add_child(h)
 		_detail.add_child(rc)
+	if bool(r.get("capture", false)):
+		var cap := UI.panel("CardRed")
+		var own_attack: bool = str(r.get("type", "")) in ["attack", "tile_hit"]
+		cap.add_child(UI.wrap(UI.label(U.t("¡Capturaste al Comandante enemigo! Cobrarás su rescate en Comandante → Prisioneros.") if own_attack else U.t("¡Tu Comandante fue capturado! Paga el rescate en Comandante → Perfil o espera la condena."), 15, UI.RED if not own_attack else UI.GOLD, "bold")))
+		_detail.add_child(cap)
 	_crew_section(r)
 	_detail.add_child(UI.label(U.t("combat_version %s · seed %s (replay determinista)") % [str(r.get("combat_version", "")), str(r.get("seed", ""))], 12, UI.TEXT_MUTED))
 
