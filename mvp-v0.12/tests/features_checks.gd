@@ -22,6 +22,7 @@ func _ready() -> void:
 	srv.handle_message(sid, {"type": "hello", "protocol": "galactum-mvp-1", "name": "Tester", "avatar": "p05"})
 	test_crew_in_fleets()
 	test_commander()
+	test_armory()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -185,3 +186,52 @@ func test_commander() -> void:
 	check(r.get("type") == "ack" and (srv.commander.ensure(p)["talents"] as Dictionary).is_empty(), "reiniciar Protocolos devuelve los puntos (cuesta Materia Oscura)")
 	var v: Dictionary = srv.commander.view(p)
 	check(v.has("level") and v.has("points") and v.has("captured") and v.has("prisoners"), "la vista del cliente incluye nivel, puntos, captura y prisioneros")
+
+
+# ---------------------------------------------------------------- fase 3
+
+func test_armory() -> void:
+	print(" -- Fase 3: Armería y equipamiento")
+	const Eco = preload("res://server/sgm/economy.gd")
+	var p: Dictionary = me()
+	check(Catalog.materials_by_id.size() == 150, "el catálogo tiene 150 materiales")
+	check(Catalog.equipment_by_id.size() == 90, "el catálogo tiene 90 equipos")
+	var drop: Dictionary = srv.armory.hunt_drop("x03", 3, true)
+	check(drop.has("mat_x_x03_3") and int(drop["mat_x_x03_3"]) > 0, "cazar una xenoforma N3 suelta su material de calidad III")
+	check(not srv.armory.mining_drop("ast_1", 2).is_empty(), "minar suelta material de forja")
+	var eq: Dictionary = Catalog.equipment_by_id["eq_01_weapon"]
+	p["rooms"].erase("armory")
+	var r: Dictionary = intent("armory_forge", {"equipment": "eq_01_weapon"})
+	check(r.get("code", "") == "ARMORY_LEVEL", "sin Armería no se puede forjar")
+	p["rooms"]["armory"] = {"level": 1}
+	r = intent("armory_forge", {"equipment": "eq_01_weapon"})
+	check(r.get("code", "") == "INSUFFICIENT_RESOURCES", "forjar exige materiales y Créditos")
+	for k: String in eq["recipe"]:
+		p["resources"][k] = int(eq["recipe"][k]) * 20
+	p["resources"]["credits"] = 500000
+	r = intent("armory_forge", {"equipment": "eq_01_weapon"})
+	check(r.get("type") == "ack" and int(srv.armory.ensure(p)["owned"].get("eq_01_weapon", 0)) == 1, "con los materiales se forja el Cañón Vanguardia")
+	r = intent("armory_forge", {"equipment": "eq_13_weapon"})
+	check(r.get("code", "") == "ARMORY_LEVEL", "un equipo de escalón 5 exige una Armería de nivel alto")
+	var atk0: float = float(Eco.combat_mods(p, false)["attack"])
+	r = intent("armory_equip", {"equipment": "eq_01_weapon"})
+	var atk1: float = float(Eco.combat_mods(p, false)["attack"])
+	check(r.get("type") == "ack" and absf(atk1 - atk0 - 0.02) < 0.0001, "equiparlo suma +2% de ataque")
+	r = intent("armory_upgrade", {"equipment": "eq_01_weapon"})
+	check(r.get("type") == "ack" and int(srv.armory.ensure(p)["owned"]["eq_01_weapon"]) == 2, "mejorarlo lo sube a nivel 2")
+	check(float(Eco.combat_mods(p, false)["attack"]) > atk1, "el nivel aumenta su bono")
+	for k: String in ["eq_01_armor", "eq_01_visor"]:
+		var e2: Dictionary = Catalog.equipment_by_id[k]
+		for m: String in e2["recipe"]:
+			p["resources"][m] = int(p["resources"].get(m, 0)) + int(e2["recipe"][m]) * 5
+		intent("armory_forge", {"equipment": k})
+		intent("armory_equip", {"equipment": k})
+	check(float(srv.armory.ensure(p).get("equipped", {}).size()) == 3.0, "tres piezas del conjunto Vanguardia equipadas")
+	check(float(p.get("gear_mods", {}).get("attack", 0.0)) > 0.02 * 1.25 + 0.0001, "el bono de conjunto de 3 piezas suma ataque extra")
+	r = intent("armory_unequip", {"slot": "weapon"})
+	check(r.get("type") == "ack" and not srv.armory.ensure(p)["equipped"].has("weapon"), "se puede quitar una pieza")
+	p["resources"]["mat_x_x01_1"] = 9
+	r = intent("armory_refine", {"material": "mat_x_x01_1", "times": 2})
+	check(r.get("type") == "ack" and int(p["resources"]["mat_x_x01_1"]) == 1 and int(p["resources"].get("mat_x_x01_2", 0)) >= 2, "refinar: 8 de calidad I dan 2 de calidad II")
+	var v: Dictionary = srv.armory.view(p)
+	check(v.has("owned") and v.has("equipped") and v.has("materials") and int(v["tier_max"]) >= 1, "la vista del cliente incluye equipo, materiales y escalón máximo")
