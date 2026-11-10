@@ -5,6 +5,7 @@
    "id": "kinetic_alloys",
    "name": "Aleaciones Cinéticas",
    "branch": "Combate",
+   "tier": 0,
    "max": 5,
    "effect": "attack",
    "per_level": 0.05,
@@ -16,6 +17,7 @@
    "id": "ablative_armor",
    "name": "Blindaje Ablativo",
    "branch": "Combate",
+   "tier": 0,
    "max": 5,
    "effect": "defense",
    "per_level": 0.05,
@@ -27,20 +29,175 @@
    "id": "nanomedicine",
    "name": "Nanomedicina",
    "branch": "Combate",
+   "tier": 1,
    "max": 5,
    "effect": "hp",
    "per_level": 0.05,
    "label": "Vida de fuerzas",
    "pct": true,
-   "icon": "hp"
+   "icon": "hp",
+   "requires": {
+    "ablative_armor": 2
+   }
+  },
+  {
+   "id": "heavy_ordnance",
+   "name": "Artillería Pesada",
+   "branch": "Combate",
+   "tier": 2,
+   "max": 5,
+   "effect": "attack",
+   "per_level": 0.04,
+   "label": "Ataque de fuerzas",
+   "pct": true,
+   "icon": "attack",
+   "requires": {
+    "kinetic_alloys": 3
+   },
+   "requires_lab": 6,
+   "cost_mult": 1.8
+  },
+  {
+   "id": "shield_harmonics",
+   "name": "Armónicos de Escudo",
+   "branch": "Combate",
+   "tier": 2,
+   "max": 5,
+   "effect": "defense",
+   "per_level": 0.04,
+   "label": "Defensa de fuerzas",
+   "pct": true,
+   "icon": "defense",
+   "requires": {
+    "ablative_armor": 3
+   },
+   "requires_lab": 6,
+   "cost_mult": 1.8
+  },
+  {
+   "id": "xenobiology",
+   "name": "Xenobiología",
+   "branch": "Combate",
+   "tier": 1,
+   "max": 5,
+   "effect": "pve_damage",
+   "per_level": 0.06,
+   "label": "Daño contra Xenoformas",
+   "pct": true,
+   "icon": "pve_damage",
+   "requires": {
+    "kinetic_alloys": 1
+   }
+  },
+  {
+   "id": "tier2_protocol",
+   "name": "Protocolo de Fuerzas N2",
+   "branch": "Fuerzas",
+   "tier": 0,
+   "max": 1,
+   "effect": "unlock_tier2",
+   "per_level": 1,
+   "label": "Desbloquea fuerzas N2",
+   "pct": false,
+   "icon": "unlock",
+   "requires_lab": 3,
+   "cost_mult": 3.0
+  },
+  {
+   "id": "tier3_protocol",
+   "name": "Protocolo de Fuerzas N3",
+   "branch": "Fuerzas",
+   "tier": 1,
+   "max": 1,
+   "effect": "unlock_tier3",
+   "per_level": 1,
+   "label": "Desbloquea fuerzas N3",
+   "pct": false,
+   "icon": "unlock",
+   "requires": {
+    "tier2_protocol": 1
+   },
+   "requires_lab": 8,
+   "cost_mult": 6.0
+  },
+  {
+   "id": "tier4_protocol",
+   "name": "Protocolo de Fuerzas N4",
+   "branch": "Fuerzas",
+   "tier": 2,
+   "max": 1,
+   "effect": "unlock_tier4",
+   "per_level": 1,
+   "label": "Desbloquea fuerzas N4",
+   "pct": false,
+   "icon": "unlock",
+   "requires": {
+    "tier3_protocol": 1
+   },
+   "requires_lab": 14,
+   "cost_mult": 10.0
+  },
+  {
+   "id": "tier5_protocol",
+   "name": "Protocolo de Fuerzas N5",
+   "branch": "Fuerzas",
+   "tier": 3,
+   "max": 1,
+   "effect": "unlock_tier5",
+   "per_level": 1,
+   "label": "Desbloquea fuerzas N5",
+   "pct": false,
+   "icon": "unlock",
+   "requires": {
+    "tier4_protocol": 1
+   },
+   "requires_lab": 20,
+   "cost_mult": 16.0
+  },
+  {
+   "id": "formation_assault",
+   "name": "Formación de Asalto",
+   "branch": "Fuerzas",
+   "tier": 1,
+   "max": 1,
+   "effect": "unlock_formation",
+   "per_level": 1,
+   "label": "Desbloquea la formación Asalto",
+   "pct": false,
+   "icon": "unlock",
+   "requires": {
+    "tier2_protocol": 1
+   },
+   "requires_lab": 4,
+   "cost_mult": 2.0,
+   "formation": "assault"
+  },
+  {
+   "id": "formation_phalanx",
+   "name": "Formación Falange",
+   "branch": "Fuerzas",
+   "tier": 1,
+   "max": 1,
+   "effect": "unlock_formation",
+   "per_level": 1,
+   "label": "Desbloquea la formación Falange",
+   "pct": false,
+   "icon": "unlock",
+   "requires": {
+    "tier2_protocol": 1
+   },
+   "requires_lab": 4,
+   "cost_mult": 2.0,
+   "formation": "phalanx"
   },
   {
    "id": "assisted_mining",
-   "name": "Extracción Asistida",
+   "name": "Minería Asistida",
    "branch": "Economía",
+   "tier": 0,
    "max": 5,
    "effect": "gather_speed",
-   "per_level": 0.12,
+   "per_level": 0.08,
    "label": "Velocidad de minería",
    "pct": true,
    "icon": "mine"
@@ -49,46 +206,256 @@
    "id": "expanded_holds",
    "name": "Bodegas Expandidas",
    "branch": "Economía",
+   "tier": 0,
    "max": 5,
    "effect": "load",
-   "per_level": 0.12,
+   "per_level": 0.08,
    "label": "Capacidad de carga",
    "pct": true,
    "icon": "cargo"
   },
   {
+   "id": "industrial_automation",
+   "name": "Automatización Industrial",
+   "branch": "Economía",
+   "tier": 1,
+   "max": 5,
+   "effect": "production",
+   "per_level": 0.04,
+   "label": "Producción de las salas",
+   "pct": true,
+   "icon": "factory",
+   "requires": {
+    "assisted_mining": 2
+   }
+  },
+  {
+   "id": "deep_core_mining",
+   "name": "Minería de Núcleo Profundo",
+   "branch": "Economía",
+   "tier": 2,
+   "max": 5,
+   "effect": "gather_speed",
+   "per_level": 0.06,
+   "label": "Velocidad de minería",
+   "pct": true,
+   "icon": "mine",
+   "requires": {
+    "assisted_mining": 3
+   },
+   "requires_lab": 7,
+   "cost_mult": 1.6
+  },
+  {
+   "id": "bulk_logistics",
+   "name": "Logística a Granel",
+   "branch": "Economía",
+   "tier": 2,
+   "max": 5,
+   "effect": "march_capacity",
+   "per_level": 0.04,
+   "label": "Capacidad de flota",
+   "pct": true,
+   "icon": "cargo",
+   "requires": {
+    "expanded_holds": 3
+   },
+   "requires_lab": 7,
+   "cost_mult": 1.6
+  },
+  {
+   "id": "vault_engineering",
+   "name": "Ingeniería de Bóveda",
+   "branch": "Economía",
+   "tier": 1,
+   "max": 5,
+   "effect": "vault_bonus",
+   "per_level": 0.06,
+   "label": "Protección de la Bóveda",
+   "pct": true,
+   "icon": "vault",
+   "requires": {
+    "expanded_holds": 2
+   }
+  },
+  {
    "id": "ion_drives",
    "name": "Impulsores Iónicos",
-   "branch": "Tecnología de Salto",
+   "branch": "Logística",
+   "tier": 0,
    "max": 5,
    "effect": "march_speed",
-   "per_level": 0.1,
+   "per_level": 0.06,
    "label": "Velocidad de flota",
    "pct": true,
    "icon": "speed"
   },
   {
-   "id": "xenobiology",
-   "name": "Xenobiología",
-   "branch": "Xenobiología",
+   "id": "training_drills",
+   "name": "Simulacros de Entrenamiento",
+   "branch": "Logística",
+   "tier": 0,
    "max": 5,
-   "effect": "pve_damage",
-   "per_level": 0.1,
-   "label": "Daño contra Xenoformas",
+   "effect": "train_speed",
+   "per_level": 0.06,
+   "label": "Velocidad de entrenamiento",
    "pct": true,
-   "icon": "hunt"
+   "icon": "hangar"
   },
   {
-   "id": "tier2_protocol",
-   "name": "Protocolo de Fuerzas N2",
-   "branch": "Combate",
+   "id": "quantum_research",
+   "name": "Investigación Cuántica",
+   "branch": "Logística",
+   "tier": 1,
+   "max": 5,
+   "effect": "research_speed",
+   "per_level": 0.05,
+   "label": "Velocidad de investigación",
+   "pct": true,
+   "icon": "lab",
+   "requires": {
+    "training_drills": 2
+   }
+  },
+  {
+   "id": "warp_navigation",
+   "name": "Navegación Warp",
+   "branch": "Logística",
+   "tier": 2,
+   "max": 5,
+   "effect": "march_speed",
+   "per_level": 0.05,
+   "label": "Velocidad de flota",
+   "pct": true,
+   "icon": "speed",
+   "requires": {
+    "ion_drives": 3
+   },
+   "requires_lab": 8,
+   "cost_mult": 1.8
+  },
+  {
+   "id": "formation_wedge",
+   "name": "Formación Cuña",
+   "branch": "Logística",
+   "tier": 1,
    "max": 1,
-   "effect": "unlock_tier2",
+   "effect": "unlock_formation",
    "per_level": 1,
-   "label": "Desbloquea fuerzas N2",
+   "label": "Desbloquea la formación Cuña",
    "pct": false,
-   "icon": "tier",
-   "requires_lab": 3
+   "icon": "unlock",
+   "requires": {
+    "ion_drives": 2
+   },
+   "requires_lab": 5,
+   "cost_mult": 2.0,
+   "formation": "wedge"
+  },
+  {
+   "id": "fleet_command",
+   "name": "Mando de Flota",
+   "branch": "Logística",
+   "tier": 2,
+   "max": 5,
+   "effect": "march_capacity",
+   "per_level": 0.05,
+   "label": "Capacidad de flota",
+   "pct": true,
+   "icon": "fleet",
+   "requires": {
+    "training_drills": 3
+   },
+   "requires_lab": 8,
+   "cost_mult": 1.8
+  },
+  {
+   "id": "neural_link",
+   "name": "Enlace Neural",
+   "branch": "Ciencia",
+   "tier": 0,
+   "max": 5,
+   "effect": "crew_power",
+   "per_level": 0.05,
+   "label": "Pasivas de tripulantes",
+   "pct": true,
+   "icon": "crew"
+  },
+  {
+   "id": "officer_training",
+   "name": "Formación de Oficiales",
+   "branch": "Ciencia",
+   "tier": 0,
+   "max": 5,
+   "effect": "crew_exp",
+   "per_level": 0.08,
+   "label": "EXP de tripulantes",
+   "pct": true,
+   "icon": "crew"
+  },
+  {
+   "id": "command_doctrine",
+   "name": "Doctrina de Mando",
+   "branch": "Ciencia",
+   "tier": 1,
+   "max": 5,
+   "effect": "cmd_exp",
+   "per_level": 0.08,
+   "label": "EXP del Comandante",
+   "pct": true,
+   "icon": "star",
+   "requires": {
+    "officer_training": 2
+   }
+  },
+  {
+   "id": "capture_protocols",
+   "name": "Protocolos de Captura",
+   "branch": "Ciencia",
+   "tier": 1,
+   "max": 5,
+   "effect": "capture_chance",
+   "per_level": 0.08,
+   "label": "Probabilidad de captura",
+   "pct": true,
+   "icon": "target",
+   "requires": {
+    "neural_link": 2
+   }
+  },
+  {
+   "id": "evasion_matrix",
+   "name": "Matriz de Evasión",
+   "branch": "Ciencia",
+   "tier": 2,
+   "max": 5,
+   "effect": "capture_resist",
+   "per_level": 0.08,
+   "label": "Resistencia a la captura",
+   "pct": true,
+   "icon": "shield",
+   "requires": {
+    "capture_protocols": 2
+   },
+   "requires_lab": 9,
+   "cost_mult": 1.8
+  },
+  {
+   "id": "xeno_genetics",
+   "name": "Genética Xeno",
+   "branch": "Ciencia",
+   "tier": 2,
+   "max": 5,
+   "effect": "pve_damage",
+   "per_level": 0.05,
+   "label": "Daño contra Xenoformas",
+   "pct": true,
+   "icon": "hunt",
+   "requires": {
+    "neural_link": 3
+   },
+   "requires_lab": 9,
+   "cost_mult": 1.8
   }
  ],
  "cost": {
@@ -99,5 +466,13 @@
  },
  "growth": 1.6,
  "time": 20,
- "time_growth": 1.7
+ "time_growth": 1.7,
+ "branches": [
+  "Combate",
+  "Fuerzas",
+  "Economía",
+  "Logística",
+  "Ciencia"
+ ],
+ "_doc": "Árbol de investigación de 5 ramas. requires = {tecnología: nivel mínimo}; tier = fila en la rama. cost_mult multiplica costo y tiempo."
 }
