@@ -25,6 +25,7 @@ const PANELS: Dictionary = {
 	"events": preload("res://ui/panels/events_panel.gd"),
 	"crew": preload("res://ui/panels/crew_panel.gd"),
 	"commander": preload("res://ui/panels/commander_panel.gd"),
+	"armory": preload("res://ui/panels/armory_panel.gd"),
 	"battle": preload("res://ui/panels/battle_panel.gd"),
 }
 
