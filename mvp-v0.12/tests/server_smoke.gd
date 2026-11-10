@@ -48,11 +48,18 @@ func _ready() -> void:
 	# Caza
 	var xs: Array = srv.world.nearest_of_kind(home, "xenoform", 40.0, func(e: Dictionary) -> bool: return int(e["level"]) == 1)
 	check(not xs.is_empty(), "xeno near spawn")
-	r = intent("march", {"mission": "hunt", "target_id": xs[0]["id"], "troops": {"drones_1": 30, "pilots_1": 30, "infantry_1": 30}})
-	check(r.get("type") == "ack", "hunt march %s" % str(r))
-	for i: int in range(90):
-		_advance(1)
-	var hunt_reports: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return x["type"] == "hunt")
+	var hunt_reports: Array = []
+	# Un bot puede abatir la misma xenoforma justo antes de que llegue la flota
+	# (entonces no hay informe de caza): se reintenta con otra, hasta 3 veces.
+	for attempt: int in range(mini(3, xs.size())):
+		r = intent("march", {"mission": "hunt", "target_id": xs[attempt]["id"], "troops": {"drones_1": 30, "pilots_1": 30, "infantry_1": 30}})
+		if attempt == 0:
+			check(r.get("type") == "ack", "hunt march %s" % str(r))
+		for i: int in range(90):
+			_advance(1)
+		hunt_reports = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return x["type"] == "hunt")
+		if not hunt_reports.is_empty():
+			break
 	check(not hunt_reports.is_empty(), "hunt report")
 	if not hunt_reports.is_empty():
 		print("hunt: ", hunt_reports[0]["title"], " dmg=", hunt_reports[0]["xeno"]["damage"], " wounded=", hunt_reports[0]["attacker"]["wounded"])
