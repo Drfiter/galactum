@@ -12,6 +12,8 @@ var _labels: Dictionary = {}
 var _summary: VBoxContainer
 var _send_btn: Button
 var _updating: bool = false
+var _crew_sel: Array = []
+var _crew_label: Label
 
 
 func _init() -> void:
@@ -56,6 +58,7 @@ func build() -> void:
 		var key: String = p[1]
 		b.pressed.connect(func() -> void: _apply_preset(key))
 		presets.add_child(b)
+	right.add_child(_crew_card())
 	var list := UI.vbox(8)
 	right.add_child(scroll_body(list))
 	var home: Dictionary = GameClient.troops_home()
@@ -294,6 +297,73 @@ func _refresh() -> void:
 	_send_btn.disabled = not can or total > _capacity()
 
 
+## Tripulantes que embarcan en esta flota (hasta 5). Solo aparecen los libres:
+## los que trabajan en una sala o viajan en otra flota no pueden embarcar.
+func _crew_card() -> Control:
+	var cv: Dictionary = GameClient.me.get("crew", {})
+	var max_n: int = int(cv.get("fleet_max", 5))
+	var active: Array = cv.get("active", [])
+	var card := UI.panel("Card")
+	var v := UI.vbox(6)
+	card.add_child(v)
+	_crew_label = UI.label("", 15, UI.CYAN, "bold")
+	v.add_child(_crew_label)
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 6)
+	flow.add_theme_constant_override("v_separation", 6)
+	v.add_child(flow)
+	var free: Array = []
+	var busy: int = 0
+	for o: Dictionary in cv.get("owned", []):
+		if active.has(o["id"]) or not str(o.get("fleet", "")).is_empty():
+			busy += 1
+		else:
+			free.append(o)
+	free.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.get("bonus", 0.0)) > float(b.get("bonus", 0.0)))
+	for o: Dictionary in free:
+		var cid: String = str(o["id"])
+		var b := Button.new()
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.icon = UI.portrait_tex(cid)
+		b.expand_icon = true
+		b.custom_minimum_size = Vector2(58, 58)
+		b.theme_type_variation = "TabButton"
+		b.name = "Crew_" + cid
+		var stat: String = str(Catalog.crew.get("stat_labels", {}).get(str(_crew_def(cid).get("stat", "")), ""))
+		b.tooltip_text = "%s · Nv %d · %s\n+%.1f%% %s" % [U.t(str(Catalog.portraits.get(cid, {}).get("name", cid))), int(o.get("level", 1)), U.t(str(o.get("rank", ""))), float(o.get("bonus", 0.0)) * float(cv.get("fleet_mult", 1.5)) * 100.0, U.t(stat)]
+		b.toggled.connect(func(on: bool) -> void:
+			if on and _crew_sel.size() >= max_n:
+				b.set_pressed_no_signal(false)
+				game.toast(U.t("Máximo %d tripulantes por flota") % max_n, "warning")
+				return
+			if on:
+				_crew_sel.append(cid)
+			else:
+				_crew_sel.erase(cid)
+			b.theme_type_variation = "PrimaryButton" if on else "TabButton"
+			_update_crew_label(max_n))
+		flow.add_child(b)
+	if free.is_empty():
+		v.add_child(UI.wrap(UI.label(U.t("No hay tripulantes libres. Los que trabajan en una sala o viajan en otra flota no pueden embarcar."), 13, UI.TEXT_MUTED)))
+	elif busy > 0:
+		v.add_child(UI.label(U.t("%d ocupados en salas u otras flotas") % busy, 12, UI.TEXT_MUTED))
+	_update_crew_label(max_n)
+	return card
+
+
+func _crew_def(cid: String) -> Dictionary:
+	for c: Dictionary in Catalog.crew.get("crew", []):
+		if str(c["id"]) == cid:
+			return c
+	return {}
+
+
+func _update_crew_label(max_n: int) -> void:
+	if _crew_label != null:
+		_crew_label.text = U.t("Tripulantes a bordo (%d/%d) · su pasiva cuenta ×1,5 en esta flota") % [_crew_sel.size(), max_n]
+
+
 func _line(icon_name: String, label_text: String, value: String, color: Color) -> HBoxContainer:
 	var h := UI.hbox(8)
 	h.add_child(UI.icon(icon_name, 20, UI.TEXT_DIM if icon_name.begins_with("ui_") else Color.WHITE))
@@ -309,7 +379,7 @@ func _send() -> void:
 		if int(_sel[k]) > 0:
 			stacks[k] = int(_sel[k])
 	_send_btn.disabled = true
-	GameClient.intent("march", {"mission": mission, "target_id": entity["id"], "troops": stacks}, func(ok: bool, payload: Dictionary) -> void:
+	GameClient.intent("march", {"mission": mission, "target_id": entity["id"], "troops": stacks, "crew": _crew_sel}, func(ok: bool, payload: Dictionary) -> void:
 		if ok:
 			UI.Sfx.play("launch")
 			game.toast(U.t("Flota en ruta: %s") % {"gather": U.t("minería"), "hunt": "caza", "attack": "ataque"}.get(mission, ""), "success")
