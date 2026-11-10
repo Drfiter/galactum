@@ -17,7 +17,7 @@
  },
  "platforms": {
   "_doc": "Plataformas Orbitales alrededor del Portal de Salto. Se conquistan con un Asedio contra su guarnición. La alianza que la controla recibe el bono para todos sus miembros del sistema. La Ciudadela permite otorgar títulos.",
-  "ring_offset": 14,
+  "ring_offset": 30,
   "shield_min": 20,
   "captured_garrison_ratio": 0.5,
   "bot_attack_min": 12,

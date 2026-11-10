@@ -62,6 +62,10 @@ func ensure_system() -> void:
 		# Al empezar, la Ciudadela y una plataforma están en manos de alianzas bot.
 		if not bot_tags.is_empty() and (bool(d.get("titles", false)) or idx == 0):
 			holder = str(bot_tags[idx % bot_tags.size()])
+		# Despeja asteroides y xenoformas que ocupen el sitio de la plataforma.
+		for other: Dictionary in srv.world.entities().values().duplicate():
+			if str(other.get("kind", "")) in ["asteroid", "xenoform"] and U.v2(other["pos"]).distance_to(pos) < 6.0 and str(other.get("occupant", "")).is_empty():
+				srv.world.remove_entity(str(other["id"]))
 		var e: Dictionary = {
 			"id": "plt_%s_%s" % [srv.current_system, d["id"]], "kind": "platform", "ptype": d["id"],
 			"pos": [int(round(pos.x)), int(round(pos.y))], "holder": holder, "shield_until": 0,
@@ -78,8 +82,11 @@ func ensure_system() -> void:
 func _bot_alliances() -> Array:
 	var out: Array = []
 	for tag: String in srv.social.alliances():
-		var bots: Array = srv.social.members(tag).filter(func(m: Dictionary) -> bool: return m.get("is_bot", false) and str(m.get("system", "")) == srv.current_system)
-		if not bots.is_empty():
+		var mem: Array = srv.social.members(tag)
+		# Solo alianzas 100% bot: las de jugadores conquistan por sí mismas.
+		if mem.any(func(m: Dictionary) -> bool: return not m.get("is_bot", false)):
+			continue
+		if mem.any(func(m: Dictionary) -> bool: return str(m.get("system", "")) == srv.current_system):
 			out.append(tag)
 	out.sort()
 	return out
@@ -279,6 +286,7 @@ func _capture(e: Dictionary, tag: String, now: int) -> void:
 	# Al cambiar de dueño la Ciudadela, los títulos vigentes se revocan.
 	if bool(d.get("titles", false)) and prev != tag:
 		srv.cur["titles"] = {}
+		srv.cur["title_cd"] = {}
 	refresh_all()
 
 
@@ -535,7 +543,14 @@ func view(p: Dictionary) -> Dictionary:
 		tl.append({"id": t["id"], "name": U.t(str(t["name"])), "positive": bool(t.get("positive", true)), "mods": t.get("mods", {}),
 			"pid": str(cur_t.get("pid", "")), "holder_name": srv.display_name(str(cur_t.get("pid", ""))) if not cur_t.is_empty() else "",
 			"until": int(cur_t.get("until", 0)), "cooldown": int(srv.cur.get("title_cd", {}).get(t["id"], 0))})
+	var cands: Array = []
+	if can_grant(p):
+		for q: Dictionary in srv.state["players"].values():
+			if str(q.get("system", "")) == srv.current_system:
+				cands.append({"id": q["id"], "name": srv.display_name(q["id"]), "tag": str(q.get("tag", "")), "power": srv.player_power(q), "avatar": q.get("avatar", "p01")})
+		cands.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["power"]) > int(b["power"]))
+		cands = cands.slice(0, 40)
 	var rescue: Dictionary = p["queues"].get("rescue", {})
 	return {"platforms": pls, "hives": hvs, "titles": tl, "can_grant": can_grant(p), "citadel_holder": str(citadel().get("holder", "")),
 		"rescue": rescue, "rescue_ratio": float(cfg().get("rescue", {}).get("ratio", 0.3)), "rescue_minutes": int(cfg().get("rescue", {}).get("minutes", 120)),
-		"platform_mods": p.get("platform_mods", {}), "title_mods": p.get("title_mods", {})}
+		"platform_mods": p.get("platform_mods", {}), "title_mods": p.get("title_mods", {}), "candidates": cands}
