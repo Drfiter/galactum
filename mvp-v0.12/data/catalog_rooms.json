@@ -1,6 +1,6 @@
 {
  "version": "mvp-1.0",
- "max_level": 10,
+ "max_level": 25,
  "free_speedup_sec": 15,
  "rooms": [
   {
@@ -8,7 +8,7 @@
    "name": "Puente de Mando",
    "art": "s01_puente_de_mando",
    "category": "core",
-   "desc": "Centro de mando de la Astronave. Su nivel limita al resto de salas y desbloquea flotas simultáneas.",
+   "desc": "Centro de mando de la Astronave. Su nivel (hasta 25) limita al resto de salas y desbloquea flotas simultáneas.",
    "cost": {
     "ore": 220,
     "roderitium": 120,
@@ -23,7 +23,8 @@
      "base": 2,
      "per_level": 0.34,
      "label": "Flotas simultáneas",
-     "floor": true
+     "floor": true,
+     "max": 6
     }
    },
    "power": 60
@@ -463,36 +464,293 @@
     }
    },
    "power": 30
-  }
- ],
- "locked": [
+  },
   {
    "id": "dock",
    "name": "Muelle de Atraque",
    "art": "s15_muelle_de_atraque",
+   "category": "military",
    "phase": "Fase 2",
-   "desc": "Refuerzos de aliados."
+   "desc": "Recibe refuerzos de tus aliados: más capacidad por nivel.",
+   "unlock": {
+    "bridge": 4,
+    "cost": {
+     "ore": 1800,
+     "aluminium": 1200,
+     "credits": 900
+    }
+   },
+   "cost": {
+    "ore": 500,
+    "aluminium": 340,
+    "credits": 260
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {
+    "reinforce_capacity": {
+     "base": 300,
+     "per_level": 150,
+     "label": "Capacidad de refuerzos",
+     "floor": true
+    }
+   },
+   "power": 70
+  },
+  {
+   "id": "airlock",
+   "name": "Esclusa Ceremonial",
+   "art": "s19_esclusa_ceremonial",
+   "category": "military",
+   "phase": "Fase 2",
+   "desc": "Despliegue ágil de flotas: más velocidad de marcha por nivel.",
+   "unlock": {
+    "bridge": 5,
+    "cost": {
+     "ore": 2200,
+     "copper": 1500,
+     "credits": 1100
+    }
+   },
+   "cost": {
+    "ore": 600,
+    "copper": 420,
+    "credits": 300
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {
+    "march_speed": {
+     "base": 0.03,
+     "per_level": 0.02,
+     "label": "Velocidad de flota",
+     "pct": true
+    }
+   },
+   "power": 70
+  },
+  {
+   "id": "cargo_bay",
+   "name": "Bahía de Carga",
+   "art": "s22_bahia_de_carga",
+   "category": "economy",
+   "phase": "Fase 2",
+   "desc": "Bodegas reforzadas: más carga de las flotas y más protección de la Bóveda.",
+   "unlock": {
+    "bridge": 6,
+    "cost": {
+     "aluminium": 2400,
+     "water": 1600,
+     "credits": 1200
+    }
+   },
+   "cost": {
+    "aluminium": 640,
+    "water": 440,
+    "credits": 320
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {
+    "load": {
+     "base": 0.05,
+     "per_level": 0.03,
+     "label": "Capacidad de carga",
+     "pct": true
+    },
+    "vault_bonus": {
+     "base": 0.05,
+     "per_level": 0.02,
+     "label": "Protección de la Bóveda",
+     "pct": true
+    }
+   },
+   "power": 75
+  },
+  {
+   "id": "trade_port",
+   "name": "Puerto de Comercio",
+   "art": "s21_puerto_de_comercio",
+   "category": "economy",
+   "phase": "Fase 2",
+   "desc": "Vende elementos a mercaderes de paso a cambio de Créditos. Mejor precio por nivel.",
+   "unlock": {
+    "bridge": 7,
+    "cost": {
+     "copper": 2600,
+     "kliptium": 1800,
+     "credits": 1500
+    }
+   },
+   "cost": {
+    "copper": 700,
+    "kliptium": 480,
+    "credits": 380
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {
+    "credit_rate": {
+     "base": 0.2,
+     "per_level": 0.02,
+     "label": "Créditos por unidad vendida"
+    }
+   },
+   "power": 75
+  },
+  {
+   "id": "containment",
+   "name": "Celda de Contención",
+   "art": "s18_celda_de_contencion",
+   "category": "military",
+   "phase": "Fase 2",
+   "desc": "Retiene Comandantes enemigos: más probabilidad de captura por nivel.",
+   "unlock": {
+    "bridge": 8,
+    "cost": {
+     "roderitium": 3000,
+     "kliptium": 2000,
+     "credits": 1800
+    }
+   },
+   "cost": {
+    "roderitium": 800,
+    "kliptium": 540,
+    "credits": 450
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {
+    "capture_chance": {
+     "base": 0.1,
+     "per_level": 0.05,
+     "label": "Probabilidad de captura",
+     "pct": true
+    }
+   },
+   "power": 80
   },
   {
    "id": "cloak",
    "name": "Bahía de Ocultación",
    "art": "s14_bahia_de_ocultacion",
+   "category": "military",
    "phase": "Fase 2",
-   "desc": "Oculta fuerzas y al Comandante."
+   "desc": "Oculta a tu Comandante y parte de tus reservas: menos riesgo de captura y más protección contra saqueos.",
+   "unlock": {
+    "bridge": 10,
+    "cost": {
+     "roderitium": 3600,
+     "water": 2400,
+     "credits": 2200,
+     "dark_matter": 60
+    }
+   },
+   "cost": {
+    "roderitium": 950,
+    "water": 640,
+    "credits": 520
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {
+    "capture_resist": {
+     "base": 0.1,
+     "per_level": 0.04,
+     "label": "Resistencia a la captura",
+     "pct": true
+    },
+    "loot_protect": {
+     "base": 0.05,
+     "per_level": 0.03,
+     "label": "Protección contra saqueo",
+     "pct": true
+    }
+   },
+   "power": 85
   },
   {
    "id": "incubator",
    "name": "Cámara de Incubación",
    "art": "s23_camara_de_incubacion",
-   "phase": "Fase 3",
-   "desc": "Bio-Símbiontes."
+   "category": "economy",
+   "phase": "Fase 2",
+   "desc": "Cultivos biológicos: produce Alimento y Aminoácidos (base de los futuros Bio-Simbiontes).",
+   "unlock": {
+    "bridge": 12,
+    "cost": {
+     "food": 3000,
+     "aminoacids": 2200,
+     "credits": 2400,
+     "dark_matter": 80
+    }
+   },
+   "cost": {
+    "food": 800,
+    "aminoacids": 600,
+    "credits": 600
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {},
+   "power": 90,
+   "produces": {
+    "food": {
+     "base": 18,
+     "per_level": 6
+    },
+    "aminoacids": {
+     "base": 12,
+     "per_level": 4
+    }
+   },
+   "storage_minutes": 30
   },
   {
    "id": "foundry",
    "name": "Fundición Estelar",
    "art": "s24_fundicion_estelar",
-   "phase": "Fase 3",
-   "desc": "Desbloqueo de fuerzas N5."
+   "category": "economy",
+   "phase": "Fase 2",
+   "desc": "Funde metales estelares: produce Aleación Estelar I para la Armería.",
+   "unlock": {
+    "bridge": 14,
+    "cost": {
+     "ore": 4000,
+     "copper": 3000,
+     "credits": 3000,
+     "dark_matter": 100
+    }
+   },
+   "cost": {
+    "ore": 1100,
+    "copper": 800,
+    "credits": 800
+   },
+   "growth": 1.55,
+   "time": 40,
+   "time_growth": 1.6,
+   "effects": {},
+   "power": 95,
+   "produces": {
+    "mat_f_alloy_1": {
+     "base": 0.4,
+     "per_level": 0.15
+    }
+   },
+   "storage_minutes": 60
   }
- ]
+ ],
+ "locked": [],
+ "late_level": 10,
+ "late_growth": 1.18,
+ "late_time_growth": 1.22,
+ "_doc_late": "Desde el nivel late_level el costo crece con late_growth y el tiempo con late_time_growth (curva suave hasta el nivel 25)."
 }

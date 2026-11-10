@@ -214,7 +214,7 @@ func room_max_level() -> int:
 ## Costo para subir la sala AL nivel `target_level`.
 func room_cost(id: String, target_level: int) -> Dictionary:
 	var r: Dictionary = room(id)
-	var mult: float = pow(float(r.get("growth", 1.5)), target_level - 1)
+	var mult: float = _curve(float(r.get("growth", 1.5)), float(rooms_data.get("late_growth", 1.18)), target_level)
 	var out: Dictionary = {}
 	for k: String in r.get("cost", {}):
 		out[k] = int(round(float(r["cost"][k]) * mult / 10.0) * 10)
@@ -223,7 +223,15 @@ func room_cost(id: String, target_level: int) -> Dictionary:
 
 func room_time(id: String, target_level: int) -> int:
 	var r: Dictionary = room(id)
-	return int(round(float(r.get("time", 20)) * pow(float(r.get("time_growth", 1.6)), target_level - 1)))
+	return int(round(float(r.get("time", 20)) * _curve(float(r.get("time_growth", 1.6)), float(rooms_data.get("late_time_growth", 1.22)), target_level)))
+
+
+## Crecimiento exponencial hasta late_level y más suave después (niveles 11-25).
+func _curve(early: float, late: float, target_level: int) -> float:
+	var cut: int = int(rooms_data.get("late_level", 10))
+	var n_early: int = mini(target_level, cut) - 1
+	var n_late: int = maxi(0, target_level - cut)
+	return pow(early, n_early) * pow(late, n_late)
 
 
 func room_effect(id: String, effect: String, level: int) -> float:
@@ -233,6 +241,8 @@ func room_effect(id: String, effect: String, level: int) -> float:
 	var v: float = float(e.get("base", 0)) + float(e.get("per_level", 0)) * (level - 1)
 	if bool(e.get("floor", false)):
 		v = floorf(v)
+	if e.has("max"):
+		v = minf(v, float(e["max"]))
 	return v
 
 
@@ -253,7 +263,7 @@ func tech(id: String) -> Dictionary:
 
 func tech_cost(id: String, target_level: int) -> Dictionary:
 	var mult: float = pow(float(research.get("growth", 1.6)), target_level - 1)
-	var base_mult: float = 3.0 if id == "tier2_protocol" else 1.0
+	var base_mult: float = float(tech(id).get("cost_mult", 1.0))
 	var out: Dictionary = {}
 	for k: String in research.get("cost", {}):
 		out[k] = int(round(float(research["cost"][k]) * mult * base_mult / 10.0) * 10)
@@ -261,7 +271,7 @@ func tech_cost(id: String, target_level: int) -> Dictionary:
 
 
 func tech_time(id: String, target_level: int) -> int:
-	var base_mult: float = 3.0 if id == "tier2_protocol" else 1.0
+	var base_mult: float = float(tech(id).get("cost_mult", 1.0))
 	return int(round(float(research.get("time", 20)) * base_mult * pow(float(research.get("time_growth", 1.7)), target_level - 1)))
 
 
