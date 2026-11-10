@@ -96,6 +96,12 @@
    "name": "Plasma de Fusión",
    "short": "Pl",
    "color": "#ff5fa2"
+  },
+  {
+   "id": "bonds",
+   "name": "Bonos de Alianza",
+   "short": "BA",
+   "color": "#7fd1ff"
   }
  ]
 }

@@ -1,0 +1,147 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Alianzas (Equipo 4 en la descripción del proyecto): rangos R1-R5 con permisos como datos, modos de ingreso, Tesorería con límites diarios por rango, Tienda con Bonos de Alianza, Asedio (rally) y refuerzos. Valores de demo.",
+ "create_cost": {
+  "credits": 5000,
+  "dark_matter": 100
+ },
+ "tag_length": 3,
+ "max_members_base": 30,
+ "max_members_per_level": 5,
+ "join_modes": [
+  "open",
+  "request",
+  "invite"
+ ],
+ "default_rank": "R1",
+ "ranks": [
+  {
+   "id": "R5",
+   "name": "Líder"
+  },
+  {
+   "id": "R4",
+   "name": "Oficial"
+  },
+  {
+   "id": "R3",
+   "name": "Veterano"
+  },
+  {
+   "id": "R2",
+   "name": "Miembro"
+  },
+  {
+   "id": "R1",
+   "name": "Recluta"
+  }
+ ],
+ "role_permissions": {
+  "R5": [
+   "invite",
+   "accept",
+   "kick",
+   "promote",
+   "set_mode",
+   "treasury",
+   "rally",
+   "mark_target",
+   "transfer"
+  ],
+  "R4": [
+   "invite",
+   "accept",
+   "kick",
+   "promote",
+   "treasury",
+   "rally",
+   "mark_target"
+  ],
+  "R3": [
+   "invite",
+   "accept",
+   "rally"
+  ],
+  "R2": [
+   "rally_join"
+  ],
+  "R1": [
+   "rally_join"
+  ]
+ },
+ "treasury_daily_limit": {
+  "R5": -1,
+  "R4": 20000,
+  "R3": 0,
+  "R2": 0,
+  "R1": 0
+ },
+ "treasury_resources": [
+  "roderitium",
+  "kliptium",
+  "copper",
+  "water",
+  "aluminium",
+  "ore",
+  "food",
+  "aminoacids",
+  "oxygen",
+  "co2",
+  "credits"
+ ],
+ "bonds": {
+  "_doc": "Bonos de Alianza: moneda personal para la Tienda de Alianza.",
+  "help_given": 800,
+  "help_daily_cap": 20,
+  "donate_per": 10,
+  "rally_join": 500,
+  "reinforce": 200,
+  "capsule": 50
+ },
+ "shop": [
+  {
+   "id": "speedup_5m",
+   "cost": 2000,
+   "daily": 10
+  },
+  {
+   "id": "speedup_1h",
+   "cost": 15000,
+   "daily": 3
+  },
+  {
+   "id": "energy_cell",
+   "cost": 3000,
+   "daily": 5
+  },
+  {
+   "id": "insignia",
+   "cost": 1500,
+   "daily": 10
+  },
+  {
+   "id": "recruit_ticket",
+   "cost": 12000,
+   "daily": 1
+  },
+  {
+   "id": "peace_field_15m",
+   "cost": 8000,
+   "daily": 1
+  }
+ ],
+ "rally": {
+  "_doc": "Asedio: el líder abre el asedio, los aliados aportan tropas durante la espera y la flota conjunta ataca con los bonos del líder (herencia de boosts).",
+  "wait_sec": [
+   30,
+   60,
+   120
+  ],
+  "capacity_mult": 3.0,
+  "bot_join_chance": 0.6
+ },
+ "reinforce": {
+  "base_capacity": 600,
+  "bot_reinforce_chance": 0.5
+ }
+}

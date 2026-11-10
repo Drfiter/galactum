@@ -29,6 +29,7 @@ var events: Dictionary = {}
 var crew: Dictionary = {}
 var commander: Dictionary = {}
 var armory: Dictionary = {}
+var alliance: Dictionary = {}
 var materials_by_id: Dictionary = {}
 var equipment_by_id: Dictionary = {}
 
@@ -107,6 +108,7 @@ func reload() -> void:
 	crew = _read("catalog_crew")
 	commander = _read("catalog_commander")
 	armory = _read("catalog_armory")
+	alliance = _read("catalog_alliance")
 	materials_by_id.clear()
 	for m: Dictionary in armory.get("materials", []):
 		materials_by_id[m["id"]] = m
