@@ -178,7 +178,33 @@ func _battle_detail(r: Dictionary) -> void:
 			h.add_child(UI.label(U.t("vivos %d/%d%s") % [int(rd2.get("attacker_alive", 0)), int(rd2.get("defender_alive", 0)), extra], 12, UI.TEXT_DIM))
 			rv.add_child(h)
 		_detail.add_child(rc)
+	_crew_section(r)
 	_detail.add_child(UI.label(U.t("combat_version %s · seed %s (replay determinista)") % [str(r.get("combat_version", "")), str(r.get("seed", ""))], 12, UI.TEXT_MUTED))
+
+
+## Tripulantes que viajaron en la flota y la EXP que ganaron.
+func _crew_section(r: Dictionary) -> void:
+	var crew: Array = r.get("crew", [])
+	if crew.is_empty():
+		return
+	var c := UI.panel("Card")
+	var v := UI.vbox(6)
+	c.add_child(v)
+	v.add_child(UI.label(U.t("Tripulantes a bordo"), 15, UI.CYAN, "bold"))
+	var f := UI.flow(14, 6)
+	for e: Dictionary in crew:
+		var h := UI.hbox(6)
+		h.add_child(UI.image(UI.portrait_tex(str(e.get("id", "p01"))), Vector2(40, 40)))
+		var tv := UI.vbox(0)
+		tv.add_child(UI.label(U.t(str(Catalog.portraits.get(str(e.get("id", "")), {}).get("name", ""))), 13, UI.TEXT, "bold"))
+		var txt: String = U.t("+%d EXP · Nv %d") % [int(e.get("exp", 0)), int(e.get("level", 1))]
+		if bool(e.get("leveled", false)):
+			txt += "  " + U.t("¡Sube de nivel!")
+		tv.add_child(UI.label(txt, 12, UI.GOLD if bool(e.get("leveled", false)) else UI.GREEN))
+		h.add_child(tv)
+		f.add_child(h)
+	v.add_child(f)
+	_detail.add_child(c)
 
 
 func _side_column(side: Dictionary, title: String, defender: bool) -> Control:
@@ -258,6 +284,7 @@ func _hunt_detail(r: Dictionary) -> void:
 		cv.add_child(UI.label(U.t("Recompensas"), 15, UI.GOLD, "bold"))
 		cv.add_child(UI.reward_row(rw, 15))
 		_detail.add_child(c)
+	_crew_section(r)
 	var w: Dictionary = r.get("attacker", {}).get("wounded", {})
 	var wc := UI.panel("Card")
 	var wv := UI.vbox(6)
