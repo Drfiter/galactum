@@ -15,7 +15,7 @@ const RING = preload("res://assets/shaders/glow_ring.gdshader")
 
 const ORIGIN := Vector3(-2000, 0, -2000)
 const COLS_X: Array = [-9.6, -3.2, 3.2, 9.6]
-const ROWS_Z: Array = [-12.0, -5.0, 2.0, 9.5, 16.5]
+const ROWS_Z: Array = [-12.0, -5.0, 2.0, 9.5, 16.5, 23.5]
 const TAP_SLOP: float = 14.0
 
 signal room_tapped(room_id: String)
@@ -80,8 +80,8 @@ func _build_space() -> void:
 
 func _hull_points() -> PackedVector2Array:
 	return PackedVector2Array([
-		Vector2(0, -27), Vector2(7, -21), Vector2(14, -14), Vector2(16, -2), Vector2(16, 14),
-		Vector2(13, 22), Vector2(-13, 22), Vector2(-16, 14), Vector2(-16, -2), Vector2(-14, -14), Vector2(-7, -21),
+		Vector2(0, -27), Vector2(7, -21), Vector2(14, -14), Vector2(16, -2), Vector2(16, 21),
+		Vector2(13, 29), Vector2(-13, 29), Vector2(-16, 21), Vector2(-16, -2), Vector2(-14, -14), Vector2(-7, -21),
 	])
 
 
@@ -147,11 +147,15 @@ func _plot(index: int) -> Vector3:
 
 
 func _layout_buildings() -> void:
-	# Filas centrales (1-3) = salas funcionales; filas 0 y 4 = obras de Fase 2.
-	var i: int = 4
+	# Filas centrales (1-3) = salas iniciales; filas 0, 4 y 5 = salas que se
+	# construyen (Fase 2). 24 salas en 6 filas de 4.
+	var slots: Array = range(4, 24) + [0, 1, 2, 3]
+	var i: int = 0
 	for id: String in Catalog.room_order:
-		_slot_of[id] = i
-		_make_building(id, _plot(i), false, {})
+		if i >= slots.size():
+			break
+		_slot_of[id] = int(slots[i])
+		_make_building(id, _plot(int(slots[i])), false, {})
 		i += 1
 	var locked: Array = Catalog.rooms_data.get("locked", [])
 	for j: int in range(locked.size()):
@@ -408,6 +412,43 @@ static func building_mesh(id: String) -> ArrayMesh:
 			b.add(Kit.box(Vector3(0.25, 3.2, 0.25)), Kit.xf(Vector3(1.4, 2.4, 1.2)), steel)
 			b.add(Kit.box(Vector3(2.8, 0.22, 0.22)), Kit.xf(Vector3(0.1, 3.95, 1.2)), Color("ffcf3a"))
 			b.add(Kit.box(Vector3(0.6, 0.6, 0.6)), Kit.xf(Vector3(-1.1, 3.2, 1.2)), Color("3fd0ff"), 0.7)
+		"dock":
+			b.add(Kit.box(Vector3(3.8, 0.6, 3.8)), Kit.xf(Vector3(0, 0.75, 0)), Color("4f6a9a"))
+			for x3: float in [-1.3, 1.3]:
+				b.add(Kit.box(Vector3(0.5, 2.4, 0.5)), Kit.xf(Vector3(x3, 1.9, -1.2)), steel)
+				b.add(Kit.box(Vector3(0.9, 0.25, 2.6)), Kit.xf(Vector3(x3, 3.1, 0.0)), Color("ffcf3a"))
+			b.add(Kit.sphere(0.35, 10, 6), Kit.xf(Vector3(0, 1.4, 1.2)), Color("5ff2ff"), 0.8)
+		"airlock":
+			b.add(Kit.cyl(1.6, 1.8, 1.0, 12), Kit.xf(Vector3(0, 0.95, 0)), steel)
+			b.add(Kit.torus(1.0, 1.55, 16, 8), Kit.xf(Vector3(0, 2.4, 0), Vector3(90, 0, 0)), Color("c77dff"), 0.5)
+			b.add(Kit.cyl(0.8, 0.8, 0.2, 12), Kit.xf(Vector3(0, 2.4, 0), Vector3(90, 0, 0)), Color("2b1d4a"))
+		"cargo_bay":
+			for zi2: float in [-0.9, 0.9]:
+				for xi2: float in [-0.9, 0.9]:
+					b.add(Kit.box(Vector3(1.5, 1.2, 1.5)), Kit.xf(Vector3(xi2, 1.05, zi2)), Color("d9a441") if xi2 < 0.0 else Color("6f8fc4"))
+			b.add(Kit.box(Vector3(1.5, 1.2, 1.5)), Kit.xf(Vector3(-0.9, 2.25, -0.9)), Color("6f8fc4"))
+		"trade_port":
+			b.add(Kit.box(Vector3(3.6, 1.2, 3.0)), Kit.xf(Vector3(0, 1.0, 0.3)), Color("3f8f6f"))
+			b.add(Kit.cyl(0.18, 0.18, 2.6, 8), Kit.xf(Vector3(1.3, 2.6, -1.1)), steel)
+			b.add(Kit.box(Vector3(2.6, 0.2, 0.2)), Kit.xf(Vector3(0.1, 3.8, -1.1)), Color("ffcf3a"))
+			b.add(Kit.sphere(0.6, 12, 6), Kit.xf(Vector3(-0.9, 2.0, 0.6)), Color("ffd36a"), 0.6)
+		"containment":
+			b.add(Kit.box(Vector3(3.4, 2.2, 3.4)), Kit.xf(Vector3(0, 1.5, 0)), Color("4a3a5a"))
+			for x4: float in [-1.2, -0.4, 0.4, 1.2]:
+				b.add(Kit.box(Vector3(0.14, 1.8, 0.14)), Kit.xf(Vector3(x4, 1.5, -1.75)), Color("ff5d73"), 0.6)
+			b.add(Kit.box(Vector3(3.6, 0.3, 3.6)), Kit.xf(Vector3(0, 2.75, 0)), dark)
+		"cloak":
+			b.add(Kit.sphere(1.7, 16, 8), Kit.xf(Vector3(0, 1.3, 0), Vector3.ZERO, Vector3(1, 0.7, 1)), Color("4fa8ff"), 0.35)
+			b.add(Kit.cyl(1.9, 1.9, 0.3, 16), Kit.xf(Vector3(0, 0.6, 0)), dark)
+		"incubator":
+			for xi3: float in [-1.0, 1.0]:
+				b.add(Kit.cyl(0.6, 0.6, 2.0, 12), Kit.xf(Vector3(xi3, 1.5, 0)), Color("5ce08a"), 0.45)
+				b.add(Kit.sphere(0.6, 12, 6), Kit.xf(Vector3(xi3, 2.5, 0)), Color("8cff9a"), 0.6)
+			b.add(Kit.box(Vector3(3.4, 0.5, 1.6)), Kit.xf(Vector3(0, 0.7, 0)), steel)
+		"foundry":
+			b.add(Kit.cyl(1.3, 1.6, 2.2, 10), Kit.xf(Vector3(0, 1.5, 0)), Color("5a4a40"))
+			b.add(Kit.cyl(0.9, 1.1, 0.4, 10), Kit.xf(Vector3(0, 2.8, 0)), Color("ff7a2f"), 1.0)
+			b.add(Kit.cyl(0.25, 0.3, 2.0, 8), Kit.xf(Vector3(1.4, 2.6, -1.0)), dark)
 		_:
 			b.add(Kit.box(Vector3(3, 2, 3)), Kit.xf(Vector3(0, 1.4, 0)), steel)
 	return b.commit()
@@ -643,7 +684,7 @@ func _pan(a_s: Vector2, b_s: Vector2) -> void:
 	if a == Vector3.INF or b == Vector3.INF:
 		return
 	_target -= Vector2(b.x - a.x, b.z - a.z)
-	_target = _target.clamp(Vector2(-14, -20), Vector2(14, 20))
+	_target = _target.clamp(Vector2(-14, -20), Vector2(14, 27))
 	_update_camera()
 
 
