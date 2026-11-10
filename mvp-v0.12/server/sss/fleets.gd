@@ -56,7 +56,7 @@ func _bump(f: Dictionary) -> void:
 
 # ---------------------------------------------------------------- envío
 
-func start_march(p: Dictionary, mission: String, target_id: String, troops: Dictionary, crew_ids: Array = []) -> Dictionary:
+func start_march(p: Dictionary, mission: String, target_id: String, troops: Dictionary, crew_ids: Array = [], formation: String = "balanced") -> Dictionary:
 	var now: int = U.now_ms()
 	var base: Dictionary = srv.world.get_entity(p["base_id"])
 	if base.is_empty():
@@ -119,8 +119,17 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		var cerr: Dictionary = srv.crew.validate_fleet_crew(p, crew_list)
 		if not cerr.is_empty():
 			return cerr
+	# Formación de combate (algunas se desbloquean investigando).
+	var form: Dictionary = formation_def(formation)
+	if form.is_empty():
+		return _err("UNKNOWN_FORMATION", U.t("Formación desconocida"))
+	var form_req: String = str(form.get("requires_tech", ""))
+	if not form_req.is_empty() and Eco.tech_level(p, form_req) <= 0:
+		return _err("TECH_REQUIRED", U.t("Investiga %s para usar esa formación") % Catalog.tech(form_req).get("name", form_req))
 	# Los tripulantes embarcados aportan su pasiva (×fleet_mult) solo a esta flota.
 	var crew_mods: Dictionary = srv.crew.fleet_mods(p, crew_list) if not crew_list.is_empty() else {}
+	for k: String in form.get("mods", {}):
+		crew_mods[k] = float(crew_mods.get(k, 0.0)) + float(form["mods"][k])
 	for k: String in crew_mods:
 		if mods.has(k):
 			mods[k] = float(mods[k]) + float(crew_mods[k])
@@ -163,6 +172,7 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		"speed": speed,
 		"mods": _with_crew(Eco.combat_mods(p, false), crew_mods),
 		"crew": crew_list,
+		"formation": str(form.get("id", "balanced")),
 		"load_bonus": float(mods["load"]),
 		"gather_bonus": float(mods["gather_speed"]),
 		"rev": 1,
@@ -188,6 +198,13 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		"scout":
 			pass
 	return {"ok": true, "fleet_id": f["id"], "arrive_ts": f["arrive_ts"]}
+
+
+func formation_def(fid: String) -> Dictionary:
+	for f: Dictionary in Catalog.troops.get("formations", []):
+		if str(f["id"]) == fid:
+			return f
+	return {} if not fid.is_empty() else formation_def("balanced")
 
 
 ## Suma los bonos de combate de los tripulantes al snapshot de la flota.

@@ -546,7 +546,7 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 		"march":
 			var troops: Dictionary = msg.get("troops", {}) if msg.get("troops", {}) is Dictionary else {}
 			var crew_ids: Array = msg.get("crew", []) if msg.get("crew", []) is Array else []
-			return fleets.start_march(p, str(msg.get("mission", "")), str(msg.get("target_id", "")), troops, crew_ids)
+			return fleets.start_march(p, str(msg.get("mission", "")), str(msg.get("target_id", "")), troops, crew_ids, str(msg.get("formation", "balanced")))
 		"recall":
 			return fleets.recall(p, str(msg.get("fleet_id", "")))
 		"relocate":
@@ -651,6 +651,8 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return rally.join(p, str(msg.get("rally_id", "")), jt)
 		"rally_cancel":
 			return rally.cancel(p, str(msg.get("rally_id", "")))
+		"trade_sell":
+			return progression.trade_sell(p, str(msg.get("res", "")), int(msg.get("amount", 0)))
 		"exchange":
 			return progression.exchange(p, str(msg.get("from", "")), str(msg.get("to", "")), int(msg.get("amount", 0)))
 		"debug_guild_cycle":
