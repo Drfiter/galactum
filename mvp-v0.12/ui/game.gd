@@ -32,6 +32,7 @@ const PANELS: Dictionary = {
 	"liveops": preload("res://ui/panels/liveops_panel.gd"),
 	"expedition": preload("res://ui/panels/expedition_panel.gd"),
 	"expedition_battle": preload("res://ui/panels/expedition_battle_panel.gd"),
+	"endgame": preload("res://ui/panels/endgame_panel.gd"),
 }
 
 var map_view: Node3D
@@ -609,6 +610,10 @@ func build_entity_card(c: VBoxContainer, e: Dictionary) -> void:
 				var ab := UI.button(U.t("Atacar flota minera"), "DangerButton", "ui_attack", Vector2(240, 54))
 				ab.pressed.connect(func() -> void: open_fleet_dialog("attack", e))
 				actions.add_child(ab)
+		"xenoform" when bool(e.get("hive", false)):
+			_hive_card(c, actions, e, coords, dist)
+		"platform":
+			_platform_card(c, actions, e, coords, dist)
 		"xenoform":
 			var lvl2: int = int(e.get("level", 1))
 			var sp: Dictionary = Catalog.species_by_id.get(str(e.get("species", "")), {})
@@ -711,6 +716,83 @@ func build_entity_card(c: VBoxContainer, e: Dictionary) -> void:
 		c.add_child(actions)
 
 
+func _can_rally() -> bool:
+	return (GameClient.me.get("alliance_hq", {}).get("permissions", []) as Array).has("rally")
+
+
+func _hive_card(c: VBoxContainer, actions: HBoxContainer, e: Dictionary, coords: String, dist: float) -> void:
+	var tier: int = int(e.get("tier", 1))
+	var td: Dictionary = {}
+	for t: Dictionary in Catalog.endgame.get("hives", {}).get("tiers", []):
+		if int(t["tier"]) == tier:
+			td = t
+	_card_header(c, UI.image(UI.xeno_tex(str(e.get("species", "x24")), 5), Vector2(80, 80)), U.t("%s · T%d") % [str(td.get("name", U.t("Colmena Xeno"))), tier], U.t("Colmena Xeno  ·  %s  ·  a %d casillas") % [coords, int(dist)], Color("ff8fa3"))
+	var hp: int = int(e.get("hp", 0))
+	var mx: int = int(e.get("max_hp", 1))
+	var hrow := UI.hbox(8)
+	hrow.add_child(UI.icon("ui_hp", 20, UI.RED))
+	var bar := UI.progress(hp, mx, UI.RED, 12)
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hrow.add_child(bar)
+	hrow.add_child(UI.label("%s / %s" % [U.fmt_num(hp), U.fmt_num(mx)], 14, UI.TEXT_DIM))
+	c.add_child(hrow)
+	c.add_child(UI.wrap(UI.label(U.t("Solo se ataca con un Asedio de alianza. El daño persiste entre Asedios; cada participante gana premios según su aporte y, al destruirla, el botín de la Colmena."), 14, UI.TEXT_DIM), 480))
+	c.add_child(UI.label(U.t("Botín al destruirla:"), 14, UI.GOLD, "bold"))
+	var krow := UI.reward_row(td.get("kill", {}), 14)
+	krow.custom_minimum_size.x = 460
+	c.add_child(krow)
+	if str(GameClient.me.get("tag", "")).is_empty():
+		c.add_child(UI.label(U.t("Únete a una alianza para atacar Colmenas."), 14, UI.GOLD))
+	elif _can_rally():
+		var rly := UI.button(U.t("Abrir Asedio"), "DangerButton", "ui_rally", Vector2(220, 54))
+		rly.name = "HiveRally"
+		rly.pressed.connect(func() -> void: open_fleet_dialog("rally", e))
+		actions.add_child(rly)
+	else:
+		c.add_child(UI.label(U.t("Pide a un R3 o superior que abra el Asedio y súmate desde el Cuartel."), 14, UI.GOLD))
+
+
+func _platform_card(c: VBoxContainer, actions: HBoxContainer, e: Dictionary, coords: String, dist: float) -> void:
+	var pd: Dictionary = {}
+	for d: Dictionary in Catalog.endgame.get("platforms", {}).get("list", []):
+		if str(d["id"]) == str(e.get("ptype", "")):
+			pd = d
+	var holder: String = str(e.get("holder", ""))
+	var mine: bool = not holder.is_empty() and holder == str(GameClient.me.get("tag", ""))
+	var col: Color = UI.GOLD if str(e.get("ptype", "")) == "citadel" else UI.CYAN
+	_card_header(c, UI.icon("ui_flag", 64, col), str(pd.get("name", U.t("Plataforma Orbital"))), U.t("Plataforma Orbital  ·  %s  ·  a %d casillas") % [coords, int(dist)], col)
+	c.add_child(UI.wrap(UI.label(str(pd.get("desc", "")), 14, UI.TEXT_DIM), 480))
+	var info := UI.hbox(18)
+	info.add_child(_stat(U.t("Controla"), (U.t("Tu alianza") if mine else "[%s]" % holder) if not holder.is_empty() else U.t("Nadie"), "ui_alliance"))
+	var gpow: int = 0
+	for k: String in e.get("garrison", {}):
+		gpow += int(e["garrison"][k])
+	info.add_child(_stat(U.t("Guarnición"), U.t("%s fuerzas") % U.fmt_int(gpow), "ui_defense"))
+	var buff: Dictionary = pd.get("buff", {})
+	var parts: Array = []
+	for k2: String in buff:
+		parts.append("+%d%% %s" % [int(round(float(buff[k2]) * 100.0)), preload("res://ui/panels/commander_panel.gd").effect_label(k2)])
+	info.add_child(_stat(U.t("Bono"), ", ".join(parts), "ui_star"))
+	c.add_child(info)
+	var shield_left: float = float(int(e.get("shield_until", 0)) - GameClient.server_now()) / 1000.0
+	if shield_left > 0.0:
+		c.add_child(UI.label(U.t("Protegida tras su conquista: %s") % U.fmt_time(shield_left), 14, UI.CYAN))
+	if mine:
+		c.add_child(UI.label(U.t("Tu alianza controla esta plataforma: el bono ya está activo."), 14, UI.GREEN))
+	elif str(GameClient.me.get("tag", "")).is_empty():
+		c.add_child(UI.label(U.t("Únete a una alianza para conquistar plataformas."), 14, UI.GOLD))
+	elif _can_rally():
+		var rly := UI.button(U.t("Abrir Asedio"), "DangerButton", "ui_rally", Vector2(220, 54))
+		rly.name = "PlatformRally"
+		rly.disabled = shield_left > 0.0
+		rly.pressed.connect(func() -> void: open_fleet_dialog("rally", e))
+		actions.add_child(rly)
+	var gb := UI.button(U.t("Guerra del Sistema"), "GhostButton", "ui_flag", Vector2(220, 54))
+	gb.pressed.connect(func() -> void: open_panel("endgame", {"tab": "titles" if str(e.get("ptype", "")) == "citadel" else "platforms"}))
+	actions.add_child(gb)
+
+
 func build_tile_card(c: VBoxContainer, tile: Vector2i) -> void:
 	var blocked: bool = false
 	var blocked_name: String = ""
@@ -723,7 +805,7 @@ func build_tile_card(c: VBoxContainer, tile: Vector2i) -> void:
 	if not blocked:
 		for id: String in GameClient.entities:
 			var e: Dictionary = GameClient.entities[id]
-			if str(e.get("kind", "")) in ["base", "asteroid", "xenoform"] and GameClient.entity_position(e).distance_to(Vector2(tile)) <= 2.5 and str(e.get("owner", "")) != GameClient.player_id:
+			if str(e.get("kind", "")) in ["base", "asteroid", "xenoform", "platform"] and GameClient.entity_position(e).distance_to(Vector2(tile)) <= 2.5 and str(e.get("owner", "")) != GameClient.player_id:
 				blocked = true
 				blocked_name = U.t("ocupado por otra entidad")
 	var dist: float = Vector2(tile).distance_to(GameClient.base_pos())

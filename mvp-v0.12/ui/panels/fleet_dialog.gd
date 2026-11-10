@@ -106,7 +106,18 @@ func _target_card() -> Control:
 			h.add_child(UI.image(UI.xeno_tex(str(entity.get("species", "")), int(entity.get("level", 1))), Vector2(64, 64)))
 			var sp: Dictionary = Catalog.species_by_id.get(str(entity.get("species", "")), {})
 			title = U.t("%s N%d") % [sp.get("name", ""), int(entity.get("level", 1))]
+			if bool(entity.get("hive", false)):
+				title = U.t("Colmena Xeno T%d") % int(entity.get("tier", 1))
 			sub = U.t("Vida %s · Débil a daño %s") % [U.fmt_num(int(entity.get("hp", 0))), U.t("físico") if sp.get("weakness", "") == "fisica" else U.t("energético")]
+		"platform":
+			h.add_child(UI.icon("ui_flag", 56, UI.GOLD))
+			for d: Dictionary in Catalog.endgame.get("platforms", {}).get("list", []):
+				if str(d["id"]) == str(entity.get("ptype", "")):
+					title = str(d["name"])
+			var g: int = 0
+			for k: String in entity.get("garrison", {}):
+				g += int(entity["garrison"][k])
+			sub = U.t("Guarnición: %s fuerzas") % U.fmt_int(g)
 		"base":
 			h.add_child(UI.image(UI.portrait_tex(str(entity.get("avatar", "p01"))), Vector2(64, 64)))
 			title = ("[%s] " % entity.get("tag", "") if not str(entity.get("tag", "")).is_empty() else "") + str(entity.get("name", ""))
