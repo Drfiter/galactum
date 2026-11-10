@@ -89,6 +89,21 @@ func exchange(p: Dictionary, from_id: String, to_id: String, amount: int) -> Dic
 
 # ---------------------------------------------------------------- investigación
 
+## Puerto de Comercio: vende elementos a cambio de Créditos.
+func trade_sell(p: Dictionary, res_id: String, amount: int) -> Dictionary:
+	if Eco.room_level(p, "trade_port") <= 0:
+		return _err("ROOM_REQUIRED", U.t("Construye el Puerto de Comercio"))
+	if not Catalog.element_ids.has(res_id) or amount <= 0:
+		return _err("INVALID", U.t("Solo se venden elementos"))
+	var credits: int = int(floor(amount * Eco.effect(p, "trade_port", "credit_rate")))
+	if credits <= 0:
+		return _err("INVALID", U.t("Cantidad demasiado pequeña"))
+	if not Eco.apply(p, {res_id: -amount, "credits": credits}, "trade_sell"):
+		return _err("INSUFFICIENT_RESOURCES", U.t("No tienes esa cantidad"))
+	srv.mark_player_dirty(p["id"])
+	return {"ok": true, "credits": credits}
+
+
 func start_research(p: Dictionary, tech_id: String) -> Dictionary:
 	var t: Dictionary = Catalog.tech(tech_id)
 	if t.is_empty():
@@ -104,6 +119,11 @@ func start_research(p: Dictionary, tech_id: String) -> Dictionary:
 		return _err("LAB_REQUIRED", U.t("Requiere Laboratorio nivel %d") % target)
 	if lab < int(t.get("requires_lab", 0)):
 		return _err("LAB_REQUIRED", U.t("Requiere Laboratorio nivel %d") % int(t["requires_lab"]))
+	# Árbol de investigación: prerrequisitos de la rama.
+	var reqs: Dictionary = t.get("requires", {})
+	for rid: String in reqs:
+		if Eco.tech_level(p, rid) < int(reqs[rid]):
+			return _err("TECH_REQUIRED", U.t("Requiere %s Nv %d") % [Catalog.tech(rid).get("name", rid), int(reqs[rid])])
 	var cost: Dictionary = Catalog.tech_cost(tech_id, target)
 	if not Eco.apply(p, Eco.negate(cost), "research:%s:%d" % [tech_id, target]):
 		return _err("INSUFFICIENT_RESOURCES", U.t("Recursos insuficientes"))

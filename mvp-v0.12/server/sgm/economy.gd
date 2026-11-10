@@ -110,11 +110,28 @@ static func tech_level(p: Dictionary, tech_id: String) -> int:
 const MOD_SOURCES: Array = ["ally_mods", "crew_mods", "cmd_mods", "gear_mods", "vip_mods", "title_mods"]
 
 
-## Suma de un efecto en todas las fuentes de bonificación del jugador.
+## Salas cuyo efecto se suma directamente a un modificador.
+const ROOM_MODS: Dictionary = {
+	"march_speed": [["airlock", "march_speed"]],
+	"load": [["cargo_bay", "load"]],
+	"vault_bonus": [["cargo_bay", "vault_bonus"], ["cloak", "loot_protect"]],
+	"capture_chance": [["containment", "capture_chance"]],
+	"capture_resist": [["cloak", "capture_resist"]],
+}
+
+
+## Suma de un efecto en todas las fuentes de bonificación del jugador:
+## investigación, salas, Alianza, tripulación, Protocolos, equipo, Licencia y títulos.
 static func extra(p: Dictionary, key: String) -> float:
 	var total: float = 0.0
 	for src: String in MOD_SOURCES:
 		total += float(p.get(src, {}).get(key, 0.0))
+	for tech_id: String in p.get("tech", {}):
+		var t: Dictionary = Catalog.tech(tech_id)
+		if str(t.get("effect", "")) == key:
+			total += float(t.get("per_level", 0.0)) * int(p["tech"][tech_id])
+	for pair: Array in ROOM_MODS.get(key, []):
+		total += effect(p, str(pair[0]), str(pair[1]))
 	return total
 
 
@@ -125,11 +142,6 @@ static func modifiers(p: Dictionary) -> Dictionary:
 		"attack": 0.0, "defense": 0.0, "hp": 0.0, "gather_speed": 0.0,
 		"load": 0.0, "march_speed": 0.0, "pve_damage": 0.0,
 	}
-	for tech_id: String in p.get("tech", {}):
-		var t: Dictionary = Catalog.tech(tech_id)
-		var eff: String = str(t.get("effect", ""))
-		if m.has(eff):
-			m[eff] = float(m[eff]) + float(t.get("per_level", 0.0)) * int(p["tech"][tech_id])
 	m["defense_base"] = effect(p, "perimeter", "defense_bonus")
 	# Alianza, tripulación, Protocolos, equipamiento, Licencia y títulos.
 	for k: String in m.keys():
@@ -158,7 +170,7 @@ static func march_capacity(p: Dictionary) -> int:
 
 
 static func vault_protect(p: Dictionary) -> int:
-	return int(effect(p, "vault", "vault_protect"))
+	return int(effect(p, "vault", "vault_protect") * (1.0 + extra(p, "vault_bonus")))
 
 
 static func medbay_capacity(p: Dictionary) -> int:
