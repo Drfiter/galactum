@@ -91,6 +91,8 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		"hunt":
 			if target["kind"] != "xenoform":
 				return _err("INVALID_TARGET", U.t("Solo se pueden cazar xenoformas"))
+			if bool(target.get("hive", false)):
+				return _err("HIVE_NEEDS_RALLY", U.t("Las Colmenas Xeno solo se atacan con un Asedio de alianza"))
 			var cost: int = hunt_energy(int(target["level"]))
 			if int(p["resources"].get("energy", 0)) < cost:
 				return _err("NO_ENERGY", U.t("Energía insuficiente (%d)") % cost)
@@ -308,6 +310,10 @@ func _arrive(f: Dictionary, now: int) -> void:
 		"attack":
 			if f["target_kind"] == "base":
 				_arrive_attack_base(f, now)
+			elif f["target_kind"] == "xenoform":
+				srv.endgame.arrive_hive(f, now)
+			elif f["target_kind"] == "platform":
+				srv.endgame.arrive_platform(f, now)
 			else:
 				_arrive_tile_hit(f, now)
 		"scout":

@@ -74,9 +74,13 @@ func start(p: Dictionary, target_id: String, troops: Dictionary, wait_sec: int) 
 	var target: Dictionary = srv.world.get_entity(target_id)
 	if target.is_empty():
 		return _err("TARGET_NOT_FOUND", U.t("El objetivo ya no existe"))
-	var ok_kind: bool = target["kind"] == "base" or (target["kind"] == "xenoform" and bool(target.get("hive", false)))
+	var ok_kind: bool = target["kind"] in ["base", "platform"] or (target["kind"] == "xenoform" and bool(target.get("hive", false)))
 	if not ok_kind:
-		return _err("INVALID_TARGET", U.t("El Asedio se dirige a una nave enemiga o a una Colmena Xeno"))
+		return _err("INVALID_TARGET", U.t("El Asedio se dirige a una nave enemiga, una Colmena Xeno o una Plataforma Orbital"))
+	if target["kind"] == "platform":
+		var why: String = srv.endgame.platform_block(p, target)
+		if not why.is_empty():
+			return _err("INVALID_TARGET", why)
 	if target["kind"] == "base":
 		var err: Dictionary = srv.fleets._validate_attack_target(p, target)
 		if not err.is_empty():
@@ -97,7 +101,7 @@ func start(p: Dictionary, target_id: String, troops: Dictionary, wait_sec: int) 
 	var now: int = U.now_ms()
 	var r: Dictionary = {
 		"id": "rly_%s" % U.new_id(), "tag": p["tag"], "leader": p["id"], "target_id": target_id, "target_kind": target["kind"],
-		"target_name": srv.display_name(str(target.get("owner", ""))) if target["kind"] == "base" else U.t("Colmena Xeno"),
+		"target_name": _target_name(target),
 		"target_pos": target["pos"], "system": srv.current_system,
 		"created": now, "launch_ts": now + wait_sec * 1000, "state": "gathering", "shares": {p["id"]: clean}, "bots_checked": false,
 	}
@@ -105,6 +109,15 @@ func start(p: Dictionary, target_id: String, troops: Dictionary, wait_sec: int) 
 	srv.social.post(str(p["tag"]), p["name"], U.t("¡ASEDIO contra %s! Únete en los próximos %d s desde Alianza → Cuartel → Asedios.") % [r["target_name"], wait_sec], "rally")
 	srv.mark_player_dirty(p["id"])
 	return {"ok": true, "rally_id": r["id"], "launch_ts": r["launch_ts"]}
+
+
+func _target_name(target: Dictionary) -> String:
+	match str(target["kind"]):
+		"base":
+			return srv.display_name(str(target.get("owner", "")))
+		"platform":
+			return U.t(str(srv.endgame.platform_def(str(target["ptype"])).get("name", "Plataforma Orbital")))
+	return U.t(str(srv.endgame.hive_tier(int(target.get("tier", 1))).get("name", "Colmena Xeno")))
 
 
 func join(p: Dictionary, rally_id: String, troops: Dictionary) -> Dictionary:

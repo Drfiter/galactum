@@ -134,7 +134,7 @@ func _act(p: Dictionary, now: int) -> void:
 			srv.fleets.start_march(p, "gather", target["id"], troops)
 	elif roll < 0.9:
 		var max_lvl: int = clampi(1 + int(float(p["bot"]["strength"]) * 4.5), 1, 5)
-		var xs: Array = srv.world.nearest_of_kind(home, "xenoform", 40.0, func(e: Dictionary) -> bool: return int(e["level"]) <= max_lvl)
+		var xs: Array = srv.world.nearest_of_kind(home, "xenoform", 40.0, func(e: Dictionary) -> bool: return int(e["level"]) <= max_lvl and not bool(e.get("hive", false)))
 		if xs.is_empty():
 			return
 		var troops2: Dictionary = _pick_troops(p, 0.35, ["drones", "pilots", "infantry", "gunners"])
