@@ -27,6 +27,7 @@ const CommanderMod = preload("res://server/sgm/commander.gd")
 const ArmoryMod = preload("res://server/sgm/armory.gd")
 const AllianceMod = preload("res://server/sgm/alliance.gd")
 const RallyMod = preload("res://server/sss/rally.gd")
+const LiveOpsMod = preload("res://server/sgm/liveops.gd")
 const SpatialHash = preload("res://server/sss/spatial_hash.gd")
 
 const PROTOCOL_VERSION: String = "galactum-mvp-1"
@@ -52,6 +53,7 @@ var commander: RefCounted
 var armory: RefCounted
 var alliance: RefCounted
 var rally: RefCounted
+var liveops: RefCounted
 ## Sistema Solar activo (contexto SSS): entidades, flotas, terreno y respawns.
 var cur: Dictionary = {}
 var current_system: String = ""
@@ -84,6 +86,7 @@ func _init() -> void:
 	armory = ArmoryMod.new(self)
 	alliance = AllianceMod.new(self)
 	rally = RallyMod.new(self)
+	liveops = LiveOpsMod.new(self)
 
 
 func start(options: Dictionary = {}) -> void:
@@ -143,6 +146,15 @@ func on_activity(p: Dictionary, kind: String, amount: float, extra: Dictionary =
 		return
 	guild.on_activity(p, kind, amount, extra)
 	events.on_activity(p, kind, amount, extra)
+	liveops.on_activity(p, kind, amount)
+
+
+## Eventos de temporizadores terminados: misiones y puntos de LiveOps.
+func _on_completed(p: Dictionary, events_list: Array) -> void:
+	for ev: Array in events_list:
+		missions.on_event(p, ev[0], int(ev[1]), ev[2])
+		if str(ev[0]) in ["room_upgraded", "research_done", "troops_trained"]:
+			on_activity(p, str(ev[0]), float(ev[1]))
 
 
 func use_player_system(p: Dictionary) -> void:
@@ -355,12 +367,12 @@ func _tick() -> void:
 	social.tick(now)
 	commander.tick(now)
 	alliance.tick(now)
+	liveops.tick(now)
 	events.tick(now)
 	for p: Dictionary in state["players"].values():
 		if p.get("is_bot", false):
 			continue
-		for ev: Array in progression.complete_due(p, now):
-			missions.on_event(p, ev[0], int(ev[1]), ev[2])
+		_on_completed(p, progression.complete_due(p, now))
 	for sid: int in sessions.keys():
 		_flush(sessions[sid])
 	_dirty_players.clear()
@@ -499,7 +511,9 @@ func _on_intent(s: Dictionary, msg: Dictionary) -> void:
 	var rid: String = str(msg.get("request_id", ""))
 	var action: String = str(msg.get("action", ""))
 	settle_player(p)
-	progression.complete_due(p, U.now_ms())
+	# Antes se descartaban estos eventos: las misiones no contaban lo que
+	# terminaba justo al recibir una acción del jugador.
+	_on_completed(p, progression.complete_due(p, U.now_ms()))
 	var res: Dictionary = _dispatch(p, action, msg)
 	if bool(res.get("ok", false)):
 		var ack: Dictionary = {"type": "ack", "request_id": rid, "action": action}
@@ -538,8 +552,7 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return progression.revive(p)
 		"speedup":
 			var r3: Dictionary = progression.speedup(p, str(msg.get("queue", "")), str(msg.get("method", "")))
-			for ev: Array in progression.complete_due(p, U.now_ms()):
-				missions.on_event(p, ev[0], int(ev[1]), ev[2])
+			_on_completed(p, progression.complete_due(p, U.now_ms()))
 			return r3
 		"help":
 			return social.request_help(p, str(msg.get("queue", "")))
@@ -553,8 +566,7 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return fleets.relocate(p, Vector2i(int(msg.get("x", -1)), int(msg.get("y", -1))), false)
 		"use_item":
 			var r4: Dictionary = progression.use_item(p, str(msg.get("item", "")), msg)
-			for ev2: Array in progression.complete_due(p, U.now_ms()):
-				missions.on_event(p, ev2[0], int(ev2[1]), ev2[2])
+			_on_completed(p, progression.complete_due(p, U.now_ms()))
 			return r4
 		"claim_mission":
 			return missions.claim_story(p)
@@ -651,6 +663,16 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return rally.join(p, str(msg.get("rally_id", "")), jt)
 		"rally_cancel":
 			return rally.cancel(p, str(msg.get("rally_id", "")))
+		"pass_buy":
+			return liveops.buy_pass(p)
+		"pass_claim":
+			return liveops.claim_pass(p, int(msg.get("level", 0)), str(msg.get("track", "free")))
+		"license_daily":
+			return liveops.claim_license_daily(p)
+		"sing_claim":
+			return liveops.claim_singularity(p, int(msg.get("index", -1)))
+		"fest_claim":
+			return liveops.claim_festival(p, int(msg.get("index", -1)))
 		"trade_sell":
 			return progression.trade_sell(p, str(msg.get("res", "")), int(msg.get("amount", 0)))
 		"exchange":
@@ -808,6 +830,7 @@ func player_view(p: Dictionary) -> Dictionary:
 		"commander": commander.view(p),
 		"gear": armory.view(p),
 		"alliance_hq": _alliance_hq(p),
+		"liveops": liveops.view(p),
 		"guild_brief": _guild_brief(p),
 		"event_brief": _event_brief(p),
 	}
