@@ -1,0 +1,50 @@
+{
+ "version": "mvp-1.0",
+ "_doc": "Endgame y PvE cooperativo (feedback del 26/10): Colmenas Xeno, Plataformas Orbitales, títulos y Operaciones de Rescate del Criosantuario. Todo por Sistema Solar.",
+ "hives": {
+  "_doc": "Colmenas Xeno: solo se atacan con un Asedio de alianza. El daño persiste; se regeneran si nadie las ataca durante regen_after_min. Al caer reaparecen tras respawn_min.",
+  "per_system": 3,
+  "species": "x24",
+  "min_dist": 45,
+  "max_dist": 120,
+  "respawn_min": 20,
+  "regen_after_min": 30,
+  "tiers": [
+   {"tier": 1, "name": "Colmena Xeno", "hp": 60000, "reward_per_10k": {"credits": 900, "insignia": 4}, "kill": {"credits": 12000, "dark_matter": 60, "insignia": 30, "mat_x_x24_3": 4, "bonds": 1500}},
+   {"tier": 2, "name": "Colmena Xeno Mayor", "hp": 150000, "reward_per_10k": {"credits": 1100, "insignia": 5}, "kill": {"credits": 25000, "dark_matter": 120, "insignia": 60, "mat_x_x24_4": 4, "bonds": 3000}},
+   {"tier": 3, "name": "Colmena Reina", "hp": 400000, "reward_per_10k": {"credits": 1300, "insignia": 6}, "kill": {"credits": 50000, "dark_matter": 250, "insignia": 120, "mat_x_x24_5": 4, "recruit_ticket": 1, "bonds": 6000}}
+  ]
+ },
+ "platforms": {
+  "_doc": "Plataformas Orbitales alrededor del Portal de Salto. Se conquistan con un Asedio contra su guarnición. La alianza que la controla recibe el bono para todos sus miembros del sistema. La Ciudadela permite otorgar títulos.",
+  "ring_offset": 14,
+  "shield_min": 20,
+  "captured_garrison_ratio": 0.5,
+  "bot_attack_min": 12,
+  "list": [
+   {"id": "extraction", "name": "Plataforma de Extracción", "desc": "Bono de minería para la alianza que la controla.", "angle": 45, "buff": {"gather_speed": 0.15, "load": 0.1}, "garrison": {"infantry_1": 200, "drones_1": 200, "pilots_1": 200}},
+   {"id": "arsenal", "name": "Plataforma Arsenal", "desc": "Bono de ataque y defensa de fuerzas.", "angle": 135, "buff": {"attack": 0.06, "defense": 0.06}, "garrison": {"infantry_1": 220, "drones_1": 220, "pilots_1": 220}},
+   {"id": "logistics", "name": "Plataforma Logística", "desc": "Flotas más rápidas e investigación acelerada.", "angle": 225, "buff": {"march_speed": 0.12, "research_speed": 0.1}, "garrison": {"infantry_1": 200, "drones_1": 200, "pilots_1": 200}},
+   {"id": "citadel", "name": "Ciudadela Orbital", "desc": "Producción y vida de fuerzas; su alianza otorga los títulos del sistema.", "angle": 315, "titles": true, "buff": {"production": 0.1, "hp": 0.05}, "garrison": {"infantry_2": 250, "drones_2": 250, "pilots_2": 250}}
+  ]
+ },
+ "titles": {
+  "_doc": "Los otorga el líder (R5) o un oficial (R4) de la alianza que controla la Ciudadela. Duran hours horas; cada título tiene un tiempo de espera entre asignaciones.",
+  "hours": 24,
+  "cooldown_sec": 60,
+  "list": [
+   {"id": "admiral", "name": "Gran Almirante", "positive": true, "mods": {"attack": 0.1, "defense": 0.05}},
+   {"id": "quartermaster", "name": "Intendente", "positive": true, "mods": {"production": 0.15}},
+   {"id": "navigator", "name": "Navegante Mayor", "positive": true, "mods": {"march_speed": 0.15, "gather_speed": 0.1}},
+   {"id": "scientist", "name": "Científico Jefe", "positive": true, "mods": {"research_speed": 0.15, "train_speed": 0.1}},
+   {"id": "deserter", "name": "Desertor", "positive": false, "mods": {"attack": -0.1, "defense": -0.05}},
+   {"id": "saboteur", "name": "Saboteador", "positive": false, "mods": {"production": -0.15}},
+   {"id": "drifter", "name": "Errante", "positive": false, "mods": {"march_speed": -0.15}}
+  ]
+ },
+ "rescue": {
+  "_doc": "Operación de Rescate del Criosantuario: recupera gratis el ratio de las fuerzas en criostasis al terminar. Las ayudas de la alianza la aceleran.",
+  "ratio": 0.3,
+  "minutes": 120
+ }
+}
