@@ -107,7 +107,7 @@ static func tech_level(p: Dictionary, tech_id: String) -> int:
 ## Fuentes de bonificación que se suman al sistema único de modificadores:
 ## Alianza, tripulación activa, Protocolos de Mando, equipamiento, Licencia de
 ## Comandante y títulos. Cada una es un Dictionary efecto -> valor en el jugador.
-const MOD_SOURCES: Array = ["ally_mods", "crew_mods", "cmd_mods", "gear_mods", "vip_mods", "title_mods"]
+const MOD_SOURCES: Array = ["ally_mods", "crew_mods", "cmd_mods", "gear_mods", "vip_mods", "title_mods", "platform_mods"]
 
 
 ## Salas cuyo efecto se suma directamente a un modificador.
@@ -121,7 +121,8 @@ const ROOM_MODS: Dictionary = {
 
 
 ## Suma de un efecto en todas las fuentes de bonificación del jugador:
-## investigación, salas, Alianza, tripulación, Protocolos, equipo, Licencia y títulos.
+## investigación, salas, Alianza, tripulación, Protocolos, equipo, Licencia,
+## títulos y Plataformas Orbitales.
 static func extra(p: Dictionary, key: String) -> float:
 	var total: float = 0.0
 	for src: String in MOD_SOURCES:

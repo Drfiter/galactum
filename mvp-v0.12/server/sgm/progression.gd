@@ -6,7 +6,7 @@ extends RefCounted
 const U = preload("res://shared/util.gd")
 const Eco = preload("res://server/sgm/economy.gd")
 
-const QUEUES: Array = ["build", "research", "train", "heal", "revive"]
+const QUEUES: Array = ["build", "research", "train", "heal", "revive", "rescue"]
 
 var srv: Node
 
@@ -242,6 +242,9 @@ func complete_due(p: Dictionary, now: int) -> Array:
 			"revive":
 				Eco.add_troops(p["troops"], job["stacks"])
 				srv.notify(p["id"], U.t("Fuerzas reanimadas desde el Criosantuario"), "success")
+			"rescue":
+				var back: Dictionary = srv.endgame.rescue_complete(p)
+				srv.notify(p["id"], U.t("Operación de Rescate completada: %d fuerzas vuelven del Criosantuario") % Eco.troops_total(back), "success")
 		srv.mark_player_dirty(p["id"], true)
 	return events
 
