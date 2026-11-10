@@ -6,3 +6,4 @@ Godot/
 *.keystore
 *.jks
 .godot/
+.env

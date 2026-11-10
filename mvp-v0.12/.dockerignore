@@ -1,0 +1,7 @@
+.godot/
+build/
+.env
+*.apk
+*.aab
+**/*.import.tmp
+tests/shots*

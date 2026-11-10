@@ -1,0 +1,42 @@
+# Galactum MVP v0.12 en Docker: servidor dedicado (SSS) + cliente web.
+#
+#   cp .env.example .env      (y completa GALACTUM_JWT_SECRET)
+#   docker compose up -d --build
+#   abrir http://localhost:8080  →  "Servidor dedicado"  →  Crear cuenta / Entrar
+#
+# La primera construcción descarga Godot 4.6.2 (~70 MB) y sus plantillas de
+# exportación (~1,2 GB, de las que solo se conservan las de web).
+name: galactum
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: server
+    image: galactum-server:0.12
+    restart: unless-stopped
+    environment:
+      # Secreto de firma de los JWT (32+ caracteres). Se lee de .env; nunca se versiona.
+      GALACTUM_JWT_SECRET: ${GALACTUM_JWT_SECRET:?Define GALACTUM_JWT_SECRET en .env}
+    volumes:
+      - galactum-data:/data
+    ports:
+      # Acceso directo para clientes de escritorio/Android (solo desde este PC).
+      - "127.0.0.1:9100:9100"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: web
+    image: galactum-web:0.12
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:80"
+
+volumes:
+  galactum-data:
