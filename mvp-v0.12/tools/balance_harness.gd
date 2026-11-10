@@ -22,29 +22,34 @@ func _ready() -> void:
 	var lines: Array = ["matchup,ventaja,combates,victorias_favorecido,winrate,dentro_60_75"]
 	var all_ok: bool = true
 	print("== Harness de balance: %d combates por matchup ==" % n)
-	for m: Array in matchups:
-		var fav: String = m[0]
-		var other: String = m[1]
-		var wins: int = 0
-		for i: int in range(n):
-			# Espejo + ventaja: misma base de ejército mixto; el favorecido cambia
-			# una parte de su composición por la fuerza que tiene ventaja.
-			var size: int = rng.randi_range(60, 220)
-			var share: float = rng.randf_range(SHARE_MIN, SHARE_MAX)
-			var base: Dictionary = _mixed(rng, int(size * (1.0 - share)))
-			var a: Dictionary = base.duplicate()
-			var d: Dictionary = base.duplicate()
-			var k: int = int(size * share)
-			a[fav + "_1"] = int(a.get(fav + "_1", 0)) + k
-			d[other + "_1"] = int(d.get(other + "_1", 0)) + k
-			var res: Dictionary = Resolver.resolve({"stacks": a, "mods": {}}, {"stacks": d, "mods": {}}, rng.randi())
-			if Resolver.power_of(res["attacker"]["survivors"]) > Resolver.power_of(res["defender"]["survivors"]):
-				wins += 1
-		var wr: float = float(wins) / n
-		var ok: bool = wr >= 0.60 and wr <= 0.75
-		all_ok = all_ok and ok
-		lines.append("%s_vs_%s,triangulo,%d,%d,%.4f,%s" % [fav, other, n, wins, wr, "si" if ok else "no"])
-		print("  %-9s > %-9s  winrate %.1f%%  %s" % [fav, other, wr * 100.0, "OK" if ok else "FUERA DE RANGO"])
+	# El triángulo se comprueba en cada nivel de fuerza (N1 a N5): todo el
+	# ejército usa el mismo nivel, como en un enfrentamiento parejo.
+	var tiers: Array = range(1, int((Catalog.troops["types"]["infantry"]["tiers"] as Array).size()) + 1)
+	for tier: int in tiers:
+		for m: Array in matchups:
+			var fav: String = m[0]
+			var other: String = m[1]
+			var suf: String = "_%d" % tier
+			var wins: int = 0
+			for i: int in range(n):
+				# Espejo + ventaja: misma base de ejército mixto; el favorecido cambia
+				# una parte de su composición por la fuerza que tiene ventaja.
+				var size: int = rng.randi_range(60, 220)
+				var share: float = rng.randf_range(SHARE_MIN, SHARE_MAX)
+				var base: Dictionary = _mixed(rng, int(size * (1.0 - share)), suf)
+				var a: Dictionary = base.duplicate()
+				var d: Dictionary = base.duplicate()
+				var k: int = int(size * share)
+				a[fav + suf] = int(a.get(fav + suf, 0)) + k
+				d[other + suf] = int(d.get(other + suf, 0)) + k
+				var res: Dictionary = Resolver.resolve({"stacks": a, "mods": {}}, {"stacks": d, "mods": {}}, rng.randi())
+				if Resolver.power_of(res["attacker"]["survivors"]) > Resolver.power_of(res["defender"]["survivors"]):
+					wins += 1
+			var wr: float = float(wins) / n
+			var ok: bool = wr >= 0.60 and wr <= 0.75
+			all_ok = all_ok and ok
+			lines.append("%s_vs_%s_N%d,triangulo,%d,%d,%.4f,%s" % [fav, other, tier, n, wins, wr, "si" if ok else "no"])
+			print("  N%d %-9s > %-9s  winrate %.1f%%  %s" % [tier, fav, other, wr * 100.0, "OK" if ok else "FUERA DE RANGO"])
 	# Matchups de rol: Cañoneros contra Escudos y contra el triángulo.
 	for m2: Array in [["gunners", "shields"], ["infantry", "gunners"]]:
 		var w2: int = 0
@@ -64,7 +69,7 @@ func _ready() -> void:
 	get_tree().quit(0 if all_ok else 2)
 
 
-func _mixed(rng: RandomNumberGenerator, total: int) -> Dictionary:
+func _mixed(rng: RandomNumberGenerator, total: int, suf: String = "_1") -> Dictionary:
 	var out: Dictionary = {}
 	var types: Array = ["infantry", "drones", "pilots", "shields", "gunners"]
 	var w: Array = []
@@ -76,5 +81,5 @@ func _mixed(rng: RandomNumberGenerator, total: int) -> Dictionary:
 	for i: int in range(types.size()):
 		var q: int = int(total * w[i] / ws)
 		if q > 0:
-			out[types[i] + "_1"] = q
+			out[types[i] + suf] = q
 	return out
