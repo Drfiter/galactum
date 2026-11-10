@@ -13,6 +13,10 @@ func _ready() -> void:
 		if a.begins_with("--fase="):
 			only = int(a.substr(7))
 	preload("res://shared/i18n.gd").set_locale("es")
+	if only == 9:
+		await fase9()
+		get_tree().quit()
+		return
 	GameClient.start_local("Mateo", "p05", true)
 	game = load("res://ui/game.tscn").instantiate()
 	get_tree().root.add_child.call_deferred(game)
@@ -423,6 +427,18 @@ func fase8() -> void:
 	await _wait(1.0)
 	await shot("f8_07_rescate")
 	game.close_all_panels()
+
+
+func fase9() -> void:
+	var title: Node = load("res://ui/title.tscn").instantiate()
+	get_tree().root.add_child.call_deferred(title)
+	await _wait(1.5)
+	title.get("_remote_box").visible = true
+	(title.get("_user") as LineEdit).text = "Lukas"
+	(title.get("_pass") as LineEdit).text = "secreta123"
+	await _wait(0.8)
+	await shot("f9_01_login_dedicado")
+	title.queue_free()
 
 
 func _wait(s: float) -> void:
