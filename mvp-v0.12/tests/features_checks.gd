@@ -490,6 +490,20 @@ func test_liveops() -> void:
 	check(r.get("type") == "ack", "reclamar un hito colectivo del Festival de la Flota")
 	var v: Dictionary = srv.liveops.view(p)
 	check(v.has("pass") and v.has("license") and v.has("singularity") and v.has("festival"), "la vista del cliente incluye Pase, Licencia, Singularidad y Festival")
+	# Fuera de la ventana de Singularidad las actividades siguen sumando al Festival.
+	var sc: Dictionary = Catalog.liveops["singularity"]
+	var period_ms: int = int(sc["period_hours"]) * 3600000
+	var start_ms: int = int(U.now_ms() / period_ms) * period_ms
+	var off: int = start_ms + int(sc["duration_hours"]) * 3600000 + 60000 - U.now_ms()
+	if off < 0:
+		off += period_ms
+	U.debug_offset_ms += off
+	check(not bool(srv.liveops.singularity_now().get("active", true)), "hay momentos sin Evento de Singularidad activo")
+	var fe2: Dictionary = srv.liveops.festival(str(p["tag"]))
+	fe2["progress"] = {}
+	var pp0: int = int(srv.liveops.ensure(p)["pass"]["points"])
+	srv.on_activity(p, "xeno_kill", 2.0)
+	check(float(srv.liveops.festival(str(p["tag"]))["progress"].get("f_hunt", 0.0)) >= 1.0 and int(srv.liveops.ensure(p)["pass"]["points"]) > pp0, "sin Singularidad activa, cazar suma al Pase y al Festival (antes se cortaba)")
 
 
 func test_expeditions() -> void:
