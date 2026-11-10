@@ -521,7 +521,7 @@ func test_expeditions() -> void:
 	check(X.fuel(p) == fuel0 - int(Catalog.expeditions["fuel"]["cost_normal"]), "combatir gasta Combustible de Expedición")
 	check(int(p["items"].get("insignia", 0)) > ins0, "la primera victoria da Insignias de Mando")
 	check(int(c["owned"]["p02"].get("level", 1)) > lvl0 or int(c["owned"]["p02"].get("exp", 0)) > 0, "los tripulantes del equipo ganan EXP")
-	check(bool(r.get("first", false)), "la primera victoria se marca como tal")
+	check(bool(r.get("first", false)) and int(r.get("reward", {}).get("insignia", 0)) > 0 and not (r.get("crew_exp", []) as Array).is_empty(), "la respuesta trae la primera victoria, el premio y la EXP de los tripulantes")
 	var cr0: int = int(p["resources"].get("credits", 0))
 	r = intent("exp_battle", {"stage": "1-1", "elite": false, "crew": team})
 	check(r.get("type") == "ack" and not bool(r.get("first", true)) and int(p["resources"].get("credits", 0)) - cr0 < int(st["first"]["credits"]), "repetir la etapa da el premio reducido")
