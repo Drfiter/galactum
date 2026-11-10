@@ -12,7 +12,7 @@ import sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 PAT = re.compile(r'U\.t\("((?:[^"\\]|\\.)*)"\)')
-DATA_KEYS = ("name", "desc", "title", "phase", "short", "label")
+DATA_KEYS = ("name", "desc", "title", "label", "branch", "phase", "badge")  # = Catalog.LOCALIZED_KEYS
 
 
 def code_strings():
@@ -28,9 +28,33 @@ def code_strings():
     return found
 
 
+def catalog_strings():
+    """Textos de los catálogos que Catalog traduce al cargar (campos DATA_KEYS)."""
+    found = {}
+
+    def walk(o, fn):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if isinstance(v, str) and k in DATA_KEYS and v.strip():
+                    found.setdefault(v, fn)
+                else:
+                    walk(v, fn)
+        elif isinstance(o, list):
+            for x in o:
+                walk(x, fn)
+
+    for fn in sorted(os.listdir(os.path.join(ROOT, "data"))):
+        if fn.endswith(".json") and not fn.startswith("i18n_"):
+            walk(json.load(open(os.path.join(ROOT, "data", fn), encoding="utf-8")), "data/" + fn)
+    return found
+
+
 def main():
     tr = json.load(open(os.path.join(ROOT, "data", "i18n_en.json"), encoding="utf-8"))
-    missing = {k: v for k, v in code_strings().items() if k and k not in tr}
+    every = code_strings()
+    for k, v in catalog_strings().items():
+        every.setdefault(k, v)
+    missing = {k: v for k, v in every.items() if k and k not in tr}
     if "--json" in sys.argv:
         print(json.dumps({k: "" for k in missing}, ensure_ascii=False, indent=1))
     else:
