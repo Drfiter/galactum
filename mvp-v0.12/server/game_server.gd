@@ -529,7 +529,8 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return social.request_help(p, str(msg.get("queue", "")))
 		"march":
 			var troops: Dictionary = msg.get("troops", {}) if msg.get("troops", {}) is Dictionary else {}
-			return fleets.start_march(p, str(msg.get("mission", "")), str(msg.get("target_id", "")), troops)
+			var crew_ids: Array = msg.get("crew", []) if msg.get("crew", []) is Array else []
+			return fleets.start_march(p, str(msg.get("mission", "")), str(msg.get("target_id", "")), troops, crew_ids)
 		"recall":
 			return fleets.recall(p, str(msg.get("fleet_id", "")))
 		"relocate":
@@ -578,6 +579,8 @@ func _dispatch(p: Dictionary, action: String, msg: Dictionary) -> Dictionary:
 			return crew.recruit(p, int(msg.get("count", 1)), str(msg.get("method", "mo")))
 		"crew_assign":
 			return crew.assign(p, str(msg.get("crew_id", "")), bool(msg.get("on", true)))
+		"crew_promote":
+			return crew.promote(p, str(msg.get("crew_id", "")))
 		"exchange":
 			return progression.exchange(p, str(msg.get("from", "")), str(msg.get("to", "")), int(msg.get("amount", 0)))
 		"debug_guild_cycle":

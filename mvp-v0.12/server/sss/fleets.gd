@@ -56,7 +56,7 @@ func _bump(f: Dictionary) -> void:
 
 # ---------------------------------------------------------------- envío
 
-func start_march(p: Dictionary, mission: String, target_id: String, troops: Dictionary) -> Dictionary:
+func start_march(p: Dictionary, mission: String, target_id: String, troops: Dictionary, crew_ids: Array = []) -> Dictionary:
 	var now: int = U.now_ms()
 	var base: Dictionary = srv.world.get_entity(p["base_id"])
 	if base.is_empty():
@@ -106,6 +106,20 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 			clean = {}
 		_:
 			return _err("INVALID_MISSION", U.t("Misión desconocida"))
+	var crew_list: Array = []
+	for cid: Variant in crew_ids:
+		crew_list.append(str(cid))
+	if mission == "scout":
+		crew_list = []
+	if not crew_list.is_empty():
+		var cerr: Dictionary = srv.crew.validate_fleet_crew(p, crew_list)
+		if not cerr.is_empty():
+			return cerr
+	# Los tripulantes embarcados aportan su pasiva (×fleet_mult) solo a esta flota.
+	var crew_mods: Dictionary = srv.crew.fleet_mods(p, crew_list) if not crew_list.is_empty() else {}
+	for k: String in crew_mods:
+		if mods.has(k):
+			mods[k] = float(mods[k]) + float(crew_mods[k])
 	if mission != "scout":
 		if clean.is_empty():
 			return _err("NO_TROOPS", U.t("Selecciona al menos una fuerza"))
@@ -143,7 +157,8 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		"wounded": {},
 		"cargo": {},
 		"speed": speed,
-		"mods": Eco.combat_mods(p, false),
+		"mods": _with_crew(Eco.combat_mods(p, false), crew_mods),
+		"crew": crew_list,
 		"load_bonus": float(mods["load"]),
 		"gather_bonus": float(mods["gather_speed"]),
 		"rev": 1,
@@ -166,6 +181,25 @@ func start_march(p: Dictionary, mission: String, target_id: String, troops: Dict
 		"scout":
 			pass
 	return {"ok": true, "fleet_id": f["id"], "arrive_ts": f["arrive_ts"]}
+
+
+## Suma los bonos de combate de los tripulantes al snapshot de la flota.
+func _with_crew(combat: Dictionary, crew_mods: Dictionary) -> Dictionary:
+	for k: String in ["attack", "defense", "hp", "pve_damage"]:
+		if crew_mods.has(k):
+			combat[k] = float(combat.get(k, 0.0)) + float(crew_mods[k])
+	return combat
+
+
+## EXP para los tripulantes de la flota; se guarda en el informe.
+func _crew_exp(f: Dictionary, amount: int) -> Array:
+	var ids: Array = f.get("crew", [])
+	if ids.is_empty():
+		return []
+	var p: Dictionary = srv.player(f["owner"])
+	if p.is_empty():
+		return []
+	return srv.crew.grant_exp(p, ids, amount)
 
 
 func hunt_energy(level: int) -> int:
@@ -362,6 +396,7 @@ func _collect_from_asteroid(f: Dictionary, ast: Dictionary, amount: int) -> void
 func _finish_mining(f: Dictionary, now: int) -> void:
 	var ast: Dictionary = srv.world.get_entity(f["target_id"])
 	_collect_from_asteroid(f, ast, int(f["work_amount"]))
+	_crew_exp(f, int(Catalog.crew.get("exp_rewards", {}).get("gather", 20)))
 	_start_return(f, now, U.v2(f["target"]))
 
 
@@ -401,6 +436,9 @@ func _arrive_hunt(f: Dictionary, now: int) -> void:
 		rewards[elem] = 120 * lvl
 		if lvl >= 2:
 			rewards["speedup_1m"] = 1
+		var idrop: Dictionary = Catalog.crew.get("insignia_drop", {})
+		if lvl >= int(idrop.get("min_level", 2)):
+			rewards["insignia"] = int(idrop.get("per_level", 1)) * lvl
 		var hb: float = Eco.event_factor("hunt_reward")
 		if hb > 0.0:
 			for k2: String in rewards.keys():
@@ -416,6 +454,9 @@ func _arrive_hunt(f: Dictionary, now: int) -> void:
 		if lvl >= 3:
 			srv.missions.on_event(p, "xeno_hunted_l3", 1)
 	srv.progression.grant(p, rewards, "hunt", "fleet:%s:hunt" % f["id"])
+	var xr: Dictionary = Catalog.crew.get("exp_rewards", {})
+	var hunt_exp: int = int(float(xr.get("hunt_per_level", 40)) * lvl * (1.0 if res["killed"] else float(xr.get("hunt_partial_mult", 0.5))))
+	var crew_exp: Array = _crew_exp(f, hunt_exp)
 	srv.emit_fx(U.v2(f["target"]), "hunt", f["owner"])
 	var report: Dictionary = {
 		"type": "hunt",
@@ -426,6 +467,7 @@ func _arrive_hunt(f: Dictionary, now: int) -> void:
 		"attacker": {"name": srv.display_name(p["id"]), "avatar": p.get("avatar", "p01"), "initial": res.get("survivors", {}).duplicate(), "survivors": res["survivors"], "wounded": res["wounded"]},
 		"rounds": res["rounds"],
 		"rewards": rewards,
+		"crew": crew_exp,
 		"combat_version": res["combat_version"],
 		"seed": seed,
 	}
@@ -486,7 +528,9 @@ func _arrive_attack_base(f: Dictionary, now: int) -> void:
 		"defender": _side_report(def, def_initial, res["defender"], def_cas),
 	}
 	var won: bool = res["outcome"] == "attacker_win"
+	var xr: Dictionary = Catalog.crew.get("exp_rewards", {})
 	var ra: Dictionary = report_base.duplicate(true)
+	ra["crew"] = _crew_exp(f, int(xr.get("attack_win", 80)) if won else int(xr.get("attack_loss", 25)))
 	ra["type"] = "attack"
 	ra["outcome"] = "victory" if won else "defeat"
 	ra["title"] = (U.t("Victoria contra %s") if won else U.t("Derrota contra %s")) % srv.display_name(def["id"])
@@ -553,6 +597,7 @@ func _arrive_tile_hit(f: Dictionary, now: int) -> void:
 		"defender": _side_report(def, def_initial, res["defender"], def_cas),
 	}
 	var ra: Dictionary = base_report.duplicate(true)
+	ra["crew"] = _crew_exp(f, int(Catalog.crew.get("exp_rewards", {}).get("attack_win" if won else "attack_loss", 25)))
 	ra["type"] = "tile_hit"
 	ra["outcome"] = "victory" if won else "defeat"
 	ra["title"] = (U.t("Interceptaste la flota minera de %s") if won else U.t("Tu intercepción contra %s fracasó")) % srv.display_name(def["id"])
