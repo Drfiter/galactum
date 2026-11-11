@@ -630,7 +630,10 @@ func test_endgame() -> void:
 	var hv: Dictionary = srv.world.get_entity(str(hive["id"]))
 	check(hv.is_empty() or int(hv["hp"]) < hp0, "el Asedio daña la Colmena y el daño persiste")
 	check(int(p["items"].get("insignia", 0)) > ins0, "los participantes reciben premio según su aporte")
-	var reps: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return str(x.get("title", "")).contains("Colmena"))
+	# El título se traduce al idioma activo (en inglés: "Rally on the Xeno Hive"),
+	# así que se busca el nombre traducido de la Colmena y no la palabra en español.
+	var hive_name: String = U.t(str(E.hive_tier(int(hive.get("tier", 1))).get("name", "Colmena Xeno")))
+	var reps: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return str(x.get("title", "")).contains(hive_name))
 	check(not reps.is_empty(), "cada participante recibe el informe del Asedio a la Colmena")
 	# Derribo y reaparición.
 	if not hv.is_empty():
