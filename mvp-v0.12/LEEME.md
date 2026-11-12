@@ -6,6 +6,9 @@ Estrategia espacial MMO inspirada en *Lords Mobile*: tu **Astronave** es tu base
 
 ## 1. Ejecutar en PC (Windows)
 
+**Lo más rápido (sin instalar nada):** en el repositorio, abre `releases/windows/Galactum-2026-11-12-v0.12.4-windows.zip`, extrae `Galactum.exe` y haz doble clic. Si Windows muestra «Windows protegió su PC»: *Más información* → *Ejecutar de todas formas* (el ejecutable no tiene firma digital). Incluye JUGAR y JUGAR CON CUENTA.
+
+
 1. Copia `Godot_v4.6.2-stable_win64.exe` dentro de la carpeta `Godot/` (es el mismo ejecutable de la demo anterior).
 2. Doble clic en **`Ejecutar_Galactum.bat`**.
 3. En el título escribe tu nombre, elige un retrato y pulsa **JUGAR**.
