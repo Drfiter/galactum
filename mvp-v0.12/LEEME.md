@@ -111,6 +111,20 @@ Estado de todo el feedback (qué se hizo, qué está parcial, qué falta y de qu
 
 ---
 
+## 3.1 Mostrar el código de cuentas y JWT en VS Code
+
+Abre la carpeta `mvp-v0.12` en Visual Studio Code; te sugerirá la extensión **godot-tools** (colores de GDScript). Recorrido sugerido, en este orden:
+
+| Archivo | Qué mostrar |
+|---|---|
+| `server/net/auth.gd` | `register()` y `login()`; `pbkdf2()` (la contraseña se guarda con sal y hash); `jwt_sign()` y `jwt_verify()` (firma HS256 y vencimiento); `refresh()` (rotación del token de renovación) |
+| `server/game_server.gd` | `_on_auth()` recibe registro/login; `_on_hello()` valida el JWT antes de dejar entrar (`AUTH_REQUIRED` / `AUTH_INVALID_TOKEN`) |
+| `client/game_client.gd` | `start_local_accounts()`, `_on_auth()` y `decode_jwt()` |
+| `ui/account_demo.gd` | El panel «Jugar con cuenta», la prueba de token alterado y «Ver datos guardados» |
+| `tests/features_checks.gd` | `test_accounts()`: 21 comprobaciones automáticas |
+
+**Datos guardados en vivo:** abre también en VS Code el archivo `galactum_cuentas.json` (Windows: `%APPDATA%\Godot\app_userdata\Galactum\`). Al pulsar *Crear cuenta*, VS Code lo recarga solo y aparece la cuenta nueva con su `salt` y `hash`, sin la contraseña.
+
 ## 4. Exportar a Android (APK)
 
 **Instalar el APK ya compilado:** el más reciente es `releases/android/Galactum-2026-11-10-v0.12.3.apk` (v0.12.3, con todo lo de noviembre). Si tienes instalada la versión del 25/10, desinstálala primero: el APK nuevo está firmado con otra clave. Cópialo al teléfono (o descárgalo directo en él), ábrelo y, cuando Android lo pida, permite *Instalar apps desconocidas* para esa app (Archivos/Chrome). Requiere Android 7.0+ (ARM 32/64 bits). Se juega en horizontal y sin conexión.
