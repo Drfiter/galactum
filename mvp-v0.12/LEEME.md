@@ -88,6 +88,7 @@ Estado de todo el feedback (qué se hizo, qué está parcial, qué falta y de qu
 ## 3. Guion de demo (≈5 min, para la presentación)
 
 1. **Título** → nombre y retrato → JUGAR. Comenta que el servidor autoritativo corre embebido y que el mismo juego puede conectarse a un SSS dedicado.
+   - **Cuentas y JWT (1 min):** en el título pulsa **JUGAR CON CUENTA** → escribe usuario y contraseña → *Crear cuenta*. El panel muestra la contraseña cifrada (PBKDF2), el token JWT firmado (sus 3 partes y su contenido) y la validación al entrar. Pulsa **Probar token alterado**: el servidor lo rechaza («Token inválido o vencido»). Luego **ENTRAR AL JUEGO**. Para mostrar un error, vuelve al título y usa *Entrar* con una contraseña incorrecta. No necesita red: usa el servidor embebido en modo «exige cuenta» y guarda las cuentas en `user://galactum_cuentas.json`.
 2. **Nave**: recolecta una burbuja verde → reclama la misión 1 → mejora la Fábrica → pulsa **Ayuda** (los aliados reducen el temporizador en vivo).
 3. **Hangar**: entrena 30 unidades. Muestra el triángulo y los stats de cada fuerza.
 4. **Mapa**: toca un asteroide → *Minar* → muestra la ruta, el anillo de progreso de la extracción y el regreso con la carga (misión 6).
