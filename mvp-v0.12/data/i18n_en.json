@@ -1995,5 +1995,12 @@
 "Probar token alterado": "Try a tampered token",
 "ENTRAR AL JUEGO": "ENTER THE GAME",
 "Enviando un token con otro jugador adentro, pero con la firma original…": "Sending a token with another player inside, but the original signature…",
-"RECHAZADO. El servidor respondió: «%s». La firma ya no coincide con los datos del token.": "REJECTED. The server replied: \"%s\". The signature no longer matches the token's data."
+"RECHAZADO. El servidor respondió: «%s». La firma ya no coincide con los datos del token.": "REJECTED. The server replied: \"%s\". The signature no longer matches the token's data.",
+"Ver datos guardados": "Show saved data",
+"ASÍ QUEDÓ GUARDADO": "THIS IS WHAT WAS SAVED",
+"Archivo del servidor: %s": "Server file: %s",
+"No se encontró la cuenta en el archivo.": "The account was not found in the file.",
+"Su comandante en el mismo archivo: %s · Créditos %s · Mineral %s": "Their commander in the same file: %s · Credits %s · Ore %s",
+"La contraseña no aparece en ninguna parte: solo la sal y el hash. «failed» cuenta los intentos fallidos y el token de renovación también se guarda como hash.": "The password appears nowhere: only the salt and the hash. \"failed\" counts failed attempts, and the refresh token is also stored as a hash.",
+"Abrir carpeta": "Open folder"
 }
