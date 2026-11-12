@@ -30,6 +30,7 @@ func _ready() -> void:
 	test_expeditions()
 	test_endgame()
 	test_accounts()
+	test_settings_preserved()
 	print("== %d OK, %d FALLIDAS ==" % [passed, failed])
 	get_tree().quit(1 if failed > 0 else 0)
 
@@ -630,7 +631,7 @@ func test_endgame() -> void:
 	var hv: Dictionary = srv.world.get_entity(str(hive["id"]))
 	check(hv.is_empty() or int(hv["hp"]) < hp0, "el Asedio daña la Colmena y el daño persiste")
 	check(int(p["items"].get("insignia", 0)) > ins0, "los participantes reciben premio según su aporte")
-	var reps: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return str(x.get("title", "")).contains("Colmena"))
+	var reps: Array = srv.reports.list_for(p["id"]).filter(func(x: Dictionary) -> bool: return str(x.get("xeno", {}).get("species", "")) == "x24")
 	check(not reps.is_empty(), "cada participante recibe el informe del Asedio a la Colmena")
 	# Derribo y reaparición.
 	if not hv.is_empty():
@@ -728,7 +729,7 @@ func test_accounts() -> void:
 	var forged_body: String = ds.auth.b64url(JSON.stringify({"sub": "otro", "iss": "galactum-sss", "exp": 9999999999}).to_utf8_buffer())
 	check(ds.auth.jwt_verify(parts[0] + "." + forged_body + "." + parts[2]).is_empty(), "un JWT alterado no pasa la verificación de firma")
 	r = send2.call({"type": "hello", "protocol": "galactum-mvp-1", "token": parts[0] + "." + forged_body + "." + parts[2]})
-	check(str(r.get("code", "")) == "AUTH_REQUIRED", "el hello con token falso se rechaza")
+	check(str(r.get("code", "")) == "AUTH_INVALID_TOKEN", "el hello con token falso se rechaza (token inválido)")
 	r = send2.call({"type": "hello", "protocol": "galactum-mvp-1", "token": access})
 	var welcome: Array = box.filter(func(m: Dictionary) -> bool: return str(m.get("type", "")) == "welcome")
 	check(not welcome.is_empty() and str(welcome[0]["player_id"]) == str(payload["sub"]), "el hello con JWT válido entra con el comandante de la cuenta")
@@ -764,4 +765,29 @@ func test_accounts() -> void:
 	ds.handle_message(sid3, {"type": "refresh", "refresh_token": str(r2["refresh_token"])})
 	check(str(box[-1].get("code", "")) == "BAD_TOKEN", "cerrar sesión revoca el token de renovación")
 	ds.queue_free()
+
+
+## Regresión (12/11): guardar los ajustes en el título borraba el idioma y el audio.
+func test_settings_preserved() -> void:
+	print(" -- Regresión: preferencias del título")
+	var path: String = "user://settings.cfg"
+	var backup: String = FileAccess.get_file_as_string(path) if FileAccess.file_exists(path) else ""
+	var cfg := ConfigFile.new()
+	cfg.load(path)
+	cfg.set_value("general", "locale", "es")
+	cfg.set_value("audio", "music", false)
+	cfg.save(path)
+	var title: Node = load("res://ui/title.tscn").instantiate()
+	add_child(title)
+	title._save_settings()
+	var after := ConfigFile.new()
+	after.load(path)
+	check(str(after.get_value("general", "locale", "")) == "es" and after.get_value("audio", "music", true) == false, "guardar el nombre en el título conserva el idioma y el audio elegidos")
+	title.queue_free()
+	if backup.is_empty():
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	else:
+		var f := FileAccess.open(path, FileAccess.WRITE)
+		f.store_string(backup)
+		f.close()
 
