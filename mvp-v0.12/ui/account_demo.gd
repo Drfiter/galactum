@@ -243,10 +243,12 @@ func _build_saved_data() -> void:
 		_box.add_child(UI.label(U.t("Su comandante en el mismo archivo: %s · Créditos %s · Mineral %s") % [str(player.get("name", "")), U.fmt_int(int(res.get("credits", 0))), U.fmt_int(int(res.get("ore", 0)))], 14, UI.GOLD))
 	_box.add_child(UI.wrap(UI.label(U.t("La contraseña no aparece en ninguna parte: solo la sal y el hash. «failed» cuenta los intentos fallidos y el token de renovación también se guarda como hash."), 14, UI.TEXT_DIM)))
 	var row := UI.hbox(10)
-	var folder := UI.button(U.t("Abrir carpeta"), "GhostButton", "ui_inventory", Vector2(0, 56))
-	folder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	folder.pressed.connect(func() -> void: OS.shell_open(ProjectSettings.globalize_path("user://")))
-	row.add_child(folder)
+	# En Android la carpeta interna de la app no se puede abrir desde otra app.
+	if not OS.has_feature("android"):
+		var folder := UI.button(U.t("Abrir carpeta"), "GhostButton", "ui_inventory", Vector2(0, 56))
+		folder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		folder.pressed.connect(func() -> void: OS.shell_open(ProjectSettings.globalize_path("user://")))
+		row.add_child(folder)
 	var back := UI.button(U.t("Volver"), "PrimaryButton", "ui_back", Vector2(0, 56))
 	back.name = "Back"
 	back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
