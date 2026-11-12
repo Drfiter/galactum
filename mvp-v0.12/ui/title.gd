@@ -129,6 +129,11 @@ func _ready() -> void:
 	play.add_theme_font_size_override("font_size", 32)
 	play.pressed.connect(func() -> void: _play(false))
 	v.add_child(play)
+	var acc_btn := UI.button(U.t("JUGAR CON CUENTA"), "GoldButton", "ui_shield", Vector2(0, 56))
+	acc_btn.name = "PlayWithAccount"
+	acc_btn.add_theme_font_size_override("font_size", 22)
+	acc_btn.pressed.connect(_open_account_demo)
+	v.add_child(acc_btn)
 	var row := UI.hbox(8)
 	var fresh := UI.button(U.t("Nueva partida"), "GhostButton", "ui_plus", Vector2(0, 50))
 	fresh.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -228,6 +233,8 @@ func _draw_deco(c: Control) -> void:
 
 func _save_settings() -> void:
 	var cfg := ConfigFile.new()
+	# Se carga primero para no borrar otras preferencias (idioma, audio).
+	cfg.load(SETTINGS_PATH)
 	cfg.set_value("player", "name", _name.text.strip_edges())
 	cfg.set_value("player", "avatar", _avatar)
 	cfg.set_value("net", "host", _host.text.strip_edges())
@@ -273,6 +280,15 @@ func _play_account(register: bool) -> void:
 	_pass.text = ""
 	GameClient.start_remote(_host.text.strip_edges(), int(_port.value), u if not u.is_empty() else _player_name(), _avatar, acc)
 	get_tree().change_scene_to_file("res://ui/game.tscn")
+
+
+## Demo de cuentas (registro, login y JWT) con el servidor embebido.
+func _open_account_demo() -> void:
+	_save_settings()
+	var d: Control = preload("res://ui/account_demo.gd").new()
+	d.avatar = _avatar
+	d.default_user = _player_name()
+	add_child(d)
 
 
 func _confirm_fresh() -> void:
