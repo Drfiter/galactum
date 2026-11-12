@@ -185,11 +185,73 @@ func _build_granted() -> void:
 	tamper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tamper.pressed.connect(_try_tampered)
 	row.add_child(tamper)
+	var data_btn := UI.button(U.t("Ver datos guardados"), "GhostButton", "ui_reports", Vector2(0, 60))
+	data_btn.name = "ShowData"
+	data_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	data_btn.pressed.connect(_build_saved_data)
+	row.add_child(data_btn)
 	var enter := UI.button(U.t("ENTRAR AL JUEGO"), "GreenButton", "ui_ship", Vector2(0, 60))
 	enter.name = "Enter"
 	enter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	enter.pressed.connect(_enter)
 	row.add_child(enter)
+	_box.add_child(row)
+
+
+# ---------------------------------------------------------------- 3. datos guardados
+
+const SAVE_FILE: String = "user://galactum_cuentas.json"
+
+
+## Lee la cuenta desde el archivo que escribe el servidor (no desde memoria),
+## para mostrar exactamente lo que quedó persistido.
+func _build_saved_data() -> void:
+	if GameClient.local_server != null and is_instance_valid(GameClient.local_server):
+		GameClient.local_server.save()
+	_header(U.t("ASÍ QUEDÓ GUARDADO"), "ui_reports")
+	var path: String = ProjectSettings.globalize_path(SAVE_FILE)
+	_box.add_child(UI.wrap(UI.label(U.t("Archivo del servidor: %s") % path, 13, UI.TEXT_MUTED)))
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(SAVE_FILE))
+	var acc: Dictionary = {}
+	var player: Dictionary = {}
+	if parsed is Dictionary:
+		acc = (parsed as Dictionary).get("accounts", {}).get(str(_info.get("username", "")).to_lower(), {})
+		player = (parsed as Dictionary).get("players", {}).get(str(acc.get("player_id", "")), {})
+	if acc.is_empty():
+		_box.add_child(UI.label(U.t("No se encontró la cuenta en el archivo."), 15, UI.RED))
+	else:
+		var shown: Dictionary = {}
+		for k: String in ["username", "player_id", "salt", "hash"]:
+			shown[k] = acc.get(k)
+		for k2: String in ["iter", "failed", "locked_until"]:
+			shown[k2] = int(acc.get(k2, 0))
+		var refresh: Array = []
+		for h: String in acc.get("refresh", {}):
+			refresh.append(h.substr(0, 16) + "…")
+		shown["refresh (hash)"] = refresh
+		var code := RichTextLabel.new()
+		code.bbcode_enabled = true
+		code.fit_content = true
+		code.scroll_active = false
+		code.custom_minimum_size.x = 700
+		code.add_theme_font_size_override("mono_font_size", 15)
+		code.text = "[code]" + JSON.stringify(shown, "  ", false).replace("[", "[lb]") + "[/code]"
+		var box := UI.panel("Chip")
+		box.add_child(code)
+		_box.add_child(box)
+		var res: Dictionary = player.get("resources", {})
+		_box.add_child(UI.label(U.t("Su comandante en el mismo archivo: %s · Créditos %s · Mineral %s") % [str(player.get("name", "")), U.fmt_int(int(res.get("credits", 0))), U.fmt_int(int(res.get("ore", 0)))], 14, UI.GOLD))
+	_box.add_child(UI.wrap(UI.label(U.t("La contraseña no aparece en ninguna parte: solo la sal y el hash. «failed» cuenta los intentos fallidos y el token de renovación también se guarda como hash."), 14, UI.TEXT_DIM)))
+	var row := UI.hbox(10)
+	var folder := UI.button(U.t("Abrir carpeta"), "GhostButton", "ui_inventory", Vector2(0, 56))
+	folder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	folder.pressed.connect(func() -> void: OS.shell_open(ProjectSettings.globalize_path("user://")))
+	row.add_child(folder)
+	var back := UI.button(U.t("Volver"), "PrimaryButton", "ui_back", Vector2(0, 56))
+	back.name = "Back"
+	back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back.pressed.connect(_build_granted)
+	row.add_child(back)
 	_box.add_child(row)
 
 
