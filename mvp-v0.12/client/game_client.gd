@@ -19,6 +19,8 @@ signal chat_received(message: Dictionary)
 signal fx(kind: String, pos: Vector2, own: bool)
 signal request_done(request_id: String, ok: bool, payload: Dictionary)
 signal system_changed(info: Dictionary)
+## Resultado de registro/login (ok, datos del token o mensaje de error).
+signal auth_result(ok: bool, info: Dictionary)
 
 var link: RefCounted
 var local_server: Node
@@ -30,6 +32,9 @@ var avatar: String = "p01"
 ## reanudar la sesión guardada (token de renovación) o el modo demo.
 var account: Dictionary = {}
 var access_token: String = ""
+## Modo «Jugar con cuenta»: tras iniciar sesión se espera a que el jugador
+## pulse «Entrar» antes de enviar el hello con el token.
+var hold_hello: bool = false
 var _host_key: String = ""
 const SESSION_PATH: String = "user://session.cfg"
 
@@ -65,6 +70,9 @@ func start_local(name: String, avatar_id: String, fresh: bool = false) -> void:
 	disconnect_all()
 	commander_name = name
 	avatar = avatar_id
+	account = {}
+	access_token = ""
+	hold_hello = false
 	mode = "local"
 	local_server = GameServerScript.new()
 	local_server.name = "LocalGameServer"
@@ -78,11 +86,57 @@ func start_local(name: String, avatar_id: String, fresh: bool = false) -> void:
 	l.open(local_server)
 
 
+## «Jugar con cuenta»: servidor embebido que exige cuenta (JWT), con su propio
+## guardado para que las cuentas se conserven entre sesiones. Sirve para mostrar
+## el registro, el inicio de sesión y la validación del token sin red.
+func start_local_accounts(account_info: Dictionary, avatar_id: String) -> void:
+	disconnect_all()
+	commander_name = str(account_info.get("username", ""))
+	avatar = avatar_id
+	account = account_info
+	access_token = ""
+	hold_hello = true
+	_host_key = "local_accounts"
+	mode = "local"
+	local_server = GameServerScript.new()
+	local_server.name = "LocalGameServer"
+	add_child(local_server)
+	local_server.start({"persist": true, "save_path": "user://galactum_cuentas.json", "require_auth": true})
+	var l := LocalLink.new()
+	_wire(l)
+	link = l
+	l.open(local_server)
+
+
+## Envía el hello con el token recibido (o con otro, para probar que el
+## servidor rechaza un token alterado).
+func enter_with_token(token: String = "") -> void:
+	hold_hello = false
+	if link == null:
+		return
+	link.send({"type": "hello", "protocol": PROTOCOL, "name": commander_name, "avatar": avatar, "token": token if not token.is_empty() else access_token})
+
+
+## Partes de un JWT y su contenido decodificado (solo para mostrarlo).
+static func decode_jwt(token: String) -> Dictionary:
+	var parts: PackedStringArray = token.split(".")
+	if parts.size() != 3:
+		return {}
+	var out: Dictionary = {"header": parts[0], "payload": parts[1], "signature": parts[2]}
+	var b64: String = parts[1].replace("-", "+").replace("_", "/")
+	while b64.length() % 4 != 0:
+		b64 += "="
+	var data: Variant = JSON.parse_string(Marshalls.base64_to_raw(b64).get_string_from_utf8())
+	out["data"] = data if data is Dictionary else {}
+	return out
+
+
 func start_remote(host: String, port: int, name: String, avatar_id: String, account_info: Dictionary = {}) -> void:
 	disconnect_all()
 	commander_name = name
 	avatar = avatar_id
 	account = account_info
+	hold_hello = false
 	var url: String = ws_url(host, port)
 	_host_key = url.md5_text().substr(0, 16)
 	mode = "remote"
@@ -126,12 +180,12 @@ func disconnect_all() -> void:
 
 
 func _on_open() -> void:
+	if not account.is_empty() and account.has("password"):
+		var action: String = "register" if bool(account.get("register", false)) else "login"
+		link.send({"type": action, "username": str(account.get("username", "")), "password": str(account.get("password", "")), "avatar": avatar})
+		account.erase("password")   # la contraseña no queda en memoria
+		return
 	if mode == "remote":
-		if not account.is_empty():
-			var action: String = "register" if bool(account.get("register", false)) else "login"
-			link.send({"type": action, "username": str(account.get("username", "")), "password": str(account.get("password", "")), "avatar": avatar})
-			account.erase("password")   # la contraseña no queda en memoria
-			return
 		var saved: String = saved_refresh_token()
 		if not saved.is_empty():
 			link.send({"type": "refresh", "refresh_token": saved})
@@ -175,11 +229,16 @@ func _on_auth(msg: Dictionary) -> void:
 		access_token = str(msg.get("access_token", ""))
 		_store_refresh_token(str(msg.get("refresh_token", "")))
 		commander_name = str(msg.get("username", commander_name))
-		_send_hello()
+		auth_result.emit(true, {"action": msg.get("action", ""), "username": commander_name, "access_token": access_token,
+			"expires_in": int(msg.get("expires_in", 0)), "player_id": str(msg.get("player_id", ""))})
+		if not hold_hello:
+			_send_hello()
 	elif not bool(msg.get("ok", false)):
 		if str(msg.get("action", "")) == "refresh":
 			_store_refresh_token("")
-		connection_changed.emit("error", str(msg.get("message", U.t("No se pudo iniciar sesión"))))
+		auth_result.emit(false, {"action": msg.get("action", ""), "code": str(msg.get("code", "")), "message": str(msg.get("message", ""))})
+		if not hold_hello:
+			connection_changed.emit("error", str(msg.get("message", U.t("No se pudo iniciar sesión"))))
 
 
 func _on_closed(reason: String) -> void:
@@ -302,7 +361,7 @@ func _on_message(msg: Dictionary) -> void:
 			var rid: String = str(msg.get("request_id", ""))
 			if rid.is_empty():
 				toast.emit(str(msg.get("message", "Error")), "error")
-				if str(msg.get("code", "")) in ["PROTOCOL_MISMATCH", "AUTH_REQUIRED"]:
+				if str(msg.get("code", "")) in ["PROTOCOL_MISMATCH", "AUTH_REQUIRED", "AUTH_INVALID_TOKEN"]:
 					connection_changed.emit("error", str(msg.get("message", "")))
 			_resolve(rid, false, msg)
 		"pong":
