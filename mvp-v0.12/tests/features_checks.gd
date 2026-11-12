@@ -433,6 +433,21 @@ func test_progression() -> void:
 	var f: Dictionary = srv.fleets.fleets().get(str(r.get("fleet_id", "")), {})
 	var base_pve: float = float(Eco.combat_mods(p, false)["pve_damage"])
 	check(r.get("type") == "ack" and f.get("formation", "") == "hunter" and absf(float(f["mods"]["pve_damage"]) - base_pve - 0.15) < 0.0001, "la formación Cacería suma +15%% de daño contra Xenoformas a la flota")
+	# La ventana de flota estima la llegada con la formación elegida (Cuña: +15% de velocidad).
+	const FleetDialog = preload("res://ui/panels/fleet_dialog.gd")
+	const Resolver = preload("res://server/combat/combat_resolver.gd")
+	srv.fleets.fleets().erase(str(r.get("fleet_id", "")))
+	p["tech"]["formation_wedge"] = 1
+	p["resources"]["energy"] = 100
+	var w_stacks: Dictionary = {"infantry_1": 20}
+	r = intent("march", {"mission": "hunt", "target_id": x["id"], "troops": w_stacks, "formation": "wedge"})
+	var fw: Dictionary = srv.fleets.fleets().get(str(r.get("fleet_id", "")), {})
+	var view_mods: Dictionary = srv.player_view(p)["mods"]
+	var base_speed: float = Resolver.speed_of(w_stacks) * float(Catalog.cfg("march_speed_tiles_per_sec", 1.6))
+	var ui_speed: float = base_speed * (1.0 + float(FleetDialog.with_formation(view_mods, "wedge")["march_speed"]))
+	var plain_speed: float = base_speed * (1.0 + float(view_mods["march_speed"]))
+	check(r.get("type") == "ack" and absf(ui_speed - float(fw.get("speed", 0.0))) < 0.0001 and ui_speed > plain_speed, "la ventana de flota estima la velocidad con la formación Cuña igual que el servidor (%.3f = %.3f)" % [ui_speed, float(fw.get("speed", 0.0))])
+	srv.fleets.fleets().erase(str(r.get("fleet_id", "")))
 
 
 # ---------------------------------------------------------------- fase 6
