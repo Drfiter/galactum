@@ -130,7 +130,7 @@ Abre la carpeta `mvp-v0.12` en Visual Studio Code; te sugerirá la extensión **
 
 ## 4. Exportar a Android (APK)
 
-**Instalar el APK ya compilado:** el más reciente es `releases/android/Galactum-2026-11-10-v0.12.3.apk` (v0.12.3, con todo lo de noviembre). Si tienes instalada la versión del 25/10, desinstálala primero: el APK nuevo está firmado con otra clave. Cópialo al teléfono (o descárgalo directo en él), ábrelo y, cuando Android lo pida, permite *Instalar apps desconocidas* para esa app (Archivos/Chrome). Requiere Android 7.0+ (ARM 32/64 bits). Se juega en horizontal y sin conexión.
+**Instalar el APK ya compilado:** el más reciente es `releases/android/Galactum-2026-11-12-v0.12.4.apk` (v0.12.4: todo lo de noviembre más JUGAR CON CUENTA). Se instala encima del v0.12.3. Si tienes la versión del 25/10, desinstálala primero: está firmada con otra clave. Cópialo al teléfono (o descárgalo directo en él), ábrelo y, cuando Android lo pida, permite *Instalar apps desconocidas* para esa app (Archivos/Chrome). Requiere Android 7.0+ (ARM 32/64 bits). Se juega en horizontal y sin conexión.
 
 **Exportarlo tú mismo:**
 
