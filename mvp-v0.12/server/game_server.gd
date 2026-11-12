@@ -482,7 +482,11 @@ func _on_hello(s: Dictionary, msg: Dictionary) -> void:
 	if not pid.is_empty():
 		p = player(pid)
 	elif require_auth:
-		_send(s, {"type": "error", "code": "AUTH_REQUIRED", "message": U.t("Inicia sesión: el servidor exige una cuenta")})
+		if token.count(".") == 2:
+			# Trae un JWT, pero la firma no coincide o ya venció.
+			_send(s, {"type": "error", "code": "AUTH_INVALID_TOKEN", "message": U.t("Token inválido o vencido: inicia sesión de nuevo")})
+		else:
+			_send(s, {"type": "error", "code": "AUTH_REQUIRED", "message": U.t("Inicia sesión: el servidor exige una cuenta")})
 		return
 	else:
 		# Modo local / demo: el comandante se identifica por su nombre.
