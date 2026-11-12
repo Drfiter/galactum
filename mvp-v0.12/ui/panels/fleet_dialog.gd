@@ -178,6 +178,19 @@ func _capacity() -> int:
 	return int(GameClient.me.get("caps", {}).get("march_capacity", 150))
 
 
+## Bonos del jugador más los de la formación elegida, igual que los suma el
+## servidor al despegar (fleets.gd, start_march). Así la llegada y el daño
+## estimados cambian al elegir, por ejemplo, Cuña (+15% de velocidad).
+static func with_formation(mods: Dictionary, formation: String) -> Dictionary:
+	var out: Dictionary = mods.duplicate()
+	for f: Dictionary in Catalog.troops.get("formations", []):
+		if str(f["id"]) == formation:
+			for k: String in f.get("mods", {}):
+				if out.has(k):
+					out[k] = float(out[k]) + float(f["mods"][k])
+	return out
+
+
 ## Formación de combate: bonos y penalizaciones para esta flota.
 func _formation_picker() -> Control:
 	if mission == "hunt":
@@ -204,7 +217,9 @@ func _formation_picker() -> Control:
 			desc.text = fdesc
 			for ch: Node in flow.get_children():
 				(ch as Button).theme_type_variation = "TabButton"
-			b.theme_type_variation = "PrimaryButton")
+			b.theme_type_variation = "PrimaryButton"
+			if _summary != null:
+				_refresh())
 		if fid == _formation:
 			desc.text = fdesc
 		flow.add_child(b)
@@ -346,7 +361,7 @@ func _refresh() -> void:
 		if int(_sel[k]) > 0:
 			stacks[k] = int(_sel[k])
 	var total: int = _total()
-	var mods: Dictionary = GameClient.me.get("mods", {})
+	var mods: Dictionary = with_formation(GameClient.me.get("mods", {}), _formation)
 	var load: int = Resolver.load_of(stacks, float(mods.get("load", 0.0)))
 	var speed: float = Resolver.speed_of(stacks) * float(Catalog.cfg("march_speed_tiles_per_sec", 1.6)) * (1.0 + float(mods.get("march_speed", 0.0)))
 	var dist: float = GameClient.base_pos().distance_to(GameClient.entity_position(entity))
