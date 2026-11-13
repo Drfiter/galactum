@@ -370,6 +370,18 @@ func test_rally_and_reinforcements() -> void:
 	check(ds.has(rf["id"]), "los refuerzos defienden junto a las tropas del aliado")
 	r = intent("recall", {"fleet_id": rf["id"]})
 	check(r.get("type") == "ack" and rf["state"] == "returning", "se pueden retirar los refuerzos")
+	# Dos flotas de refuerzo enviadas a la vez no pueden superar la capacidad de la nave aliada.
+	for of: Dictionary in srv.fleets.owned_fleets(p["id"]):
+		srv.fleets.fleets().erase(of["id"])
+	p["rooms"]["fleet_hq"]["level"] = 15
+	p["rooms"]["bridge"]["level"] = 10
+	var room_left: int = srv.rally.reinforce_capacity(host) - srv.rally.stationed_total(host["id"])
+	p["troops"]["infantry_1"] = room_left + 500
+	var ra: Dictionary = intent("march", {"mission": "reinforce", "target_id": hb["id"], "troops": {"infantry_1": room_left - 20}})
+	var rb: Dictionary = intent("march", {"mission": "reinforce", "target_id": hb["id"], "troops": {"infantry_1": 100}})
+	check(ra.get("type") == "ack" and rb.get("code", "") == "CAPACITY", "los refuerzos en camino cuentan para la capacidad de la nave aliada (2.º envío: %s)" % str(rb.get("code", rb.get("type", ""))))
+	for of2: Dictionary in srv.fleets.owned_fleets(p["id"]):
+		srv.fleets.fleets().erase(of2["id"])
 	var v: Dictionary = srv.player_view(p).get("alliance_hq", {})
 	check(v.has("rallies") and v.has("reinforcements_here") and v.has("treasury") and v.has("permissions"), "la vista del cliente incluye Asedios, refuerzos, Tesorería y permisos")
 
