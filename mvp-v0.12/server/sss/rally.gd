@@ -321,14 +321,25 @@ func stationed_total(host_id: String) -> int:
 	return n
 
 
+## Tropas de refuerzo que ya van en camino hacia la nave de `host_id`.
+func incoming_total(host_id: String) -> int:
+	var n: int = 0
+	for f: Dictionary in srv.fleets.fleets().values():
+		if f.get("mission", "") == "reinforce" and f.get("state", "") == "outbound" and str(f.get("target_owner", "")) == host_id:
+			n += Eco.troops_total(f["troops"])
+	return n
+
+
 ## Validación al enviar una flota de refuerzo (mission "reinforce").
+## Cuenta también los refuerzos en camino: antes, varias flotas enviadas
+## a la vez superaban la capacidad de la nave aliada al llegar.
 func validate_reinforce(p: Dictionary, target: Dictionary, troops: Dictionary) -> Dictionary:
 	if target["kind"] != "base" or target["owner"] == p["id"]:
 		return _err("INVALID_TARGET", U.t("Solo puedes reforzar la nave de un aliado"))
 	var host: Dictionary = srv.player(target["owner"])
 	if str(host.get("tag", "")) != str(p.get("tag", "")) or str(p.get("tag", "")).is_empty():
 		return _err("NOT_ALLY", U.t("Solo puedes reforzar a miembros de tu Alianza"))
-	if stationed_total(host["id"]) + Eco.troops_total(troops) > reinforce_capacity(host):
+	if stationed_total(host["id"]) + incoming_total(host["id"]) + Eco.troops_total(troops) > reinforce_capacity(host):
 		return _err("CAPACITY", U.t("La nave aliada no admite más refuerzos (%d)") % reinforce_capacity(host))
 	return {}
 
