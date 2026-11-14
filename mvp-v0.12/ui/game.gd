@@ -631,7 +631,7 @@ func build_entity_card(c: VBoxContainer, e: Dictionary) -> void:
 			var weak: String = str(sp.get("weakness", "fisica"))
 			var info2 := UI.hbox(18)
 			info2.add_child(_stat(U.t("Debilidad"), U.t("Física (+50%)") if weak == "fisica" else U.t("Energética (+50%)"), "ui_target"))
-			info2.add_child(_stat(U.t("Energía"), "%d" % int(Catalog.xeno_level(lvl2).get("energy", 10)), "res_energy"))
+			info2.add_child(_stat(U.t("Energía"), "%d" % GameClient.hunt_energy_cost(lvl2), "res_energy"))
 			info2.add_child(_stat(U.t("Botín"), U.t("MO, Créditos, Elementos"), "ui_gift"))
 			c.add_child(info2)
 			var tip: String = U.t("Envía Infantería/Cañoneros/Escudos (daño físico)") if weak == "fisica" else U.t("Envía Drones y Pilotos (daño energético)")

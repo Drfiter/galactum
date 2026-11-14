@@ -921,6 +921,7 @@ func _guild_brief(p: Dictionary) -> Dictionary:
 func _event_brief(p: Dictionary) -> Dictionary:
 	var d: Dictionary = events.data()
 	return {"resource": str(events.resource_def().get("name", "")), "resource_end": int(d["resource"].get("end", 0)),
+		"effects": events.resource_def().get("effects", {}),
 		"tournament": str(events.tournament_def().get("name", "")), "tournament_end": int(d["tournament"].get("end", 0)),
 		"my_rank": events.rank_of(p["id"]), "my_points": int(d["tournament"].get("scores", {}).get(p["id"], 0.0))}
 

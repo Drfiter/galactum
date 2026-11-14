@@ -399,6 +399,13 @@ func current_energy() -> int:
 	return mini(mx, base + maxi(0, gained))
 
 
+## Energía que cobrará el servidor por cazar una xenoforma de ese nivel,
+## incluido el descuento del evento activo (Temporada de Caza).
+func hunt_energy_cost(level: int) -> int:
+	var eff: Dictionary = me.get("event_brief", {}).get("effects", {})
+	return Catalog.hunt_energy_cost(level, float(eff.get("hunt_energy", 0.0)))
+
+
 func can_afford(cost: Dictionary, factor: float = 1.0) -> bool:
 	for k: String in cost:
 		if res(k) < int(ceil(float(cost[k]) * factor)):

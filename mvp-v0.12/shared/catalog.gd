@@ -290,6 +290,13 @@ func xeno_level(level: int) -> Dictionary:
 	return {}
 
 
+## Energía que cuesta cazar una xenoforma del nivel dado. `event_factor` es el
+## efecto "hunt_energy" del evento activo (p. ej. -0.3 en Temporada de Caza).
+## Lo usan el servidor (cobro) y el cliente (lo que se muestra).
+func hunt_energy_cost(level: int, event_factor: float = 0.0) -> int:
+	return maxi(1, int(round(float(xeno_level(level).get("energy", 10)) * (1.0 + event_factor))))
+
+
 func asteroid_level(level: int) -> Dictionary:
 	for l: Dictionary in asteroids.get("levels", []):
 		if int(l["level"]) == level:

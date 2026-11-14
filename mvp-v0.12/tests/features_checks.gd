@@ -505,6 +505,21 @@ func test_liveops() -> void:
 	var pp0: int = int(srv.liveops.ensure(p)["pass"]["points"])
 	srv.on_activity(p, "xeno_kill", 2.0)
 	check(float(srv.liveops.festival(str(p["tag"]))["progress"].get("f_hunt", 0.0)) >= 1.0 and int(srv.liveops.ensure(p)["pass"]["points"]) > pp0, "sin Singularidad activa, cazar suma al Pase y al Festival (antes se cortaba)")
+	# Temporada de Caza: la ventana de flota muestra el mismo coste de Energía que cobra el servidor.
+	var res_ev: Dictionary = srv.events.data()["resource"]
+	var prev_ev: String = str(res_ev.get("id", ""))
+	res_ev["id"] = "hunting_season"
+	srv.events._apply_global_mods()
+	var lvl_x: int = 3
+	var base_cost: int = int(Catalog.xeno_level(lvl_x).get("energy", 10))
+	var server_cost: int = srv.fleets.hunt_energy(lvl_x)
+	var prev_me: Dictionary = GameClient.me
+	GameClient.me = srv.player_view(p)
+	var client_cost: int = GameClient.hunt_energy_cost(lvl_x)
+	GameClient.me = prev_me
+	check(server_cost < base_cost and client_cost == server_cost, "Temporada de Caza: el cliente muestra el coste de Energía rebajado que cobra el servidor (%d = %d, sin evento %d)" % [client_cost, server_cost, base_cost])
+	res_ev["id"] = prev_ev
+	srv.events._apply_global_mods()
 
 
 func test_expeditions() -> void:
